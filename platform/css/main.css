@@ -1,0 +1,1846 @@
+/* ========================================= */
+/* === MAIN.CSS - Base Styles, Layout & Typography === */
+/* ========================================= */
+/*
+ * This file contains:
+ * - Global base styles (body, html, typography)
+ * - Layout containers and positioning
+ * - Font families and text styling
+ * - Basic element styling
+ * - Utility classes
+ * - Responsive breakpoints
+ * - Color variables
+ * 
+ * Extracted from index2.html lines 441-7625
+ */
+
+/* === CSS Variables === */
+:root {
+    --bg-color: #f5f5f3;
+    --text-color: #333;
+    --primary-color: #6a7a7d;
+    --secondary-color: #8f8f8f;
+    --accent-color: #8c9ea1;
+    --line-color: #c5c5c5;
+    --shadow-color: rgba(0, 0, 0, 0.05);
+    --highlight-bg-writing: rgba(230, 240, 245, 0.6);
+    --highlight-bg-reading: rgba(245, 240, 230, 0.6);
+    --font-main: 'Noto Serif TC', 'cwTeXHei', 'cwTeXFangSong', 'cwTeXKai', 'cwTeXMing', 'PingFang TC', 'Microsoft JhengHei', serif;
+    
+    /* Morandi color scheme */
+    --morandi-bg: #fdfcf8;
+    --morandi-text: #5e5e5e;
+    --morandi-green: #8fa398;
+    --morandi-blue: #94a7b5;
+    --morandi-purple: #b6a6ca;
+    --morandi-red: #d69a92;
+    --morandi-border: #e0ddd7;
+    --morandi-shadow: rgba(149, 157, 165, 0.1);
+    
+    --m-color-1: #8fa398; /* 灰綠 */
+    --m-color-2: #94a7b5; /* 霧霾藍 */
+    --m-color-3: #b6a6ca; /* 香芋紫 */
+    --m-color-4: #d69a92; /* 豆沙紅 */
+    --m-color-5: #c7b299; /* 奶茶棕 */
+    
+    --bookmark-color: #E0B0A8;
+}
+
+/* ========================================= */
+/* === MAIN.CSS - Base Styles, Layout & Typography === */
+/* ========================================= */
+
+/* === 全局基礎設定 === */
+body {
+    font-family: 'Noto Serif TC', 'cwTeXHei', 'cwTeXFangSong', 'cwTeXKai', 'cwTeXMing', 'PingFang TC', 'Microsoft JhengHei', serif;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background: url('背景.png') center/cover fixed;
+    padding-bottom: 60px; /* 為頁面內容設置底部內邊距，避免被音樂播放器遮擋 */
+    transition: background-image 0.6s ease-in-out, background-color 0.6s ease-in-out;}
+
+h1 {
+    text-align: center;
+    color: #333;}
+
+/* === 通用容器與佈局 === */
+.box {
+    background: rgba(220, 220, 220, 0.96);
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin: 15px 0;}
+
+.category {
+    margin-bottom: 20px;}
+
+.category h3 {
+    font-size: 18px;
+    margin-bottom: 10px;
+    color: #fff; /* 白色文字，適配深色背景 */
+    text-align: left;}
+
+/* 手機設備調整 */
+@media (max-width: 600px) {
+    .category {
+        padding-left: 25px; /* 增加左內邊距，讓按鍵遠離左邊緣 */}
+
+.category h3 {
+        font-size: 16px; /* 保留標題字體大小 */}
+
+/* 平板設備調整 */
+@media (max-width: 768px) {
+    .sun {
+        left: 5%;
+        top: 5%;
+        width: 100px;
+        height: 100px;}
+
+/* 手機設備調整 */
+@media (max-width: 480px) {
+    .sun {
+        left: 2%;
+        top: 2%;
+        width: 80px;
+        height: 80px;}
+
+100% { box-shadow: 0 0 40px yellow;}
+
+/* === 標題樣式 === */
+.title-container {
+    background: none;
+    padding: 0;
+    position: relative;
+    margin-bottom: 3rem;
+    text-align: center;}
+
+th, td {
+    border: 1px solid #ccc;
+    padding: 10px;
+    text-align: left;
+    vertical-align: top;
+    word-break: break-word;}
+
+th {
+    background: #f0f0f0;}
+
+to { opacity: 1;}
+
+/* === 工具列表 === */
+#toolsContainer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    overflow: hidden; /* 隱藏頁面滾動條 */}
+
+#commentResult {
+    width: 100%;
+    overflow-wrap: break-word;}
+
+#writingContainer, #readingContainer, #booksContainer, #expandContainer, #argumentContainer {
+    display: none;}
+
+/* === 音樂播放器樣式優化 === */
+#music-player {
+    position: fixed;
+    bottom: 0px;
+    left: 0;
+    width: 100%;
+    background-color: rgba(40, 40, 40, 0.95); /* 深色半透明背景 */
+    backdrop-filter: blur(5px);
+    color: white;
+    padding: 10px 15px;
+    display: none; /* 預設隱藏 */
+    align-items: center;
+    justify-content: space-between;
+    z-index: 1002;
+    box-sizing: border-box;
+    font-size: 14px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 -4px 10px rgba(0,0,0,0.3);}
+
+#music-player .controls { 
+    display: flex; 
+    align-items: center; 
+    flex-shrink: 0; 
+    gap: 10px;}
+
+#music-player .progress { 
+    flex: 1; 
+    margin: 0 15px; 
+    display: flex; 
+    align-items: center;}
+
+#music-player .mode { 
+    margin-left: 10px; 
+    flex-shrink: 0;}
+
+/* 懸浮顯示按鈕 (替代原本的鋼琴 Emoji) */
+#show-player {
+    position: fixed;
+    bottom: 25px;
+    right: 20px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: rgba(30, 30, 30, 0.9);
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    cursor: pointer;
+    z-index: 1003;
+    font-size: 20px;
+    display: none; /* JS 會控制顯示 */
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    backdrop-filter: blur(5px);
+    padding: 0;}
+
+@media (max-width: 600px) {
+    #music-player { flex-wrap: wrap; padding: 5px;}
+
+#progress-bar-music {
+        height: 10px;
+        -webkit-appearance: none;
+        appearance: none;
+        background: #ddd;
+        border-radius: 5px;}
+
+#progress-bar-music::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 20px;
+        height: 20px;
+        background: #007bff;
+        border-radius: 50%;
+        cursor: pointer;}
+
+#progress-bar-music::-moz-range-thumb {
+        width: 20px;
+        height: 20px;
+        background: #007bff;
+        border-radius: 50%;
+        cursor: pointer;}
+
+/* --- Styles for Tool 2 (語薈) --- */
+:root {
+    --bg-color: #f5f5f3;
+    --text-color: #333;
+    --primary-color: #6a7a7d;
+    --secondary-color: #8f8f8f;
+    --accent-color: #8c9ea1;
+    --line-color: #c5c5c5;
+    --shadow-color: rgba(0, 0, 0, 0.05);
+    --highlight-bg-writing: rgba(230, 240, 245, 0.6);
+    --highlight-bg-reading: rgba(245, 240, 230, 0.6);
+    --font-main: 'Noto Serif TC', 'cwTeXHei', 'cwTeXFangSong', 'cwTeXKai', 'cwTeXMing', 'PingFang TC', 'Microsoft JhengHei', serif;}
+
+#toolsContainer2 {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--bg-color);
+    z-index: 1005;
+    overflow-y: auto;
+    display: none;
+    padding: 2rem 1rem;
+    box-sizing: border-box;
+    justify-content: center;}
+
+.main-container.loaded { opacity: 1;}
+
+.node a {
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.95rem;
+    gap: 8px;
+    width: 100%;}
+
+#toolsContainer2 .category {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 0; /* Reset margin for this context */}
+
+#writing, #reading {
+    padding: 20px;
+    border-radius: 12px;}
+
+#writing { background-color: var(--highlight-bg-writing);}
+
+#reading { background-color: var(--highlight-bg-reading);}
+
+.category-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    padding-bottom: 5px;
+    border-bottom: 2px solid var(--accent-color);
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;}
+
+.sub-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    width: 100%;}
+
+.sub-group-title {
+    font-weight: bold;
+    color: var(--secondary-color);
+    font-size: 0.9rem;
+    position: relative;
+    padding-bottom: 5px;
+    margin-bottom: 5px;}
+
+.node.level-2 { font-size: 0.9rem;}
+
+.node.level-3 { font-size: 0.85rem; padding: 6px 10px;}
+
+.node.level-3 a { font-weight: 400; flex-direction: row;}
+
+.connector-svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    pointer-events: none;}
+
+.connector-svg line {
+    stroke: var(--line-color);
+    stroke-width: 1.5;
+    stroke-dasharray: 4;
+    animation: dash 1s linear infinite;}
+
+#yuyilu-toggle { cursor: pointer;}
+
+.yuyilu-grades.collapsed {
+    max-height: 0;
+    opacity: 0;
+    pointer-events: none;}
+
+.foundation-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;}
+
+@media (max-width: 768px) {
+    #toolsContainer2 { padding: 1rem 0.5rem;}
+
+#foundations {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: flex-start;
+        width: 90%;
+        margin: 0 auto;
+        gap: 10px;}
+
+#writing, #reading { padding: 15px;}
+
+#previewIframe {
+    width: 100%;
+    flex-grow: 1; /* 佔據大部分空間 */
+    border: none;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+    min-height: 60%; /* 確保預覽畫面有足夠高度 */}
+
+.preview-description {
+    font-size: 0.95rem;
+    color: #333;
+    line-height: 1.6;
+    text-align: left;
+    flex-grow: 1;}
+
+/* 為各個功能容器內的主要區塊（div）增加統一的下間距 */
+#writingContentContainer > div,
+#expandContentContainer > div,
+#argumentContentContainer > div {
+    margin-bottom: 30px;}
+
+/* 清除最後一個元素的下邊距 */
+#writingContentContainer > div:last-child,
+#expandContentContainer > div:last-child,
+#argumentContentContainer > div:last-child {
+    margin-bottom: 0;}
+
+/* --- 改寫說明 UI --- */
+.rewrite-explanation-container { margin-top: 20px;}
+
+.explanation-point {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 15px;}
+
+.explanation-point:last-child { margin-bottom: 0;}
+
+.explanation-number {
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+     background-color: #6996b8 !important; 
+box-shadow: 0 2px 5px rgba(0,0,0,0.15) !important;
+    color: white;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    margin-right: 15px;
+    font-size: 1em;}
+
+.explanation-text {
+    font-size: 1em;
+    line-height: 1.6;
+    color: #495057;}
+
+/* --- 題目顯示區塊樣式 --- */
+#topicResult, #argumentTopicResult, #expandTopicResult {
+    position: relative;
+    padding: 12px 15px;
+    margin-bottom: 20px;
+    border-left: 5px solid #2A9689;
+    border-radius: 4px;
+    font-size: 1em;
+    display: none;
+    background-color: transparent !important; /* 強制容器本身透明 */
+    z-index: 0;}
+
+#topicResult::before,
+#argumentTopicResult::before,
+#expandTopicResult::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(54, 187, 167, 0.5); /* 半透明背景 */
+    border-radius: inherit;
+    z-index: -1;}
+
+#topicResult td, #argumentTopicResult td, #expandTopicResult td { background-color: #ffffff !important;}
+
+#topicResult th, #argumentTopicResult th, #expandTopicResult th { background-color: #f0f0f0 !important;}
+
+#topicResult:not(:empty), #argumentTopicResult:not(:empty), #expandTopicResult:not(:empty) { display: block;}
+
+/* --- 剩餘字數計數器 --- */
+#charCount {
+    margin-top: 0px;
+    margin-bottom: 20px;
+    text-align: right;
+    font-size: 0.9em;
+    color: #666;}
+
+/* ========================================= */
+/* === [修訂 V2] 書籍討論資訊卡片優化 === */
+/* ========================================= */
+.discussion-info {
+    text-align: left;
+    background-color: #fdfcf8;
+    border: 2px solid #e0ddd7;
+    color: #495057;
+    padding: 20px;
+    border-radius: 12px;
+    margin: 10px auto 30px auto;
+    
+    /* [電腦端修正] 行距由 2.0 減為 1.5，讓視覺更緊湊 */
+    line-height: 1.5; 
+    
+    width: 100%;
+    box-sizing: border-box;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    font-family: 'Noto Serif TC', serif;}
+
+.discussion-info td {
+    border: none;
+    
+    /* [電腦端修正] 上下內距由 10px 減半為 5px */
+    padding: 5px 8px; 
+    
+    vertical-align: top; /* 保持靠上對齊 */
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    font-size: 1.1rem;}
+
+/* 標籤欄位 (左側：書名、作者...) */
+.discussion-info td:first-child {
+    width: 60px; /* 稍微縮窄標籤欄寬度 */
+    font-weight: bold;
+    color: #2A9689;
+    white-space: nowrap;
+    
+    /* [電腦端保持] 讓「書名」二字左右對齊，比較美觀 */
+    text-align: justify;
+    text-align-last: justify;}
+
+/* ========================================= */
+/* === [手機版專用修復] === */
+/* ========================================= */
+@media (max-width: 600px) {
+    .discussion-info {
+        padding: 15px; /* 手機版內距縮小 */}
+
+/* 1. 修復手機標籤文字被拉寬的問題 */
+    .discussion-info td:first-child {
+        text-align: left !important;      /* [關鍵修正] 強制靠左，取消左右對齊 */
+        text-align-last: auto !important; /* [關鍵修正] 重置末行對齊 */
+        
+        color: #007bff; /* 藍色標籤 */
+        font-size: 0.95rem;
+        
+        /* 讓標籤和內容靠得更近 */
+        padding-bottom: 2px; 
+        padding-top: 10px;
+        margin-bottom: 0;
+        border-bottom: none; /* 移除分隔線，讓視覺更連貫 */}
+
+/* 2. 內容部分 (書名本體) */
+    .discussion-info td:last-child {
+        padding-top: 0;
+        padding-bottom: 10px; /* 每個欄位之間的距離 */
+        padding-left: 0;
+        border-bottom: 1px dashed #eee; /* 在內容下方加分隔線 */}
+
+/* 最後一個欄位不需要底線 */
+    .discussion-info tr:last-child td:last-child {
+        border-bottom: none;
+        padding-bottom: 0;}
+
+#structure, #writingTone, #writingReviewer, #readingTone, #booksTone, #expandTone, #argumentOutlineTone, #argumentWritingTone, #argumentReviewer {
+    font-size: 1.05em;
+    padding: 6px 10px;}
+
+/* --- 答題步驟卡片 --- */
+.steps-container {
+    margin-top: 20px;
+    padding-left: 15px;
+    border-left: 4px solid #4A90E2;}
+
+.step-title {
+    font-weight: bold;
+    font-size: 1.1em;
+    color: #0056b3;
+    margin-bottom: 10px;}
+
+.step-content {
+    font-size: 1em;
+    line-height: 1.7;
+    color: #333;}
+
+/* --- 評等系統 --- */
+.grading-container {
+    margin-top: 25px;
+    border-top: 2px dashed #aeb6bf;
+    padding-top: 20px;
+    max-width: 100%;
+    overflow-x: hidden;}
+
+.grading-scores, .grading-radar {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    max-width: 100%;
+    box-sizing: border-box;
+    width: 90%;
+    margin: 0 auto;}
+
+.grading-scores h3, .grading-radar h3 {
+    margin-top: 0;
+    color: #343a40;
+    border-bottom: 2px solid #e9ecef;
+    padding-bottom: 10px;
+    margin-bottom: 15px;}
+
+.score-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    gap: 10px;}
+
+.score-item label {
+    font-weight: bold;
+    color: #495057;
+    flex-shrink: 0;
+    margin-right: 10px;}
+
+.score-item .slider-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    max-width: 160px;}
+
+.score-item .progress-bar-container {
+    width: 120px;
+    height: 12px;
+    background-color: #e9ecef;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid #ced4da;}
+
+.score-item .score-display {
+    font-weight: bold;
+    width: 25px;
+    text-align: center;
+    color: #0056b3;}
+
+.total-score-container {
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid #dee2e6;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    flex-wrap: wrap;}
+
+#finalGrade, [id$="FinalGrade"] {
+    font-size: 2.5em;
+    font-weight: bold;
+    color: #d9534f;
+    line-height: 1;}
+
+#totalScoreDisplay, [id$="TotalScoreDisplay"] {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #333;}
+
+.radar-chart-container {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    max-height: 350px;
+    width: 100%;}
+
+.grading-scores, .grading-radar {
+        padding: 15px;
+        width: 95%;
+        max-width: 95%;}
+
+.radar-chart-container {
+        aspect-ratio: 1 / 1;
+        max-height: 400px;}
+
+.score-item { flex-wrap: wrap;}
+
+.score-item label { width: 100%; margin-bottom: 5px;}
+
+.score-item .slider-container { max-width: 100%;}
+
+/* --- 儲存HTML按鈕 --- */
+.result-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;}
+
+#writingReviewResultContainer, #argumentReviewResultContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 100%;}
+
+.scope-label.active {
+    background-color: #007bff;
+    color: white;
+    font-weight: bold;
+    box-shadow: 0 2px 5px rgba(0, 123, 255, 0.3);}
+
+.scope-label.disabled {
+    background-color: #e9ecef;
+    color: #adb5bd;
+    cursor: not-allowed;
+    opacity: 0.7;}
+
+.scope-label.all-scope.active {
+    background-color: #4F5B93;
+    color: white;
+    box-shadow: 0 2px 5px rgba(79, 91, 147, 0.3);}
+
+/* 6. 種子卡片內的段落標題 */
+.seed-body p {
+    margin-bottom: 12px;}
+
+.seed-body p:last-child {
+    margin-bottom: 0;}
+
+.seed-body strong {
+    color: #155724 !important; /* 改為深綠色 */
+    display: inline-block;
+    margin-bottom: 5px;
+    font-size: 1.05rem;
+    border-bottom: 2px solid rgba(40, 167, 69, 0.4) !important; /* 改為淺綠色底線 */}
+
+/* 8. 下載按鈕容器防重疊修正 */
+.result-wrapper {
+    margin-top: 40px; /* 確保按鈕與上方內容有足夠距離 */
+    padding-top: 20px;
+    border-top: 1px dashed #ddd; /* 增加分隔線，視覺上區隔 */
+    width: 100%;
+    clear: both; /* 清除浮動 */}
+
+/* === 煙花特效畫布 === */
+#fireworksCanvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 99999; /* 確保在最上層 */
+    pointer-events: none; /* 讓滑鼠點擊可以穿透煙花，不影響按鈕操作 */
+    display: none; /* 預設隱藏 */}
+
+/* ==========================================
+   === 文藝風歷史紀錄卡片 (莫蘭迪色系) ===
+   ========================================== */
+
+/* 定義莫蘭迪色變數 */
+:root {
+    --morandi-bg: #fdfcf8;          /* 米白紙張底色 */
+    --morandi-text: #5e5e5e;        /* 深灰文字 */
+    --morandi-green: #8fa398;       /* 閱讀 - 灰綠 */
+    --morandi-blue: #94a7b5;        /* 敘事 - 霧霾藍 */
+    --morandi-purple: #b6a6ca;      /* 議論 - 香芋紫 */
+    --morandi-red: #d69a92;         /* 拓展 - 豆沙紅 */
+    --morandi-border: #e0ddd7;      /* 淺卡其邊框 */
+    --morandi-shadow: rgba(149, 157, 165, 0.1);}
+
+.history-title {
+    font-size: 1.1em;
+    font-weight: bold;
+    color: #333;
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;}
+
+/* 5. 新增：麵包屑導航樣式 */
+.history-breadcrumb span:hover {
+    text-decoration: underline;}
+
+/* 6. 新增：雷達圖圖片化樣式 (確保 Canvas 轉圖後在歷史紀錄中正確顯示) */
+.radar-chart-history-img {
+    width: 100% !important;
+    max-width: 500px;
+    height: auto !important;
+    margin: 0 auto;
+    display: block;
+    border: 1px solid #eee; /* 選用：增加邊框讓圖表更清晰 */
+    border-radius: 8px;
+    padding: 10px;
+    background-color: #fff;}
+
+.history-breadcrumb span:hover {
+    opacity: 0.8;}
+
+/* 內容佈局 */
+.history-info {
+    flex-grow: 1;}
+
+/* 標題樣式：襯線字體，文藝感 */
+.history-title {
+    font-family: 'Noto Serif TC', serif;
+    font-size: 1.15em;
+    font-weight: 600;
+    color: #4a4a4a;
+    margin: 10px 0;
+    line-height: 1.5;
+    
+    /* 多行省略 */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;}
+
+/* 日期與標籤區域 */
+.history-meta {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+    border-bottom: 1px dashed var(--morandi-border); /* 虛線分隔 */}
+
+.history-date {
+    font-family: 'Courier New', monospace; /* 打字機字體 */
+    font-size: 0.85em;
+    color: #999;
+    letter-spacing: 1px;}
+
+/* 範疇標籤 (像貼紙) */
+.history-tag {
+    font-size: 0.75em;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-right: auto; /* 將日期推到右邊 */
+    color: #fff;
+    font-weight: normal;
+    letter-spacing: 1px;}
+
+/* 2. 麵包屑導航 (顏色區分修訂) */
+.history-breadcrumb {
+    background-color: transparent !important;
+    border: none !important;
+    border-bottom: 1px dashed #d1cdc5 !important;
+    padding: 10px 5px !important;
+    margin-bottom: 25px;
+    font-size: 1rem;
+    color: #999; /* 分隔符顏色 */
+    display: flex;
+    align-items: center;
+    gap: 8px;}
+
+/* 第一層：主範疇 (藍色，可點擊) */
+.history-breadcrumb span[onclick*="renderHistoryCategories"] {
+    color: #007bff !important; 
+    font-weight: 900;
+    cursor: pointer;}
+
+/* 第二層：子功能分類 (深灰色，可點擊) */
+.history-breadcrumb span[onclick*="enterHistoryCategory"] {
+    color: #555 !important; 
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.3s;}
+
+.history-breadcrumb span[onclick*="enterHistoryCategory"]:hover {
+    color: #007bff !important;
+    text-decoration: underline;}
+
+/* 第三層：當前頁面 (霧霾藍，不可點擊) */
+.history-breadcrumb span#breadcrumb-sub {
+    color: #94a7b5 !important; 
+    font-weight: bold;
+    padding: 2px 4px;
+    background-color: rgba(148, 167, 181, 0.1);
+    border-radius: 4px;}
+
+/* 分隔符號 */
+.history-breadcrumb span[id^="breadcrumb-sep"] {
+    color: #ccc !important;
+    font-weight: normal;}
+
+/* 3. 卡片細節微調 (確保日期與標籤排版) */
+.history-meta {
+    border-bottom: 1px dashed #e0ddd7;
+    padding-bottom: 8px;
+    margin-bottom: 10px;
+    display: flex; /* 確保左右對齊 */
+    justify-content: space-between; /* 標籤靠左，日期靠右 */
+    align-items: center;}
+
+.history-date {
+    font-family: 'Courier New', monospace;
+    font-size: 0.85em;
+    color: #aaa;
+    letter-spacing: 0px;
+    margin-left: auto; /* 強制靠右 */}
+
+.history-tag {
+    color: white;
+    font-size: 0.75em;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: normal;
+    letter-spacing: 1px;}
+
+/* === 定義莫蘭迪色系變數 === */
+:root {
+    --m-color-1: #8fa398; /* 灰綠 */
+    --m-color-2: #94a7b5; /* 霧霾藍 */
+    --m-color-3: #b6a6ca; /* 香芋紫 */
+    --m-color-4: #d69a92; /* 豆沙紅 */
+    --m-color-5: #c7b299; /* 奶茶棕 */}
+
+/* === 修改：歷史紀錄導航列 (麵包屑) === */
+/* 需求三：主範疇要莫迪蘭色，不要藍色 */
+.history-breadcrumb span[onclick*="renderHistoryCategories"] {
+    color: #6a7a7d !important; /* 莫蘭迪深灰藍 */
+    font-weight: 900;
+    cursor: pointer;
+    transition: color 0.3s;}
+
+.history-breadcrumb span[onclick*="renderHistoryCategories"]:hover {
+    color: #8c9ea1 !important;}
+
+/* 自動將「標籤」加粗的樣式 (配合 JS 使用) */
+.history-label-bold {
+    font-weight: 700;
+    color: #2c3e50;
+    background-color: rgba(0,0,0,0.03);
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-right: 5px;}
+
+/* === 歷史紀錄：結構化顯示優化 === */
+.history-parsed-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* 區塊間距 */}
+
+.history-item-block {
+    background-color: transparent;}
+
+.history-item-label {
+    display: block;
+    font-size: 0.95em;
+    font-weight: bold;
+    color: #2A9689; /* 使用你的主題綠色 */
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;}
+
+/* 標題前的小裝飾 */
+.history-item-label::before {
+    content: '';
+    display: block;
+    width: 4px;
+    height: 14px;
+    background-color: #2A9689;
+    border-radius: 2px;}
+
+.history-item-content {
+    background-color: #f7f9fa; /* 淺灰背景，區分內容 */
+    border: 1px solid #e1e4e8;
+    border-radius: 8px;
+    padding: 12px 15px;
+    font-size: 1rem;
+    line-height: 1.8;
+    color: #333;
+    font-family: 'Noto Serif TC', serif;
+    white-space: pre-wrap; /* 關鍵：保留詩詞的換行 */
+    word-break: break-word;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.02); /* 內陰影增加層次感 */}
+
+/* === 歷史紀錄：結構化顯示優化 (莫蘭迪色系版) === */
+
+/* 定義顏色對應類別 */
+.history-theme-context-1 { --current-theme-color: var(--m-color-1); } /* 灰綠 */
+.history-theme-context-2 { --current-theme-color: var(--m-color-2); } /* 霧霾藍 */
+.history-theme-context-3 { --current-theme-color: var(--m-color-3); } /* 香芋紫 */
+.history-theme-context-4 { --current-theme-color: var(--m-color-4); } /* 豆沙紅 */
+.history-theme-context-5 { --current-theme-color: var(--m-color-5); } /* 奶茶棕 */
+
+/* 預設顏色 (防呆) */
+.history-parsed-container {
+    --current-theme-color: #6a7a7d; 
+    display: flex;
+    flex-direction: column;
+    gap: 15px;}
+
+.history-item-block {
+    background-color: transparent;}
+
+/* 標題樣式：使用動態變數 */
+.history-item-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1em;
+    font-weight: bold;
+    color: var(--current-theme-color); /* 跟隨主題色 */
+    margin-bottom: 8px;
+    padding-left: 2px;}
+
+/* 標題前的裝飾小圓點 */
+.history-item-label::before {
+    content: '';
+    display: block;
+    width: 8px;
+    height: 8px;
+    background-color: var(--current-theme-color); /* 跟隨主題色 */
+    border-radius: 50%;
+    opacity: 0.8;}
+
+/* 內容區塊樣式 */
+.history-item-content {
+    background-color: #fcfcfc;
+    border: 1px solid #e1e4e8;
+    /* 左側加上粗邊框，顏色跟隨主題，增強識別度 */
+    border-left: 4px solid var(--current-theme-color); 
+    border-radius: 4px; /* 稍微方一點，更有文件感 */
+    padding: 12px 16px;
+    font-size: 1rem;
+    line-height: 1.8;
+    color: #444;
+    font-family: 'Noto Serif TC', serif;
+    white-space: pre-wrap;
+    word-break: break-word;}
+
+.history-title:hover {
+    background-color: rgba(0, 0, 0, 0.05); /* 懸停時給一點提示 */}
+
+/* 4. 左側文字區塊優化 */
+.task-info {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex-grow: 1;
+    padding-right: 15px;
+    z-index: 2; /* 確保在背景之上 */}
+
+.task-topic {
+    font-family: 'Noto Serif TC', serif; /* 文藝字體 */
+    font-weight: bold;
+    font-size: 1.1rem;
+    color: #4a4a4a;}
+
+.task-meta {
+    font-family: 'Courier New', monospace; /* 打字機字體日期 */
+    font-size: 0.85rem;
+    color: #999;
+    display: flex;
+    align-items: center;
+    gap: 10px;}
+
+.task-type-tag {
+    font-family: sans-serif;
+    font-size: 0.75rem;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: #eee;
+    color: #666;
+    font-weight: normal;
+    letter-spacing: 1px;}
+
+/* 5. 右側狀態膠囊 (Pill) 優化 */
+.task-status {
+    flex-shrink: 0;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+    z-index: 2;}
+
+/* =========================================
+   === 狀態配色定義 (莫蘭迪色系) ===
+   ========================================= */
+
+/* A. 未繳交 (豆沙紅) */
+.status-pending::before {
+    background-color: #d69a92; /* 頂部色條 */}
+
+.status-pending .task-status {
+    background-color: #f7ebea; /* 淺豆沙底 */
+    color: #a67069;            /* 深豆沙字 */}
+
+.status-pending .task-topic {
+    color: #a67069;            /* 題目變色以示提醒 */}
+
+/* B. 待批改 (灰綠) */
+.status-submitted::before {
+    background-color: #8fa398; /* 頂部色條 */}
+
+.status-submitted .task-status {
+    background-color: #e8edea; /* 淺灰綠底 */
+    color: #5e7067;            /* 深灰綠字 */}
+
+.status-submitted .task-topic {
+    color: #888;               /* 題目變灰 */}
+
+/* C. 已發還 (香芋紫) */
+.status-returned::before {
+    background-color: #b6a6ca; /* 頂部色條 */}
+
+.status-returned .task-status {
+    background-color: #f0ebf5; /* 淺紫底 */
+    color: #7e6f8f;            /* 深紫字 */}
+
+.status-returned .task-topic {
+    color: #333;               /* 題目深灰 */}
+
+/* 標題文字顏色 */
+.teacher-feedback-title {
+    font-weight: bold; 
+    font-size: 1.2rem; 
+    color: #8d6e63; /* 莫蘭迪深褐色文字 */
+    display: flex;
+    align-items: center;
+    gap: 8px;}
+
+.teacher-comment-content {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: #4e342e; /* 深咖啡色文字 */
+    white-space: pre-wrap;
+    word-break: break-word;
+    margin: 0;
+    padding: 0;}
+
+.teacher-comment-content {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: #5d4037;
+    white-space: pre-wrap; /* 保留老師評語的換行 */}
+
+.feedback-body {
+    padding: 20px;
+    overflow-y: auto;
+    flex-grow: 1;}
+
+/* 老師評語區塊 */
+.teacher-comment-box {
+    background-color: #fff8e1;
+    border: 1px solid #ffe0b2;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 20px;
+    line-height: 1.6;
+    color: #5d4037;
+    position: relative;}
+
+.teacher-comment-box::before {
+    content: '老師回饋';
+    position: absolute;
+    top: -10px;
+    left: 15px;
+    background: #ff9800;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: bold;}
+
+/* 學生原稿區塊 */
+.original-work-box {
+    background-color: #fdfdfd;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    margin-top: 10px;}
+
+.original-work-summary:hover {
+    background-color: #e2e6ea;}
+
+.original-work-content {
+    padding: 15px;
+    white-space: pre-wrap;
+    font-family: 'Noto Serif TC', serif;
+    color: #333;
+    line-height: 1.8;
+    border-top: 1px solid #eee;}
+
+50% { opacity: 1;}
+
+100% { opacity: 0.6;}
+
+/* 3. 調整登入後的面板，讓它佔滿剩餘空間 */
+/* === 修正：學生雲端面板 (第 2054 行附近) === */
+#studentCloudPanel {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    margin-top: 10px !important;
+    /* 原本是 overflow: hidden; 這導致了無法滾動，必須改為 visible */
+    overflow: visible !important; 
+    height: auto !important; /* 確保高度自動撐開 */}
+
+/* === 區塊分隔線 (老師回饋 vs 學生作業) === */
+.feedback-separator {
+    position: relative;
+    height: 1px;
+    margin: 40px 0; /* 上下大幅留白，區隔兩者 */
+    border: none;
+    border-top: 2px dashed #d7ccc8; /* 淺褐色虛線 */
+    text-align: center;
+    overflow: visible;}
+
+.loading-gif {
+    width: 280px; /* 根據你的 GIF 大小調整 */
+    height: auto;
+    margin-bottom: 25px;
+    opacity: 0.8;}
+
+.result-canvas-content {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;}
+
+#resultCanvasTitle {
+    font-size: 1.4rem;
+    font-weight: bold;
+    color: #2A9689;
+    font-family: 'Noto Serif TC', serif;}
+
+.result-canvas-body {
+    flex-grow: 1;
+    /* 這裡會繼承原本的結果樣式，如表格、點評卡片等 */}
+
+/* 確保畫布內的雷達圖容器高度正確 */
+.result-canvas-body .radar-chart-container {
+    height: 350px;
+    margin-bottom: 20px;}
+
+@media (max-width: 600px) {
+    .result-canvas-content { padding: 15px;}
+
+#resultCanvasTitle { font-size: 1.1rem;}
+
+.notif-topic {
+    font-family: 'Noto Serif TC', serif;
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: #333;
+    line-height: 1.4;
+    margin: 4px 0 8px 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;}
+
+.notif-desc {
+    font-size: 0.88rem;
+    color: #777;
+    line-height: 1.6;
+    border-top: 1px dashed #eee;
+    padding-top: 8px;}
+
+/* 強調文字樣式 */
+.report-highlight {
+    font-weight: bold;
+    color: #94a7b5; /* 莫蘭迪霧霾藍 */
+    border-bottom: 1px dashed #94a7b5;}
+
+/* 金句樣式 (靠左) */
+.report-quote {
+    margin-top: 30px;
+    padding: 15px 20px;
+    background-color: rgba(143, 163, 152, 0.1);
+    border-radius: 8px;
+    color: #5e7067;
+    font-style: italic;
+    font-weight: bold;
+    text-align: left; /* 靠左對齊 */
+    border-left: 4px solid #8fa398;}
+
+/* 確保雷達圖容器高度足夠 */
+.report-radar-wrapper {
+    margin-top: 20px;
+    margin-bottom: 30px;}
+
+/* 金句文字樣式 */
+.report-quote-content {
+    font-family: 'Noto Serif TC', serif;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #5d4037; /* 深咖啡色 */
+    font-style: italic;
+    line-height: 1.6;}
+
+.report-quote-author {
+    margin-top: 10px;
+    font-size: 0.9rem;
+    color: #888;
+    text-align: right;
+    font-style: normal;}
+
+/* 雷達圖容器修正 */
+.report-radar-wrapper {
+    margin-bottom: 30px;
+    background: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    border: 1px solid #eee;}
+
+.report-option-text {
+    font-weight: bold;
+    font-size: 1.1rem;}
+
+/* 3. 莫蘭迪色虛線分隔 */
+.report-separator {
+    position: relative;
+    height: 1px;
+    border: 0;
+    border-top: 3px dashed #b6a6ca; /* 莫蘭迪紫 */
+    margin: 40px 0 50px 0; /* 上下大幅留白 */
+    opacity: 0.6;}
+
+/* 確保容器寬度填滿 */
+    .grading-scores, .grading-radar {
+        width: 100% !important;
+        box-sizing: border-box !important;
+        margin: 0 !important;}
+
+/* 確保雷達圖高度足夠 */
+    .radar-chart-container {
+        height: 300px !important; /* 給予固定高度 */
+        width: 100% !important;}
+
+.overall-grade-tag { font-size: 1.2rem; padding: 5px 20px;}
+
+/* 2. 限制容器寬度，防止溢出 */
+    .grading-scores, 
+    .grading-radar,
+    .report-radar-wrapper {
+        width: 100% !important;
+        max-width: 100% !important;     /* 絕不超過螢幕寬 */
+        box-sizing: border-box !important; /* 確保 padding 包含在寬度內 */
+        padding: 15px !important;       /* 稍微減少內距 */
+        margin: 0 !important;
+        overflow: hidden !important;    /* 隱藏任何溢出的內容 */}
+
+/* 3. 修復雷達圖 Canvas 的響應式大小 */
+    .radar-chart-container {
+        position: relative !important;
+        width: 100% !important;         /* 寬度撐滿容器 */
+        height: auto !important;        /* 高度自動 */
+        aspect-ratio: 1 / 1 !important; /* 保持正方形比例 */
+        max-height: 350px !important;   /* 限制最大高度，避免在大手機上太長 */
+        margin: 0 auto !important;}
+
+/* 4. 優化進度條區域 (避免標籤文字換行擠壓) */
+    .score-item {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        gap: 10px !important;}
+
+.score-item label {
+        font-size: 0.9rem !important;   /* 字體稍縮小 */
+        white-space: nowrap !important; /* 防止文字換行 */
+        min-width: 80px !important;     /* 給予最小寬度 */}
+
+.slider-container {
+        flex-grow: 1 !important;        /* 讓進度條佔據剩餘空間 */
+        width: auto !important;}
+
+.grading-scores, 
+    .grading-radar,
+    .report-radar-wrapper {
+        width: 100% !important;
+        box-sizing: border-box !important;
+        padding: 15px !important;
+        margin: 0 !important;
+        overflow: hidden !important;}
+
+.radar-chart-container {
+        height: auto !important;
+        aspect-ratio: 1 / 1 !important;
+        max-height: 350px !important;
+        margin: 0 auto !important;}
+
+/* C. 進度條文字微調 */
+    .score-item label {
+        white-space: nowrap !important;
+        min-width: 70px !important;}
+
+/* =======================================================
+   === [新增] 修復改寫範例樣式 & 畫布聊天室樣式 ===
+   ======================================================= */
+
+/* 1. 改寫內容專用樣式 (已修正字體大小與行距) */
+.rewrite-content {
+    font-family: 'Noto Serif TC', serif !important;
+    font-size: 1rem !important; /* 修正：由 1.1rem 改為 1rem，與點評一致 */
+    line-height: 1.8 !important; /* 修正：微調行距 */
+    color: #2c3e50 !important;
+    white-space: pre-wrap !important;
+    text-align: justify !important;
+    background-color: #fff !important;
+    padding: 20px !important;
+    border-radius: 8px !important;
+    border: 1px solid #e0e0e0 !important;
+    margin-top: 10px;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.02);}
+
+/* 針對改寫範例的標題修正，確保與上方一致 */
+.rewrite-content {
+    /* 再次確認字體大小與行距 */
+    font-size: 1rem !important;
+    line-height: 1.8 !important;
+    font-family: 'Noto Serif TC', serif !important;
+    color: #333 !important;}
+
+.morandi-title {
+    color: #5d4037; /* 莫蘭迪深咖啡 */
+    font-size: 1.3rem;
+    margin: 0 0 12px 0;
+    font-weight: bold;
+    letter-spacing: 1px;}
+
+.morandi-text {
+    color: #8d8d8d; /* 暖灰 */
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-bottom: 25px;}
+
+/* 電腦版隱藏虛線 */
+@media (min-width: 601px) {
+    .section-separator { display: none;}
+
+/* 手機版適配：確保按鈕區域夠大，防止誤觸 */
+@media (max-width: 600px) {
+    .history-actions {
+        opacity: 1; /* 手機上總是顯示 */
+        margin-top: 12px;}
+
+/* 4. 優化標籤 (Label) 樣式 */
+.history-parsed-container.argument-guide-layout .history-item-label {
+    font-size: 0.9rem;
+    color: #888;
+    margin-bottom: 8px;
+    padding-bottom: 5px;
+    border-bottom: 1px dashed #e0e0e0;
+    font-weight: bold;
+    display: flex;
+    align-items: center;}
+
+/* 移除原本的小圓點 (因為卡片式設計不需要了) */
+.history-parsed-container.argument-guide-layout .history-item-label::before {
+    display: none;}
+
+/* 5. 優化內容 (Content) 樣式 */
+.history-parsed-container.argument-guide-layout .history-item-content {
+    background-color: transparent !important; /* 移除原本的灰色背景 */
+    border: none !important; /* 移除邊框 */
+    padding: 0 !important;
+    font-size: 1.1rem; /* 字體稍微加大 */
+    color: #444;
+    line-height: 1.6;
+    font-family: 'Noto Serif TC', serif;}
+
+/* === 全螢幕閱讀模式專用樣式 (修復全屏覆蓋問題) === */
+#featuredDetailView {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;           /* 新增：確保寬度填滿 */
+    bottom: 0;          /* 核心修復：強制錨定到底部，解決手機工具列導致的高度問題 */
+    width: 100%;
+    
+    /* 移除舊的 height 設定，改用 auto 配合 bottom:0 */
+    height: auto !important;
+    min-height: 100dvh; /* 針對現代移動瀏覽器的動態視口高度 */
+    
+    background-color: #fdfcf8;
+    z-index: 25000;
+    
+    /* 滾動設定 */
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: none; /* 關鍵：防止滑動到頂底時露出主頁背景 */
+    
+    padding: 0;
+    box-sizing: border-box;
+    
+    /* 移除原本容器的 padding-bottom，避免計算誤差，改由內容撐開 */}
+
+/* 閱讀內容容器 (限制寬度以利閱讀) */
+.read-mode-container {
+    max-width: 800px;        /* 最佳閱讀寬度 */
+    margin: 60px auto 100px auto; /* 上方留白給標題，下方留白 */
+    padding: 40px;
+    background-color: #fff;
+    box-shadow: 0 4px 30px rgba(0,0,0,0.05);
+    border-radius: 12px;
+    position: relative;
+    /* 原稿紙背景效果 */
+    background-image: linear-gradient(to bottom, transparent 29px, #f0f0f0 30px);
+    background-size: 100% 30px;
+    line-height: 30px;}
+
+/* 作者與標題排版 */
+
+
+.detail-title-text {
+    font-size: 2.2rem;
+    font-weight: bold;
+    font-family: 'Noto Serif TC', serif;
+    margin-bottom: 15px;
+    line-height: 1.4;}
+
+.detail-meta-info {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    font-family: 'Noto Serif TC', serif;
+    font-size: 1.1rem;}
+
+.detail-author {
+    color: #8d6e63; /* 莫蘭迪深褐 (與標題區分) */
+    font-weight: bold;
+    padding: 2px 10px;
+    background-color: #efebe9;
+    border-radius: 20px;}
+
+.detail-date {
+    color: #9e9e9e;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;}
+
+/* 手機版適配 */
+@media (max-width: 600px) {
+    .read-mode-container {
+        width: 100%;
+        margin: 0;
+        padding: 80px 20px 40px 20px; /* 上方留更多空間給手機狀態列與返回鍵 */
+        border-radius: 0;
+        box-shadow: none;
+        min-height: 100%;
+        background-image: none; /* 手機版移除格線，增加易讀性 */}
+
+.detail-title-text { font-size: 1.8rem;}
+
+/* === 全螢幕閱讀模式調整 (V2) === */
+
+/* 閱讀內容容器：改為 90% 寬度，善用螢幕空間 */
+.read-mode-container {
+    width: 90% !important;        /* 核心修訂：寬度維持 90% */
+    max-width: 1200px !important; /* 放寬最大寬度，避免在大螢幕太窄 */
+    margin: 60px auto 100px auto; 
+    padding: 50px 40px;           /* 內部留白 */
+    background-color: #fff;
+    box-shadow: 0 4px 30px rgba(0,0,0,0.05);
+    border-radius: 12px;
+    position: relative;
+    /* 原稿紙背景效果 (保持不變) */
+    background-image: linear-gradient(to bottom, transparent 29px, #f0f0f0 30px);
+    background-size: 100% 30px;
+    line-height: 30px;
+    box-sizing: border-box; /* 確保 padding 不會撐破 90% */}
+
+/* 篇名樣式 */
+.detail-title-text {
+    font-size: 2.4rem;
+    font-weight: bold;
+    font-family: 'Noto Serif TC', serif;
+    margin-bottom: 20px; /* 與作者名的距離 */
+    line-height: 1.4;
+    text-align: center;}
+
+/* 作者名專屬容器 (修訂需求一) */
+.detail-author-box {
+    display: inline-block;
+    padding: 8px 25px;
+    background-color: #f5f5f5;      /* 淺灰底色 */
+    border-radius: 4px;
+    margin-bottom: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    /* 已移除 border-left 色條 */}
+
+.detail-author-text {
+    color: #5d4037;
+    font-size: 1.1rem;
+    font-weight: bold;
+    letter-spacing: 1px;}
+
+/* 日期樣式 */
+.detail-date {
+    margin-top: 10px;
+    color: #9e9e9e;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;}
+
+/* 手機版適配 */
+@media (max-width: 600px) {
+read-mode-container {
+        /* 1. 容器寬度：維持 90%，讓螢幕左右兩側有空隙 */
+        width: 90% !important;
+        
+        /* 2. 內部間距：由 20px 增加至 30px，解決文字太貼邊的問題 */
+        padding: 60px 30px 40px 30px !important; 
+        
+        background-image: none; /* 手機版移除格線 */
+        
+        /* 確保長單字不會撐爆容器 */
+        overflow-wrap: break-word;}
+
+.detail-title-text { font-size: 1.8rem;}
+
+.detail-author-box { padding: 6px 20px;}
+
+/* 4. 日期樣式：固定在右側 */
+.article-item-date {
+    white-space: nowrap;    /* 日期不換行 */
+    flex-shrink: 0;         /* 確保日期不會被壓縮 */
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+    color: #aaa;}
+
+/* 手機版微調 */
+@media (max-width: 600px) {
+    .article-item {
+        align-items: flex-start !important; /* 手機版日期靠上對齊比較好看 */}
+
+.article-item-date {
+        margin-top: 5px; /* 對齊標題 */
+        font-size: 0.8rem;}
+
+/* === 極致緊湊版：賞析樣式 === */
+
+/* 1. 外層容器 */
+.analysis-container {
+    /* ↓↓↓ 修改這兩行：增加與上方分隔線的距離 ↓↓↓ */
+    margin-top: 40px !important;    /* 增加外部間距，讓分隔線與上方正文分開 */
+    padding-top: 40px !important;   /* 關鍵：增加內部間距，讓標題遠離分隔線 */
+    
+    border-top: 1px dashed #d1cdc5; /* 建議改為虛線 dashed，視覺上較輕盈，也不會那麼壓迫 */
+    position: relative;}
+
+/* 3. 賞析內容本體 */
+.analysis-body {
+    font-size: 1.15rem;
+    line-height: 30px;
+    text-align: justify;
+    white-space: pre-wrap;
+    color: #4a4a4a;
+    background-color: transparent;
+    padding: 0;
+    border: none;
+    
+    /* ★★★ 修改 2：移除容器頂部留白 ★★★ */
+    margin-top: 0;}
+
+/* ★★★ 修改 3 (最關鍵)：強制移除「第一段文字」的預設上邊距 ★★★ */
+/* 瀏覽器通常會給 p 標籤預設約 20px 的上邊距，這裡把它改成 5px */
+.analysis-body p:first-child {
+    margin-top: 0px !important;}
+
+/* 其他段落保持間距 */
+.analysis-body p {
+    margin-bottom: 2em;}
+
+/* 最後一段移除下邊距 */
+.analysis-body p:last-child {
+    margin-bottom: 0;}
+
+/* 手機版微調 */
+@media (max-width: 600px) {
+    .analysis-body {
+       font-size: 1.15rem; /* <--- 修改數值，原為 1rem */
+        line-height: 1.8;}
+
+/* ========================================= */
+/* === [修訂 V2] 2. 閱讀進度條 (加粗版) === */
+/* ========================================= */
+#readingProgressBarContainer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    
+    /* ↓↓↓ 修改：由 4px 加粗至 10px ↓↓↓ */
+    height: 10px; 
+    
+    background: transparent;
+    z-index: 25002;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;}
+
+#readingProgressBar {
+    height: 100%;
+    width: 0%;
+    
+    /* 無印風米色漸層：由 淺棉麻色(#EBE5D5) 到 牛皮紙色(#D3C4AC) */
+    background: linear-gradient(90deg, #EBE5D5, #D3C4AC) !important;
+    
+    /* 陰影改為暖棕灰色，讓它在白紙上浮起但不過於刺眼 */
+    box-shadow: 0 0 10px rgba(211, 196, 172, 0.8); 
+    
+    border-radius: 0 5px 5px 0;
+    transition: width 0.1s ease-out;}
+
+/* 這是 JS 判斷需要換行時會加入的 class */
+.auto-fit-wrap {
+    white-space: normal !important;    /* 允許換行 */
+    overflow: visible !important;      /* 顯示完整內容 */
+    line-height: 1.4 !important;       /* 換行後的行距 */}
+
+/* === [新增] 慢讀功能專用樣式 === */
+
+/* 1. 文萃詳情頁右上角的按鈕群組 (水平排列版) */
+.detail-action-group {
+    position: fixed;
+    top: 20px;
+    right: 25px;
+    z-index: 25001;
+    display: flex;
+    flex-direction: row; /* ★★★ 修改處：改為 row 即變成水平排列 ★★★ */
+    align-items: center;
+    gap: 15px;}
+
+/* 慢讀進度條 */
+#reader-progress-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 6px;
+    background-color: #4a7c85; /* 莫蘭迪藍綠 */
+    width: 0%;
+    transition: width 0.6s ease-out;
+    z-index: 30002;}
+
+/* 慢讀文字容器 */
+#reader-display-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 80%;
+    max-width: 800px;
+    margin-top: 30vh;
+    opacity: 1;
+    transition: opacity 0.6s ease-in-out;
+    pointer-events: none; /* 讓點擊穿透到底層 */}
+
+#reader-display-wrapper.fade-out {
+    opacity: 0;}
+
+#reader-para-num {
+    font-family: 'Courier New', monospace;
+    font-size: 1.2rem;
+    color: #8a7968;
+    margin-bottom: 1.5rem;
+    opacity: 0.6;}
+
+#reader-text {
+    font-family: 'Noto Serif TC', serif;
+    font-size: 2rem; /* 大字體 */
+    line-height: 1.8;
+    text-align: left;
+    color: #3a3a3a;
+    width: 100%;}
+
+.timer-adjuster {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    margin: 20px 0;}
+
+.timer-display {
+    font-family: 'Noto Serif TC', serif;
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #5e7067;
+    width: 60px;}
+
+/* 手機適配 */
+@media (max-width: 600px) {
+    #reader-text { font-size: 1.6rem;}
+
+#reader-display-wrapper { margin-top: 25vh;}
+
+.detail-action-group {
+        top: 15px;
+        right: 15px;
+        gap: 10px; /* 手機上縮小按鈕間距 */}
+
+/* === 書籤功能專用樣式 === */
+
+/* ========================================= */
+/* === [新設計] 書籤功能專用樣式 (琥珀糖色) === */
+/* ========================================= */
+
+/* 定義新變數：莫蘭迪琥珀糖色 */
+:root {
+    /* 您可以在這裡修改 #E0B0A8 為其他顏色 */
+    /* 推薦色碼：#E0B0A8 (柔粉), #B5C9C3 (淡灰綠), #C9B8B5 (藕粉灰) */
+    --bookmark-color: #E0B0A8;}
+
+/* --- 議論指引：莫蘭迪藝術化排版 --- */
+/* --- 議論指引：精煉版莫蘭迪排版 --- */
+.morandi-guide-container {
+    padding: 10px 0;
+    font-family: 'Noto Serif TC', serif;}
+
+/* 載入中的省略號 */
+.cat-loading-dots::after {
+    content: ' .';
+    animation: dots 1.5s steps(5, end) infinite;}
+
+40% { color: #5d4037; text-shadow: .25em 0 0 rgba(0,0,0,0), .5em 0 0 rgba(0,0,0,0);}
+
+60% { text-shadow: .25em 0 0 #5d4037, .5em 0 0 rgba(0,0,0,0);}
+
+80%, 100% { text-shadow: .25em 0 0 #5d4037, .5em 0 0 #5d4037;}
+
+/* 游標樣式 */
+body.cat-hovering { cursor: grab !important;}
+
+body.cat-dragging { cursor: grabbing !important;}
+
+.cat-option i { color: #d69a92; font-size: 14px;}
+
+#fullArticleBody b, #fullArticleBody strong {
+    font-weight: 900 !important; 
+    color: #2c3e50;}
+
+/* ========================================= */
+/* === [修改] 已讀文章樣式 (暖灰岩色風格) === */
+/* ========================================= */
+ 
+/* 1. 已讀狀態的卡片背景 */
+.article-item.read {
+    /* 使用全新的莫蘭迪暖灰岩色，代表「已閱/存檔」的感覺 */
+    background-color: #F0EBE5 !important;
+    
+    /* 左側加上一條低調的卡其色邊線，增強識別度 */
+    border-left: 5px solid #A89F91 !important;
+    
+    /* 稍微降低整體不透明度，讓未讀的文章在視覺上更突出 */
+    opacity: 0.9;}
+
+/* 狀態一：綠燈 (監察中 - 莫蘭迪灰綠) */
+.focus-status-green {
+    background-color: #8fa398 !important;
+    color: white !important;
+    border-color: #8fa398 !important;
+    box-shadow: 0 0 15px rgba(143, 163, 152, 0.6) !important;}
+
+/* 狀態一：綠燈 (監察中 - 靜謐灰綠) */
+#slowReaderFocusIndicator.status-green {
+    background-color: #8FA398 !important; 
+    opacity: 0.75; 
+    box-shadow: -1px 0 4px rgba(143, 163, 152, 0.4); 
+    
+    width: 12px;     /* ★ 修改：同步加寬 ★ */
+    pointer-events: auto;}
+
+#slowReaderFocusIndicator.status-green:hover {
+    opacity: 1; 
+    background-color: #7D9186 !important;}
+
+/* 擴大點擊感應區 (保持不變) */
+#slowReaderFocusIndicator.status-prompt::after {
+    content: ''; position: absolute; top: 0; left: -40px; right: 0; bottom: 0;}
+
+50% { opacity: 1; box-shadow: -3px 0 20px rgba(217, 136, 109, 0.9);}
+
+100% { opacity: 0.8; box-shadow: -1px 0 8px rgba(217, 136, 109, 0.5);}
+
+50% { opacity: 0.5;}
+
+100% { opacity: 1;}
