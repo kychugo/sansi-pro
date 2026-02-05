@@ -1,0 +1,33 @@
+INSTITUTIONAL PROPRIETARY LICENSE
+
+Copyright (c) 2025 Chan Kwun Kin (Ken Chan)
+
+All rights reserved.
+
+The computer program, source code, layout, algorithms, and design assets contained in this repository are the exclusive intellectual property of Ken Chan.
+
+1. AUTHORIZED USERS (RESTRICTED):
+   Permission to access, execute, and use the deployed application is granted EXCLUSIVELY to:
+   - Current students of CCC Kei Yuen College.
+   - Current faculty and staff of CCC Kei Yuen College.
+
+   Users outside of this specific institution are NOT granted any rights to use this software without express written permission from the author.
+
+2. PERMITTED USE:
+   Authorized Users may use this software solely for:
+   - Personal study and academic improvement.
+   - Internal teaching and classroom activities within the school.
+   - Non-commercial educational purposes.
+
+3. RESTRICTIONS (STRICTLY PROHIBITED):
+   For all parties (including Authorized Users and third parties), the following actions regarding the SOURCE CODE and ASSETS are strictly prohibited:
+   - Copying, cloning, or distributing the source code.
+   - Modifying, adapting, or creating derivative works based on this project.
+   - Using the software, code, or logic for any commercial purpose (e.g., tuition centers, paid courses).
+   - Removing or altering any copyright, trademark, or proprietary notices.
+   - Reverse engineering, decompiling, or disassembling the application logic.
+
+4. NO OPEN SOURCE LICENSE:
+   This project is "Source Available" for transparency and portfolio display purposes only. It is NOT Open Source. No permission is granted to use, copy, modify, or distribute this software for any purpose other than the specific institutional use defined in Section 1.
+
+VIOLATION OF THESE TERMS MAY RESULT IN LEGAL ACTION.

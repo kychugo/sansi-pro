@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>神思 Sansi</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Zhi+Mang+Xing&family=Noto+Serif+TC:wght@500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+       body {
+            /* --- 修改部分：拿掉圖片路徑，保留定位設定 --- */
+            background-color: #E8E6E1; /* 暫時的底色 */
+            background-image: none;    /* 先設為空，等待 JS 填入 */
+            background-position: center;
+            background-size: cover;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+            /* ------------------------------------- */
+
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            cursor: pointer;
+            -webkit-user-select: none;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            font-family: "Noto Serif TC", serif;
+        }
+
+        body::before {
+            content: "";
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.08'/%3E%3C/svg%3E");
+            opacity: 0.6; pointer-events: none; z-index: 0;
+        }
+        /* --- 1. 電腦版/預設 --- */
+        .title-container {
+            position: absolute;
+            top: 40%; 
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+            display: flex;
+            gap: 20px;
+            pointer-events: none; 
+        }
+
+        .char {
+            display: block;
+            font-family: 'Zhi Mang Xing', cursive;
+            color: #48585A; 
+            font-size: clamp(80px, 25vw, 220px); 
+            line-height: 1;
+            white-space: nowrap;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            will-change: transform; 
+        }
+
+        .cta-text {
+            position: absolute;
+            top: 58%; 
+            left: 50%; transform: translateX(-50%);
+            font-size: 13px; color: #555;
+            font-weight: 500;
+            letter-spacing: 4px;
+            opacity: 0; animation: fadeInText 0.8s ease-in forwards 0.2s; 
+            z-index: 2; pointer-events: none; text-align: center;
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        .cta-text::after {
+            content: "↓"; display: block; margin-top: 5px; font-size: 12px; opacity: 0.6;
+        }
+
+        .seal {
+            position: absolute; 
+            /* 修改處：由 35% 改為 39%，讓紅印向上移動靠近箭嘴 */
+            bottom: 29%; 
+            left: 50%; transform: translateX(-50%);
+            width: 40px; height: 40px;
+            border: 2px solid #A84646; color: #A84646;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 14px;
+            font-weight: 700;
+            font-family: "Noto Serif TC", serif; 
+            opacity: 0; animation: fadeIn 1s ease-in forwards 0s; 
+            z-index: 2; letter-spacing: 2px; writing-mode: vertical-rl;
+            pointer-events: none;
+            -webkit-font-smoothing: antialiased; 
+        }
+
+        /* --- 2. 手機版專屬調整 (Max Width 768px) --- */
+        @media (max-width: 768px) {
+            .title-container {
+                /* 原本改太高是 30%，現在改為 35% (往下移一點) */
+                top: 37%; 
+            }
+
+            .cta-text {
+                /* 原本改太高是 48%，現在改為 53% (保持相對距離往下移) */
+                top: 57%; 
+            }
+
+                .seal {
+        /* 原本改太高是 28%，現在改為 23% (讓印章也沈下來一點) */
+        bottom: 31%; 
+    }
+
+
+            .char {
+                /* 字體大小保持不變 */
+                font-size: 34vw; 
+            }
+        }
+
+        #overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: #E8E6E1; opacity: 0; pointer-events: none;
+            transition: opacity 0.8s ease-in-out; 
+            z-index: 20;
+        }
+
+        /* 爆炸效果 CSS */
+        .exploding .char {
+            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            opacity: 0;
+            transform: scale(4) !important;
+        }
+
+        @keyframes fadeIn { to { opacity: 0.7; } }
+        @keyframes fadeInText { to { opacity: 0.6; } }
+    </style>
+</head>
+<body>
+    <div id="overlay"></div>
+    
+    <div class="title-container" id="titleContainer">
+        <span class="char" id="char1">神</span>
+        <span class="char" id="char2">思</span>
+    </div>
+
+    <div class="cta-text">點擊前往</div>
+    <div class="seal" id="seal">神思</div>
+
+    <script>
+
+
+// --- 圖片加速代碼 (放在 script 最前面) ---
+        (function() {
+            const imgName = '引導頁背景.png'; // 你的圖片檔名
+            const request = indexedDB.open('SansiCache', 1);
+
+            request.onupgradeneeded = e => e.target.result.createObjectStore('imgs');
+            
+            request.onsuccess = e => {
+                const db = e.target.result;
+                const tx = db.transaction('imgs', 'readonly');
+                const store = tx.objectStore('imgs');
+                const get = store.get(imgName);
+
+                get.onsuccess = () => {
+                    if (get.result) {
+                        // 有緩存：直接讀取，速度最快
+                        document.body.style.backgroundImage = `url(${URL.createObjectURL(get.result)})`;
+                    } else {
+                        // 無緩存：下載並存入
+                        fetch(imgName).then(r => r.blob()).then(blob => {
+                            const tx2 = db.transaction('imgs', 'readwrite');
+                            tx2.objectStore('imgs').put(blob, imgName);
+                            document.body.style.backgroundImage = `url(${URL.createObjectURL(blob)})`;
+                        });
+                    }
+                };
+            };
+        })();
+
+
+        
+           // --- 新增：定義音效與預加載 ---
+        const clickSound = new Audio('引導頁點擊.mp3');
+        clickSound.preload = 'auto'; // 嘗試預先下載音檔
+        const overlay = document.getElementById('overlay');
+        const seal = document.getElementById('seal');
+        const ctaText = document.querySelector('.cta-text');
+        const char1 = document.getElementById('char1');
+        const char2 = document.getElementById('char2');
+        const chars = [char1, char2];
+
+        // 初始化滑鼠位置在中心，避免一開始沒有互動
+        let mouse = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+        let isExploding = false;
+        let animationFrameId = null;
+
+        const physics = [
+            { x: 0, y: 0, rot: 0, targetX: 0, targetY: 0, targetRot: 0 },
+            { x: 0, y: 0, rot: 0, targetX: 0, targetY: 0, targetRot: 0 }
+        ];
+
+        const updateMouse = (x, y) => { mouse.x = x; mouse.y = y; };
+
+        // 監聽電腦滑鼠移動
+        window.addEventListener('mousemove', (e) => updateMouse(e.clientX, e.clientY));
+        
+        // 監聽手機觸控
+        const handleTouch = (e) => {
+            updateMouse(e.touches[0].clientX, e.touches[0].clientY);
+        };
+        window.addEventListener('touchmove', handleTouch, { passive: true });
+        window.addEventListener('touchstart', handleTouch, { passive: true });
+
+        // --- 核心修復：處理「上一頁」的狀態重置 ---
+        window.addEventListener('pageshow', (event) => {
+            if (event.persisted) {
+                resetPageAnimation();
+            }
+        });
+
+        function resetPageAnimation() {
+            isExploding = false;
+            document.body.classList.remove('exploding');
+            overlay.style.opacity = 0;
+            seal.style.opacity = "";
+            seal.style.transition = "";
+            ctaText.style.opacity = "";
+            ctaText.style.transition = "";
+            
+            cancelAnimationFrame(animationFrameId);
+            animate();
+        }
+
+     function handleClick() {
+            if(!isExploding) {
+                // --- 新增：手機震動效果 ---
+                // 檢查瀏覽器是否支援震動 API (主要對 Android 有效)
+                if (navigator.vibrate) {
+                    navigator.vibrate(35); // 震動 15 毫秒 (數值越小震動越短促，類似觸覺回饋)
+                }
+                // --- 新增：播放音效 ---
+                clickSound.currentTime = 0; // 確保每次都從頭開始播放
+                clickSound.play().catch(e => console.log("音效播放被瀏覽器阻擋", e));
+                // ---------------------
+
+                isExploding = true;
+                document.body.classList.add('exploding');
+                
+                seal.style.transition = "opacity 0.3s";
+                seal.style.opacity = 0;
+                ctaText.style.transition = "opacity 0.3s";
+                ctaText.style.opacity = 0;
+                
+                setTimeout(() => {
+                    overlay.style.opacity = 1; 
+                    setTimeout(() => {
+                        window.location.href = "index2.html"; 
+                    }, 400); 
+                }, 300); 
+            }
+        }
+
+        window.addEventListener('click', handleClick);
+        let isDragging = false;
+        window.addEventListener('touchmove', () => isDragging = true);
+        window.addEventListener('touchend', () => {
+            if (!isDragging) handleClick();
+            isDragging = false;
+        });
+
+        function animate() {
+            if (isExploding) return;
+
+            chars.forEach((char, index) => {
+                const rect = char.getBoundingClientRect();
+                const charCenterX = rect.left + rect.width / 2;
+                const charCenterY = rect.top + rect.height / 2;
+
+                const dx = mouse.x - charCenterX;
+                const dy = mouse.y - charCenterY;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                
+                // 這裡保留了設定：電腦版(>=600)半徑為 400，手機版(<600)半徑為 250
+                const radius = window.innerWidth < 600 ? 250 : 400; 
+
+                if (dist < radius) {
+                    const force = (radius - dist) / radius;
+                    const moveX = -(dx / dist) * force * 40; 
+                    const moveY = -(dy / dist) * force * 40;
+                    const rotate = dx * 0.04 * force;
+
+                    physics[index].targetX = moveX;
+                    physics[index].targetY = moveY;
+                    physics[index].targetRot = rotate;
+                } else {
+                    physics[index].targetX = 0;
+                    physics[index].targetY = 0;
+                    physics[index].targetRot = 0;
+                }
+
+                const ease = 0.08; 
+                // 修復：補完被截斷的物理計算邏輯
+                physics[index].x += (physics[index].targetX - physics[index].x) * ease;
+                physics[index].y += (physics[index].targetY - physics[index].y) * ease;
+                physics[index].rot += (physics[index].targetRot - physics[index].rot) * ease;
+
+                // 應用變形
+                char.style.transform = `translate(${physics[index].x}px, ${physics[index].y}px) rotate(${physics[index].rot}deg)`;
+            });
+
+            animationFrameId = requestAnimationFrame(animate);
+        }
+
+        // 啟動動畫
+        animate();
+    </script>
+</body>
+</html>

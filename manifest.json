@@ -1,0 +1,20 @@
+{
+  "name": "神思",
+  "short_name": "神思",
+  "start_url": ".",
+  "display": "standalone",
+  "gcm_sender_id": "482941778795", 
+  "background_color": "#ffffff",
+  "icons": [
+    {
+      "src": "神思圖標.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "神思圖標.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
