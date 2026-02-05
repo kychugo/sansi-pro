@@ -1,0 +1,578 @@
+#hitokoto-container {
+background: rgba(220, 220, 220, 0.96);
+border-radius: 8px;
+box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+padding: 16px;
+margin: 15px 0;
+text-align: center;
+max-width: 800px;
+position: relative;
+}
+
+@media (max-width: 600px) {
+#hitokoto-container {
+text-align: left;
+}
+}
+
+#hitokoto {
+font-size: 21px;
+font-style: italic;
+color: #333;
+margin-bottom: 10px;
+}
+
+#hitokoto p {
+margin: 5px 0;
+}
+
+#hitokoto-footer {
+display: flex;
+justify-content: space-between;
+align-items: center;
+margin-top: 10px;
+}
+
+#hitokoto-from {
+font-size: 16px;
+color: #666;
+}
+
+#refresh-btn {
+background: none;
+border: none;
+cursor: pointer;
+font-size: 20px;
+color: #666;
+transition: color 0.3s;
+padding: 0;
+margin: 0;
+}
+
+#refresh-btn:hover {
+color: #000;
+}
+
+
+/* --- 新增：確認圖示按鍵樣式 --- */
+
+.btn-icon-confirm {
+/* 1. 外觀設定：圓形、綠色背景 */
+width: 44px;
+height: 44px;
+border-radius: 50%; /* 製作成完美的圓形 */
+background-color: #28a745; /* 成功、確認的綠色 */
+border: none;
+
+/* 2. 圖示置中與樣式 */
+display: inline-flex;
+align-items: center;
+justify-content: center;
+color: white; /* 圖示顏色 */
+font-size: 20px; /* 圖示大小 */
+
+/* 3. 互動效果與陰影 */
+cursor: pointer;
+box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+transition: all 0.2s ease-in-out;
+}
+
+.btn-icon-confirm:hover {
+/* 4. 滑鼠懸停時：放大、提亮，陰影加深 */
+transform: scale(1.1);
+filter: brightness(110%);
+box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+.btn-icon-confirm:active {
+/* 5. 點擊瞬間：再放大一點，提供回饋感 */
+transform: scale(1.15);
+}
+
+/* === DSE 倒數日曆專用樣式 (響應式優化 - 底部選單版) === */
+#dse-countdown-box {
+    --dse-card-bg: #ffffff;
+    --dse-text-color: #000000;
+    --dse-line-color: #e0e0e0; 
+    --dse-flip-duration: 0.6s;
+    --dse-theme-color: #90A1B9;
+    
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    padding: 15px 20px;
+}
+
+.dse-header {
+    font-size: 1.1rem;
+    letter-spacing: 0.3rem;
+    margin-bottom: 1.2rem;
+    color: #888;
+    font-weight: 300;
+    text-align: center;
+}
+
+/* === 主要容器 === */
+.dse-main-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 25px;
+    width: 100%;
+}
+
+/* === 年級選單 (Desktop: 左側直排) === */
+.grade-sidebar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding-right: 20px;
+    border-right: 1px dashed #ddd; /* 電腦版：右側分隔線 */
+    flex-shrink: 0;
+}
+
+.grade-label {
+    font-size: 0.75rem;
+    color: #aaa;
+    margin-bottom: 2px;
+    font-weight: bold;
+}
+
+.grade-btn {
+    background: transparent;
+    border: 1px solid transparent;
+    color: #ccc;
+    font-family: 'Noto Serif TC', serif;
+    font-size: 1rem;
+    font-weight: bold;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+.grade-btn:hover {
+    color: var(--dse-theme-color);
+    background: rgba(26, 117, 149, 0.1);
+}
+
+.grade-btn.active {
+    color: white;
+    background-color: var(--dse-theme-color);
+    box-shadow: 0 2px 5px rgba(26, 117, 149, 0.3);
+    transform: scale(1.1);
+}
+
+/* === 新增：日字標籤樣式 === */
+.days-label {
+    font-size: 24px;
+    color: var(--dse-theme-color); /* 跟隨主題顏色 */
+    margin-bottom: 20px;           /* 與數字底部對齊的微調 */
+    margin-left: 8px;              /* 與數字保持一點距離 */
+    font-weight: bold;
+    opacity: 0.8;
+}
+	
+/* === 右側倒數區塊 === */
+.countdown-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.countdown-container {
+    display: flex;
+    gap: 10px;
+    perspective: 1200px;
+    justify-content: center;
+    align-items: flex-end;
+}
+
+.approx-label {
+    font-size: 24px;
+    color: var(--dse-theme-color);
+    margin-bottom: 20px;
+    margin-right: 5px;
+    font-weight: bold;
+    opacity: 0.8;
+}
+.approx-label.hidden { display: none; }
+
+/* 翻頁單元樣式 */
+.flip-unit {
+    position: relative;
+    width: 90px;
+    height: 120px;
+    font-size: 70px;
+    font-family: 'Noto Serif TC', "Songti TC", serif;
+    font-weight: bold;
+    text-align: center;
+    border-radius: 6px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.03);
+    color: var(--dse-text-color);
+    line-height: 120px;
+    z-index: 1;
+}
+
+.flip-unit::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    border-radius: 6px;
+    pointer-events: none;
+    z-index: 10;
+    background: linear-gradient(180deg, #46ECD5 0%, 
+        #3BB8DB 40%, 
+        #36BBA7 100%);
+    mix-blend-mode: screen;
+    box-shadow: inset 0 0 15px rgba(255, 255, 255, 0.2);
+}
+
+.card-part {
+    position: absolute;
+    left: 0; width: 100%; height: 50%;
+    overflow: hidden;
+    background: var(--dse-card-bg);
+    backface-visibility: hidden;
+}
+
+.top { top: 0; border-radius: 6px 6px 0 0; line-height: 120px; border-bottom: 0.5px solid var(--dse-line-color); }
+.bottom { bottom: 0; border-radius: 0 0 6px 6px; line-height: 0px; border-top: none; }
+
+.flap {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 50%;
+    background: var(--dse-card-bg);
+    border-radius: 6px 6px 0 0;
+    transform-origin: bottom;
+    z-index: 3;
+    transition: transform var(--dse-flip-duration) cubic-bezier(0.4, 0, 0.2, 1);
+    transform-style: preserve-3d;
+    border-bottom: 0.5px solid var(--dse-line-color);
+    color: var(--dse-text-color);
+}
+.flap::before { content: attr(data-old); position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--dse-card-bg); border-radius: 6px 6px 0 0; backface-visibility: hidden; line-height: 120px; }
+.flap::after { content: attr(data-new); position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--dse-card-bg); border-radius: 0 0 6px 6px; transform: rotateX(-180deg); backface-visibility: hidden; line-height: 0; display: flex; justify-content: center; border-top: none; }
+.card-part, .flap::before, .flap::after { text-shadow: 0 2px 3px rgba(0, 0, 0, 0.2); }
+.flipping .flap { transform: rotateX(-180deg); }
+
+.flip-unit.hidden { display: none; }
+
+.dse-footer {
+    margin-top: 1rem;
+    letter-spacing: 0.2rem;
+    font-size: 0.85rem;
+    color: #c0c0c0;
+    font-weight: 300;
+}
+
+/* === RWD 響應式調整 (關鍵修訂：按鈕移至底部) === */
+@media (max-width: 600px) {
+    .dse-main-wrapper {
+        flex-direction: column; /* 垂直排列 */
+        gap: 15px;
+    }
+    
+    /* 1. 倒數區塊 (包含卡片和 DAYS TO BREAKUP) */
+    .countdown-section {
+        order: 1; /* 視覺上排第一 */
+        width: 100%;
+        margin-bottom: 5px;
+    }
+
+    /* 2. 年級選單 */
+    .grade-sidebar {
+        order: 2; /* 視覺上排第二 (底部) */
+        flex-direction: row; /* 橫向排列 */
+        width: 100%;
+        justify-content: center;
+        padding-right: 0;
+        
+        border-right: none;
+        border-top: 1px dashed #e0e0e0; /* 分隔線改在上方 */
+        
+        padding-top: 15px;
+        flex-wrap: wrap;
+    }
+    
+    .grade-label {
+        margin-right: 10px;
+        margin-bottom: 0;
+        align-self: center; /* 垂直置中 */
+    }
+
+    .grade-btn {
+        width: 24px;  /* 手機版按鈕縮小 */
+        height: 24px;
+        font-size: 0.8rem;
+    }
+
+    .countdown-container {
+        transform: scale(0.8); 
+        margin: -10px 0;
+    }
+    
+    .flip-unit {
+        width: 70px;
+        height: 100px;
+        font-size: 55px;
+        line-height: 100px;
+    }
+    .top { line-height: 100px; }
+    .flap::before { line-height: 100px; }
+}
+
+
+/* === 精選文章專用樣式 === */
+
+/* 搜尋列 */
+.search-bar-wrapper {
+    position: relative;
+    margin-bottom: 25px;
+    width: 100%;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#articleSearchInput {
+    width: 100%;
+    padding: 12px 40px 12px 15px;
+    border: 2px solid #e0ddd7;
+    border-radius: 25px;
+    background-color: #fdfcf8;
+    color: #5e5e5e;
+    font-family: 'Noto Serif TC', serif;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+#articleSearchInput:focus {
+    border-color: #8fa398; /* 莫蘭迪綠 */
+    box-shadow: 0 4px 10px rgba(143, 163, 152, 0.2);
+    outline: none;
+}
+
+.search-icon {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #aaa;
+}
+
+/* 文章列表項目 */
+.article-item {
+    background-color: #fdfcf8;
+    border-bottom: 1px dashed #d1cdc5; /* 虛線分隔 */
+    padding: 20px 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.article-item:hover {
+    background-color: rgba(143, 163, 152, 0.1); /* 懸停時淡淡的綠 */
+    padding-left: 25px; /* 輕微移動效果 */
+}
+
+/* 1. 列表卡片：恢復橫向排列，讓日期能待在右邊 */
+.article-item {
+    display: flex !important;
+    flex-direction: row !important;       /* 橫向排列：左邊內容，右邊日期 */
+    align-items: center !important;       /* 垂直置中 */
+    justify-content: space-between !important; /* 左右撐開 */
+    padding: 20px 25px !important;
+}
+
+/* 2. 左側內容群組：包含標題和作者 (垂直排列) */
+.article-left-group {
+    display: flex;
+    flex-direction: column; /* 垂直堆疊 */
+    align-items: flex-start; /* 靠左對齊 */
+    flex: 1;                 /* 佔據中間剩餘空間 */
+    padding-right: 20px;     /* 避免文字碰到日期 */
+    min-width: 0;            /* 關鍵：防止 Flex 子元素內容過長溢出 */
+}
+
+
+/* 列表標題樣式微調 */
+.article-item-title {
+    width: 100%;
+    line-height: 1.4;
+    margin-bottom: 5px;
+    display: block; /* 確保佔滿一行 */
+}
+
+/* 列表下方資訊列 (作者與日期) */
+.article-meta-row {
+    width: 100%;
+    display: flex;
+    justify-content: space-between; /* 作者靠左，日期靠右 */
+    align-items: center;
+}
+
+/* 確保日期字體不跑版 */
+.article-item-date {
+    white-space: nowrap;
+    margin-left: 10px;
+}
+
+	
+.article-item-title {
+    font-size: 1.1rem;
+    color: #5d4037;
+    font-weight: bold;
+    font-family: 'Noto Serif TC', serif;
+}
+
+.article-item-date {
+    font-size: 0.85rem;
+    color: #999;
+    font-family: 'Courier New', monospace;
+    min-width: 90px;
+    text-align: right;
+}
+
+/* 分頁控制 */
+.pagination-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 30px;
+    gap: 20px;
+}
+
+.pagination-controls button {
+    background: transparent;
+    border: 1px solid #e0ddd7;
+    color: #8fa398;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.pagination-controls button:hover:not(:disabled) {
+    background-color: #8fa398;
+    color: white;
+}
+
+.pagination-controls button:disabled {
+    color: #eee;
+    border-color: #eee;
+    cursor: default;
+}
+
+#pageIndicator {
+    color: #888;
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+}
+
+/* 文章詳情頁 (紙張風格) */
+.article-actions {
+    margin-bottom: 20px;
+}
+
+.back-icon-btn {
+    background: transparent;
+    border: 2px solid #d69a92; /* 莫蘭迪紅 */
+    color: #d69a92;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    transition: all 0.3s ease;
+}
+
+.back-icon-btn:hover {
+    background-color: #d69a92;
+    color: white;
+    transform: translateX(-5px);
+}
+
+.article-content-paper {
+    background-color: #fdfcf8;
+    border: 1px solid #e0ddd7;
+    border-radius: 8px;
+    padding: 40px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+    /* 模仿信紙背景 */
+    background-image: linear-gradient(to bottom, transparent 29px, #f0f0f0 30px);
+    background-size: 100% 30px;
+    line-height: 30px; /* 配合格線 */
+}
+
+.article-title {
+    font-size: 1.8rem;
+    color: #2A9689; /* 主題綠 */
+    text-align: center;
+    margin-bottom: 10px;
+    line-height: 1.4;
+}
+
+.article-date {
+    text-align: center;
+    color: #aaa;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+    margin-bottom: 20px;
+}
+
+.article-separator {
+    height: 1px;
+    background: transparent;
+    border-top: 2px dashed #d69a92;
+    margin: 0 auto 30px auto;
+    width: 50px;
+}
+
+.article-body {
+    font-size: 1.15rem;
+    color: #4a4a4a;
+    text-align: justify;
+    white-space: pre-wrap; /* 保留換行 */
+}
+
+/* 讓段落之間有行距 */
+.article-body p {
+    margin-bottom: 2em; /* 段落間距 */
+}
+
+@media (max-width: 600px) {
+    .article-content-paper {
+        padding: 20px;
+        line-height: 1.8; /* 手機版取消格線對齊，以易讀為主 */
+        background-image: none;
+    }
+    .article-title {
+        font-size: 1.4rem;
+    }
+}
+
+
+
+
+
+
+
+
+	

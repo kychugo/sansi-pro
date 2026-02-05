@@ -1,0 +1,71 @@
+        ${cssRules}
+        
+        /* === 關鍵修正：強制覆寫原有網站 CSS 對 Body 的限制 === */
+        
+        body { 
+            /* 1. 強制重置 Body 寬度與背景，覆蓋原網站的 max-width: 800px */
+            max-width: 100% !important; 
+            width: 100% !important;
+            margin: 0 !important;
+            padding: 40px 0 !important;
+            
+            /* 2. 使用 Flexbox 確保內容卡片絕對置中 */
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important; /* 水平置中 */
+            
+            background-color: #f2f4f7 !important;
+            background-image: none !important;
+            min-height: 100vh !important;
+            overflow-y: auto !important;
+        }
+
+        /* 內容容器：這張「紙」 */
+        .export-wrapper {
+            /* 3. 設定固定寬度 900px (電腦版)，配合 Body 的 Flex 置中 */
+            width: 900px !important;
+            
+            /* 4. 響應式保護：在小螢幕上縮放 */
+            max-width: 95% !important; 
+            
+            background-color: #ffffff !important;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08) !important;
+            border-radius: 12px !important;
+            box-sizing: border-box !important;
+            overflow: hidden !important;
+            position: relative !important;
+            margin: 0 !important; /* Margin 0，因為 Body 已經負責置中了 */
+        }
+
+        /* 修復 Grid 排版 (評分表 + 雷達圖) */
+        .grading-grid { 
+            display: grid !important; 
+            grid-template-columns: 1fr 1fr !important; 
+            gap: 20px !important; 
+            width: 100% !important;
+        }
+        .grading-scores, .grading-radar {
+            width: 100% !important;
+            box-sizing: border-box !important;
+            margin: 0 !important;
+        }
+
+        /* 手機版樣式 */
+        @media (max-width: 768px) {
+            body {
+                padding: 0 !important; 
+                background-color: #fff !important;
+                display: block !important; /* 手機版改回 Block，讓內容自然流動 */
+            }
+            .export-wrapper {
+                width: 100% !important;
+                max-width: 100% !important;
+                border-radius: 0 !important;
+                box-shadow: none !important;
+            }
+            .grading-grid {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        button { display: none !important; }
