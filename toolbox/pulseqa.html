@@ -1,0 +1,5062 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>脈問堂</title>
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/firebase@9.23.0/firebase-app-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/firebase@9.23.0/firebase-database-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+<style>
+:root {
+--earth-beige: #f9f6f1;
+--clay-brown: #8a7663;
+--stone-gray: #82827a;
+--moss-green: #5f6e55;
+--charcoal: #383833;
+--shadow: #2a2a25;
+--text-primary: #333330;
+--text-secondary: #686863;
+--paper: #fdfcf8;
+--border-radius: 16px;
+--box-shadow: 0 8px 30px rgba(0, 0, 0, 0.07);
+--transition: all 0.35s cubic-bezier(0.23, 1, 0.32, 1);
+--transition-fast: all 0.2s cubic-bezier(0.23, 1, 0.32, 1);
+--primary-gradient: linear-gradient(135deg, var(--clay-brown), var(--charcoal));
+--secondary-gradient: linear-gradient(135deg, var(--moss-green), #535f4c);
+}
+* {
+  transition: var(--transition-fast);
+}
+body {
+  font-family: 'Noto Serif TC', serif;
+  background: var(--earth-beige);
+  color: var(--text-primary);
+  min-height: 100vh;
+  background-attachment: fixed;
+  line-height: 1.6;
+  position: relative;
+}
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: none;
+  z-index: -2;
+}
+.wabi-sabi-card {
+  background: var(--paper);
+  border: 1px solid rgba(141, 123, 104, 0.15);
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  transition: var(--transition);
+  position: relative;
+  overflow: hidden;
+}
+.wabi-sabi-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--moss-green), var(--clay-brown));
+  opacity: 0.85;
+}
+.wabi-sabi-button {
+  background: var(--earth-beige);
+  color: var(--charcoal);
+  border: 1px solid rgba(141, 123, 104, 0.3);
+  border-radius: var(--border-radius);
+  padding: 13px 26px;
+  font-family: 'Noto Serif TC', serif
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  transition: var(--transition);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+.wabi-sabi-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255,255,255,0.2);
+  transform: translateY(100%);
+  transition: transform 0.3s ease;
+  z-index: 0;
+}
+.wabi-sabi-button:hover::before {
+  transform: translateY(0);
+}
+.wabi-sabi-button span {
+  position: relative;
+  z-index: 1;
+}
+.wabi-sabi-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+.wabi-sabi-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+.wabi-sabi-button.primary {
+  background: var(--primary-gradient);
+  color: white;
+  border: none;
+  box-shadow: 0 4px 12px rgba(138, 118, 99, 0.3);
+}
+.wabi-sabi-button.primary:hover {
+  box-shadow: 0 6px 18px rgba(138, 118, 99, 0.4);
+}
+.wabi-sabi-button.primary:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 8px rgba(138, 118, 99, 0.35);
+}
+.wabi-sabi-button.danger {
+  background: linear-gradient(135deg, #a86b6b, #8b5555);
+  color: white;
+  border: none;
+  box-shadow: 0 4px 12px rgba(168, 107, 107, 0.3);
+}
+.wabi-sabi-button.danger:hover {
+  box-shadow: 0 6px 18px rgba(168, 107, 107, 0.4);
+}
+.input-field {
+  background-color: var(--earth-beige);
+  border: 1px solid rgba(126, 126, 118, 0.3);
+  color: var(--text-primary);
+  border-radius: 14px;
+  padding: 14px 18px;
+  font-family: 'Noto Serif TC', serif;
+  font-weight: 500;
+  transition: var(--transition);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+}
+#studentAnswer {
+  min-height: 300px;
+  overflow: hidden;
+  resize: none;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+  #studentAnswer.no-modal-editor {
+    overflow-y: auto; /* 允許垂直滾動 */
+    max-height: 300px; /* 設置最大高度，超過會顯示滾動條 */
+    resize: vertical; /* 允許手動調整大小 */
+}
+/* 確保textarea在聚焦時有正確的外觀 */
+#studentAnswer.no-modal-editor:focus {
+    outline: none;
+    border-color: var(--clay-brown);
+    box-shadow: 0 0 0 3px rgba(138, 118, 99, 0.2);
+    background-color: var(--earth-beige);
+}
+.input-field:focus {
+  outline: none;
+  border-color: var(--clay-brown);
+  box-shadow: 0 0 0 3px rgba(138, 118, 99, 0.2);
+  background-color: var(--earth-beige);
+}
+.input-field::placeholder {
+  color: var(--text-secondary);
+  opacity: 0.7;
+  font-weight: 400;
+}
+/* Modal Styles from Sansi */
+.outline-modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.65);
+    z-index: 2000;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem;
+    box-sizing: border-box;
+    backdrop-filter: blur(5px);
+}
+.outline-modal-content {
+    background-color: #fdfdfd;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 5px 25px rgba(0,0,0,0.2);
+    width: 90%;
+    max-width: 800px;
+    height: 80vh;
+    position: relative;
+    animation: fadeInScale 0.3s;
+    display: flex;
+    flex-direction: column;
+}
+.outline-modal-content h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: var(--charcoal);
+    font-size: 1.5em;
+    font-weight: 700;
+    border-bottom: 1px solid rgba(138, 118, 99, 0.2);
+    padding-bottom: 10px;
+}
+#modal-textarea {
+    width: 100%;
+    box-sizing: border-box;
+    font-size: 1.3em;
+    line-height: 1.6;
+    border: 1px solid rgba(138, 118, 99, 0.3);
+    border-radius: 8px;
+    padding: 15px;
+    flex-grow: 1;
+    resize: none;
+    background-color: #faf9f6;
+    color: #333;
+    font-family: 'Noto Serif TC', serif;
+}
+#modal-textarea:focus {
+    outline: none;
+    border-color: var(--clay-brown);
+    box-shadow: 0 0 0 3px rgba(138, 118, 99, 0.1);
+}
+.outline-modal-content .modal-buttons {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 15px;
+    gap: 10px;
+}
+.outline-modal-content .preview-close-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--stone-gray);
+    transition: color 0.2s;
+}
+.outline-modal-content .preview-close-btn:hover {
+    color: var(--charcoal);
+}
+/* Hover effect for inputs to indicate they are clickable */
+textarea:not(.no-modal-editor), input[type="text"]:not(.no-modal-editor) {
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+textarea:not(.no-modal-editor):hover, input[type="text"]:not(.no-modal-editor):hover {
+    background-color: rgba(138, 118, 99, 0.05);
+}
+/* End Modal Styles */
+.qr-section {
+  background: var(--earth-beige);
+  border: 2px solid rgba(126, 126, 118, 0.25);
+  border-radius: var(--border-radius);
+  padding: 28px;
+  text-align: center;
+  box-shadow: inset 0 0 15px rgba(0,0,0,0.03);
+  transition: var(--transition);
+}
+.qr-section:hover {
+  box-shadow: 0 0 20px rgba(0,0,0,0.05), inset 0 0 15px rgba(0,0,0,0.05);
+}
+.countdown-display {
+  font-family: 'Noto Serif TC', serif;
+  font-size: 4.2rem;
+  font-weight: 700;
+  color: var(--charcoal);
+  text-shadow: 0 2px 4px rgba(0,0,0,0.08);
+  letter-spacing: -1.5px;
+  position: relative;
+  line-height: 1;
+}
+.countdown-display::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80%;
+  height: 3px;
+  background: var(--primary-gradient);
+  border-radius: 3px;
+  opacity: 0.8;
+}
+.student-card {
+  transition: var(--transition);
+  border-left-width: 4px;
+  background-color: var(--earth-beige);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.04);
+  cursor: pointer;
+}
+.student-card.answered {
+  border-left-color: var(--moss-green);
+}
+.student-card.late {
+  border-left-color: #a86b6b;
+}
+.student-card:hover {
+  transform: translateX(5px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+}
+.question-display {
+  min-height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: var(--earth-beige);
+  border-radius: var(--border-radius);
+  border: 1px dashed rgba(141, 123, 104, 0.4);
+  margin-bottom: 24px;
+  transition: var(--transition);
+  position: relative;
+  overflow: hidden;
+  font-family: 'Noto Serif TC', serif;
+  font-weight: 500;
+  font-size: 1.25rem;
+  line-height: 1.5;
+}
+.question-display span {
+  position: relative;
+  z-index: 1;
+}
+.copy-success {
+  background: rgba(95, 110, 85, 0.15);
+  border-color: var(--moss-green);
+  color: var(--moss-green);
+  box-shadow: 0 0 12px rgba(95, 110, 85, 0.2);
+}
+.answer-input-area {
+  transition: var(--transition);
+  position: relative;
+}
+.answer-input-area.submitted {
+  transform: scale(0.98);
+  opacity: 0.95;
+  box-shadow: 0 0 15px rgba(95, 110, 85, 0.2);
+}
+.answer-input-area.late {
+  border-left: 4px solid #a86b6b;
+  box-shadow: 0 0 15px rgba(168, 107, 107, 0.2);
+}
+.text-wabi {
+  color: var(--clay-brown);
+  font-family: 'Noto Serif TC', serif;
+  font-weight: 600;
+}
+.text-wabi-secondary {
+  color: var(--text-secondary);
+  font-family: 'Noto Serif TC', serif;
+  font-weight: 400;
+}
+.icon-shadow {
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.12);
+  transition: var(--transition-fast);
+}
+.fade-in {
+  animation: fadeIn 0.6s ease-out forwards;
+}
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.time-input-group {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: var(--earth-beige);
+  border: 1px solid rgba(141, 123, 104, 0.3);
+  border-radius: var(--border-radius);
+  padding: 14px 18px;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+}
+.time-input {
+  width: 75px;
+  background: transparent;
+  border: none;
+  text-align: center;
+  font-family: 'Noto Serif TC', serif;
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--charcoal);
+  padding: 6px 0;
+  position: relative;
+  z-index: 1;
+}
+.time-input:focus {
+  outline: none;
+  box-shadow: none;
+}
+.time-input::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 2px;
+  background: var(--clay-brown);
+  transition: width 0.3s ease;
+  z-index: 0;
+}
+.time-input:focus::after {
+  width: 80%;
+}
+.time-unit {
+  color: var(--stone-gray);
+  font-weight: 600;
+  font-size: 1.2rem;
+  font-family: 'Noto Serif TC', serif;
+  letter-spacing: 0.5px;
+}
+.room-code {
+  font-family: 'Noto Serif TC', serif;
+  font-size: 1.65rem;
+  color: var(--clay-brown);
+  letter-spacing: 2px;
+  font-weight: 700;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  position: relative;
+  display: inline-block;
+}
+.room-code::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: var(--moss-green);
+  opacity: 0.7;
+}
+.copyright-footer {
+  position: fixed;
+  bottom: 12px;
+  right: 12px;
+  padding: 6px 15px;
+  background: var(--earth-beige);
+  color: var(--charcoal);
+  border-radius: 12px 0 0 0;
+  border: 1px solid rgba(141, 123, 104, 0.25);
+  font-family: 'Noto Serif TC', serif;
+  font-size: 0.8rem;
+  z-index: 100;
+  box-shadow: -2px -2px 8px rgba(0,0,0,0.05);
+  transition: var(--transition);
+}
+.copyright-footer:hover {
+  transform: translateX(-3px);
+  box-shadow: -3px -3px 12px rgba(0,0,0,0.08);
+}
+.host-countdown-container {
+  text-align: center;
+  padding: 20px;
+  background: rgba(138, 118, 99, 0.04);
+  border-radius: var(--border-radius);
+  margin-top: 24px;
+  min-height: 90px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(141, 123, 104, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+.host-countdown {
+  font-family: 'Noto Serif TC', serif;
+  font-size: 3.6rem;
+  font-weight: 700;
+  color: var(--charcoal);
+  text-shadow: 0 2px 4px rgba(0,0,0,0.08);
+  letter-spacing: -1px;
+  position: relative;
+  z-index: 1;
+  line-height: 1;
+}
+.time-control-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 8px;
+}
+@media (min-width: 768px) {
+  .time-control-container {
+    flex-direction: row;
+    align-items: flex-end;
+  }
+  .time-input-wrapper {
+    flex: 1;
+  }
+}
+.time-button-wrapper {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 8px;
+  position: relative;
+  z-index: 10;
+}
+.question-title {
+  font-family: 'Noto Serif TC', serif;
+  font-size: 1.45rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+.time-title {
+  font-family: 'Noto Serif TC', serif;
+  font-size: 1.15rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+#participantsStatus {
+  scrollbar-width: thin;
+  scrollbar-color: var(--stone-gray) transparent;
+}
+#participantsStatus::-webkit-scrollbar {
+  width: 6px;
+}
+#participantsStatus::-webkit-scrollbar-track {
+  background: transparent;
+}
+#participantsStatus::-webkit-scrollbar-thumb {
+  background-color: var(--stone-gray);
+  border-radius: 3px;
+}
+#answersList {
+  scrollbar-width: thin;
+  scrollbar-color: var(--stone-gray) transparent;
+}
+#answersList::-webkit-scrollbar {
+  width: 6px;
+}
+#answersList::-webkit-scrollbar-track {
+  background: transparent;
+}
+#answersList::-webkit-scrollbar-thumb {
+  background-color: var(--stone-gray);
+  border-radius: 3px;
+}
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.card-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: rgba(138, 118, 99, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--clay-brown);
+}
+#submitBtn {
+  position: relative;
+  overflow: hidden;
+}
+#submitBtn::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: left 0.6s;
+}
+#submitBtn:hover::after {
+  left: 100%;
+}
+.section-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin-bottom: 2rem;
+}
+.section-title {
+  font-family: 'Noto Serif TC', serif;
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--charcoal);
+  margin-bottom: 0.5rem;
+}
+.section-subtitle {
+  color: var(--text-secondary);
+  font-family: 'Noto Serif TC', serif;
+  font-size: 1.1rem;
+}
+.role-button {
+  transition: var(--transition);
+  border: 2px solid transparent;
+  position: relative;
+  overflow: hidden;
+}
+.role-button::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(45deg, var(--clay-brown), var(--moss-green));
+  z-index: 0;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.role-button:hover::before {
+  opacity: 1;
+}
+.role-button span {
+  position: relative;
+  z-index: 2;
+}
+.role-icon {
+  font-size: 2.8rem;
+  margin-bottom: 1rem;
+  transition: var(--transition);
+}
+.role-button:hover .role-icon {
+  transform: scale(1.1);
+}
+.role-title {
+  font-family: ''Noto Serif TC', serif;
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+.role-desc {
+  font-family: 'Noto Serif TC', serif;
+  color: var(--text-secondary);
+}
+.role-button.primary {
+  background: rgba(138, 118, 99, 0.1);
+  border: 1px solid rgba(138, 118, 99, 0.3);
+}
+.role-button.primary:hover {
+  background: rgba(138, 118, 99, 0.15);
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(138, 118, 99, 0.25);
+}
+.role-button.primary .role-icon {
+  color: var(--clay-brown);
+}
+.role-button.primary .role-title,
+.role-button.primary .role-desc {
+  color: var(--charcoal);
+}
+@keyframes pulse {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.05); opacity: 0.9; }
+  100% { transform: scale(1); opacity: 1; }
+}
+.pulse {
+  animation: pulse 2s infinite;
+}
+.wabi-sabi-button:hover .icon-shadow {
+  transform: scale(1.1);
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+.fade-in-scale {
+  animation: fadeInScale 0.5s ease-out forwards;
+}
+.floating {
+  animation: float 3s ease-in-out infinite;
+}
+@media (max-width: 768px) {
+  .countdown-display {
+    font-size: 3.2rem;
+  }
+  .host-countdown {
+    font-size: 2.8rem;
+  }
+  .section-title {
+    font-size: 1.8rem;
+  }
+  .role-button {
+    padding: 1.5rem;
+  }
+  .role-icon {
+    font-size: 2.2rem;
+  }
+  .time-input {
+    width: 60px;
+    font-size: 1.1rem;
+  }
+}
+@media (max-width: 480px) {
+  .countdown-display {
+    font-size: 2.8rem;
+  }
+  .host-countdown {
+    font-size: 2.4rem;
+  }
+  .section-title {
+    font-size: 1.6rem;
+  }
+  .role-button {
+    padding: 1.2rem;
+  }
+  .role-icon {
+    font-size: 1.8rem;
+  }
+  .time-input-group {
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+  .time-input {
+    width: 80px;
+  }
+}
+.answer-display {
+  cursor: text;
+  padding-top: 8px;
+  padding-right: 8px;
+  padding-bottom: 8px;
+  padding-left: 8px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  transition: var(--transition);
+  min-height: 60px;
+  background: var(--paper);
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  outline: none;
+  font-size: 1.3rem;
+  line-height: 1.8;
+}
+.answer-display:hover {
+  background-color: rgba(138, 118, 99, 0.05);
+  border: 1px dashed rgba(138, 118, 99, 0.3);
+}
+.answer-display:focus {
+  background-color: var(--earth-beige);
+  border: 1px solid var(--clay-brown);
+  box-shadow: 0 0 0 2px rgba(138, 118, 99, 0.2);
+}
+.editing-indicator {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: var(--moss-green);
+  color: white;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 0.7rem;
+  font-weight: 500;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.student-card.editing .editing-indicator {
+  opacity: 1;
+}
+#fullscreenAnswers {
+  transition: opacity 0.3s ease;
+  background: var(--paper);
+}
+#fullscreenAnswers:not(.hidden) {
+  display: flex !important;
+}
+.fullscreen-answer-card {
+  background: var(--paper);
+  border: 1px solid rgba(141, 123, 104, 0.15);
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  margin-bottom: 1.5rem;
+  transition: var(--transition);
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+}
+.fullscreen-answer-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--moss-green), var(--clay-brown));
+  opacity: 0.85;
+}
+.fullscreen-answer-card.editing {
+  border: 2px solid var(--clay-brown);
+  box-shadow: 0 0 20px rgba(138, 118, 99, 0.2);
+}
+.fullscreen-toggle-btn {
+  position: static;
+  margin-left: auto;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--earth-beige);
+  border: 1px solid rgba(141, 123, 104, 0.3);
+  color: var(--clay-brown);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--transition);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  flex-shrink: 0;
+}
+.fullscreen-toggle-btn:hover {
+  transform: scale(1.1);
+  background: rgba(138, 118, 99, 0.1);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  color: var(--charcoal);
+}
+.answers-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  position: relative;
+}
+.answers-title-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  flex: 1;
+}
+#fullscreenToggle {
+  margin-left: 30px;
+  order: 2;
+}
+.font-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+  order: 1;
+}
+#answersList {
+  position: relative;
+}
+#fullscreenAnswers .student-card {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  font-size: 1.1rem;
+}
+#fullscreenAnswers .answer-display {
+  font-size: 1.2rem;
+  line-height: 1.8;
+  min-height: 150px;
+  padding: 1rem;
+}
+#fullscreenAnswers .answer-display:hover {
+  background-color: rgba(138, 118, 99, 0.05);
+  border: 1px dashed rgba(138, 118, 99, 0.3);
+}
+#fullscreenAnswers .answer-display:focus {
+  background-color: var(--earth-beige);
+  border: 1px solid var(--clay-brown);
+  box-shadow: 0 0 0 3px rgba(138, 118, 99, 0.2);
+}
+.font-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: 15px;
+}
+.font-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--earth-beige);
+  border: 1px solid rgba(141, 123, 104, 0.3);
+  color: var(--clay-brown);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--transition);
+  font-size: 0.9rem;
+  font-weight: bold;
+}
+.font-btn:hover {
+  background: rgba(138, 118, 99, 0.1);
+  transform: scale(1.05);
+}
+.font-btn:active {
+  transform: scale(0.95);
+}
+#fullscreenAnswers .font-controls {
+  margin-left: auto;
+  margin-right: 15px;
+}
+#fullscreenAnswers .font-btn {
+  width: 44px;
+  height: 44px;
+  font-size: 1.1rem;
+}
+/* Outline Mode CSS */
+.mode-selector, .outline-options {
+  margin-bottom: 15px;
+}
+.outline-options label, .mode-selector label {
+  margin-right: 15px;
+  cursor: pointer;
+  font-weight: 500;
+  color: var(--charcoal);
+}
+.outline-options input[type="radio"], .mode-selector input[type="radio"] {
+  margin-right: 5px;
+}
+.outline-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  font-size: 1rem;
+}
+.outline-table th, .outline-table td {
+  border: 1px solid rgba(141, 123, 104, 0.3);
+  padding: 10px;
+  text-align: left;
+  vertical-align: top;
+}
+.outline-table th {
+  background: rgba(138, 118, 99, 0.1);
+  font-weight: 600;
+  color: var(--charcoal);
+}
+.outline-table textarea {
+  width: 100%;
+  background: rgba(255,255,255,0.5);
+  border: 1px solid rgba(0,0,0,0.1);
+  border-radius: 6px;
+  padding: 8px;
+  resize: vertical;
+  min-height: 70px;
+  font-family: 'Noto Serif TC', serif;
+  font-size: 1rem;
+}
+.outline-table textarea:focus {
+  outline: none;
+  border-color: var(--clay-brown);
+  background: white;
+  box-shadow: 0 0 0 2px rgba(138, 118, 99, 0.1);
+}
+.outline-control-btn {
+  background: var(--earth-beige);
+  border: 1px solid var(--clay-brown);
+  color: var(--clay-brown);
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  margin-right: 10px;
+  transition: all 0.2s;
+  font-size: 1rem;
+}
+.outline-control-btn:hover {
+  background: var(--clay-brown);
+  color: white;
+}
+/* Style for rendering table in answer card */
+.rendered-outline-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 5px;
+  font-size: 0.9em;
+}
+.rendered-outline-table th, .rendered-outline-table td {
+  border: 1px solid rgba(138, 118, 99, 0.3);
+  padding: 6px;
+  vertical-align: top;
+}
+.rendered-outline-table th {
+  background-color: rgba(138, 118, 99, 0.1);
+  font-weight: bold;
+}
+#studentInputContainer {
+  width: 100%;
+}
+.student-config-area {
+  margin-bottom: 15px;
+  padding: 10px;
+  background: rgba(138, 118, 99, 0.05);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.config-select {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(141, 123, 104, 0.3);
+  background: var(--earth-beige);
+  font-family: 'Noto Serif TC', serif;
+  color: var(--charcoal);
+}
+  .fullscreen-countdown-pulse {
+  animation: countdown-pulse 1s ease-in-out infinite;
+}
+/* 替換或更新全屏倒計時樣式 */
+@keyframes countdown-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.05); opacity: 0.9; }
+}
+#fullscreenCountdownDisplay {
+  font-size: 50vh; /* 佔據60%視口高度，配合容器整體約80% */
+  max-height: 70vh;
+  max-width: 100%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-shadow: 0 0 40px rgba(251, 191, 36, 0.8), 0 0 60px rgba(251, 191, 36, 0.6);
+  letter-spacing: -0.05em;
+}
+/* 在小屏幕上縮小字體 */
+@media (max-width: 768px) {
+  #fullscreenCountdownDisplay {
+    font-size: 50vh;
+  }
+  #fullscreenCountdown h2 {
+    font-size: 2.5rem;
+  }
+}
+@media (max-width: 480px) {
+  #fullscreenCountdownDisplay {
+    font-size: 40vh;
+  }
+  #fullscreenCountdown h2 {
+    font-size: 1.8rem;
+    margin-bottom: 0.5rem;
+  }
+}
+#fullscreenCountdown h2 {
+  font-family: 'Noto Serif TC', serif;
+  color: rgba(255, 255, 255, 0.85);
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+/* 工具列容器：移至上方，橫向排列，居中 */
+/* --- 繪畫模式工具列響應式設計 --- */
+
+/* 1. 工具列容器基礎設定 */
+/* 在現有的 #drawingTools CSS 規則中添加 */
+#drawingTools {
+  /* 保留現有樣式 */
+  position: fixed;
+  top: 85px; 
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 60;
+  background: var(--paper);
+  padding: 10px 20px;
+  border-radius: 50px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  border: 1px solid rgba(138, 118, 99, 0.2);
+  
+  display: flex !important;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px; 
+  
+  max-width: 92vw;
+  width: max-content;
+  
+  overflow-x: auto; 
+  -webkit-overflow-scrolling: touch;
+  
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  
+  /* 添加過渡效果 */
+  transition: padding 0.3s ease, border-radius 0.3s ease, top 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+  
+  /* 確保工具列內容在高度變化時仍然垂直居中 */
+  flex-wrap: nowrap;
+  min-height: 68px; /* 確保有最小高度 */
+}
+
+#drawingTools.hidden {
+  display: none !important;
+}
+
+/* 隱藏 Chrome/Safari/Webkit 的滾動條 */
+#drawingTools::-webkit-scrollbar {
+  display: none;
+}
+
+/* 2. 按鈕基礎設定 */
+.tool-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  cursor: pointer;
+  background: var(--earth-beige);
+  color: var(--charcoal);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  transition: all 0.2s ease;
+  position: relative;
+  
+  /* 關鍵：防止按鈕在空間不足時被壓縮變形 */
+  flex-shrink: 0; 
+  -webkit-tap-highlight-color: transparent;
+}
+
+.tool-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.tool-btn:active {
+  transform: translateY(0);
+}
+
+.tool-btn.active {
+  border-color: var(--clay-brown);
+  background: rgba(138, 118, 99, 0.1);
+  transform: scale(1.1);
+}
+
+/* 為滑桿彈出框添加更好的定位 */
+.slider-popup {
+  position: absolute;
+  top: calc(100% + 10px); /* 在工具列下方顯示 */
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--paper);
+  padding: 15px;
+  border-radius: 12px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+  border: 1px solid rgba(138, 118, 99, 0.2);
+  width: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 70;
+  /* 確保滑桿彈出框在加高的工具列內部可見 */
+  margin-top: 5px;
+}
+
+.slider-popup.hidden {
+  display: none;
+}
+
+/* 4. 滑桿本體樣式 */
+input[type=range] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 6px;
+    background: #e5e5e5;
+    border-radius: 3px;
+    outline: none;
+}
+
+input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--clay-brown);
+    cursor: pointer;
+    border: 2px solid white;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+
+/* 5. 手機版響應式調整 (螢幕寬度小於 768px 時觸發) */
+@media (max-width: 768px) {
+    /* 手機版滑桿優化：改為固定在螢幕中央彈出 (Modal模式) */
+    /* 這樣即使工具列在滑動，滑桿也能穩定的顯示在畫面中間 */
+    .slider-popup {
+        position: fixed; /* 改為固定定位，不影響原有佈局 */
+        top: 50%;        /* 垂直居中 */
+        left: 50%;       /* 水平居中 */
+        transform: translate(-50%, -50%); /* 精確居中 */
+        width: 260px;    /* 調整寬度 */
+        padding: 30px 20px; /* 調整內邊距 */
+        background: #fff; /* 使用白色背景 */
+        /* 增加深色背景遮罩效果，讓用戶專注調整 */
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2), 0 0 0 100vmax rgba(0,0,0,0.3); /* 添加遮罩 */
+        border: 1px solid var(--clay-brown);
+        z-index: 70; /* 確保在工具列和其他元素之上 */
+    }
+
+    /* 增大滑桿觸控點，方便手指拖動 */
+    input[type=range]::-webkit-slider-thumb {
+        width: 28px;
+        height: 28px;
+    }
+}
+
+/* 5. 手機版響應式調整 (螢幕寬度小於 768px 時觸發) */
+@media (max-width: 768px) {
+  #drawingTools {
+    top: 70px; /* 手機上稍微往上，留出更多繪圖空間 */
+    padding: 8px 12px;
+    gap: 10px; /* 稍微縮小間距 */
+    border-radius: 30px;
+  }
+
+  .tool-btn {
+    width: 40px; /* 縮小按鈕尺寸適應手指 */
+    height: 40px;
+    font-size: 1rem;
+  }
+
+  /* 手機版滑桿優化：改為固定在螢幕中央彈出 (Modal模式) */
+  /* 這樣即使工具列在滑動，滑桿也能穩定的顯示在畫面中間 */
+  .slider-popup {
+    position: fixed; 
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 260px;
+    padding: 30px 20px;
+    background: #fff;
+    /* 增加深色背景遮罩效果，讓用戶專注調整 */
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2), 0 0 0 100vmax rgba(0,0,0,0.3);
+    border: 1px solid var(--clay-brown);
+  }
+  
+  /* 增大滑桿觸控點，方便手指拖動 */
+  input[type=range]::-webkit-slider-thumb {
+    width: 28px; 
+    height: 28px;
+  }
+}
+
+/* 反饋畫布 (用於橡皮擦痕跡) */
+#feedbackCanvas {
+  pointer-events: none; /* 不阻擋鼠標事件 */
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 45; /* 在繪圖畫布(40)之上 */
+  opacity: 0.6;
+  transition: opacity 0.3s;
+}
+
+/* 隱藏原生顏色輸入框 */
+#colorInputHtml {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+  /* --- 滾動模式與 Canvas 定位修訂 --- */
+
+/* 列表容器：作為定位基準 */
+#fullscreenAnswersList {
+  position: relative; 
+  overflow-y: auto;
+  display: block;
+}
+
+/* Canvas 容器：絕對定位，隨內容滾動 */
+#drawingCanvasContainer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  /* 高度不由 CSS 設定，由 JS 設為 scrollHeight */
+  transform-origin: 0 0;
+  pointer-events: none; /* 預設不攔截，由 JS 切換 */
+}
+
+/* 狀態切換 */
+#drawingCanvasContainer.active-drawing {
+  pointer-events: auto; /* 繪畫模式：Canvas 接收事件 */
+}
+
+#drawingCanvasContainer.active-scroll {
+  pointer-events: none; /* 滾動模式：事件穿透到底層列表 */
+}
+
+
+/* 3. 工具按鈕新增「手掌/移動」圖示樣式 */
+#scrollModeBtn.active {
+  background-color: var(--clay-brown);
+  color: white;
+  border-color: var(--clay-brown);
+}
+  
+</style>
+</head>
+<body>
+<div class="container mx-auto px-4 py-10 max-w-6xl">
+<!-- 主選單 -->
+<div id="mainMenu" class="space-y-10">
+<header class="section-header fade-in-scale">
+<h1 class="section-title">
+<i class="fas fa-brush text-clay-brown mr-3 icon-shadow"></i>
+脈問堂
+</h1>
+<p class="section-subtitle">簡潔高效的課堂問答計時工具</p>
+</header>
+<div class="wabi-sabi-card p-8 fade-in" style="animation-delay: 0.2s">
+<h2 class="text-2xl font-bold mb-8 text-center text-wabi">
+<i class="fas fa-user-cog mr-3"></i>
+選擇您的角色
+</h2>
+<div class="grid md:grid-cols-2 gap-8">
+<button onclick="showHostSection()" class="role-button primary wabi-sabi-button p-7 rounded-xl text-center group">
+<div class="transform transition-transform duration-300">
+<i class="fas fa-user-tie role-icon text-moss-green"></i>
+<div class="role-title">主持人</div>
+<div class="role-desc">設置問題與計時</div>
+</div>
+</button>
+<button onclick="showJoinSection()" class="role-button secondary wabi-sabi-button p-7 rounded-xl text-center group">
+<div class="transform transition-transform duration-300">
+<i class="fas fa-user-graduate role-icon text-moss-green"></i>
+<div class="role-title">學生</div>
+<div class="role-desc">加入問答</div>
+</div>
+</button>
+</div>
+</div>
+</div>
+<!-- 主持人介面 -->
+<div id="hostSection" class="hidden space-y-8">
+<header class="section-header fade-in-scale">
+<h1 class="section-title">
+<i class="fas fa-user-tie text-clay-brown mr-3"></i>
+主持人介面
+</h1>
+<p class="section-subtitle">房間代碼: <span id="hostRoomCode" class="room-code"></span></p>
+</header>
+<div class="grid lg:grid-cols-2 gap-9">
+<!-- 左側：QR Code & 控制 -->
+<div class="space-y-9">
+<div class="wabi-sabi-card p-7 fade-in">
+<div class="card-header mb-5">
+<div class="card-icon">
+<i class="fas fa-qrcode"></i>
+</div>
+<h2 class="text-xl font-bold text-wabi">分享房間</h2>
+</div>
+<div class="qr-section">
+<div class="mb-5">
+<h3 class="text-xl font-bold text-wabi mb-2">掃描加入問答</h3>
+<p class="text-wabi-secondary text-sm mb-4">學生可使用手機掃描此二維碼加入</p>
+</div>
+<div class="flex justify-center mb-5">
+<canvas id="qrCanvas" class="bg-earth-beige p-5 rounded-xl border border-stone-gray shadow-md"></canvas>
+</div>
+<div class="space-y-4">
+<button onclick="downloadQR()" class="wabi-sabi-button w-full py-3.5 rounded-xl font-medium">
+<i class="fas fa-download mr-2"></i>保存二維碼
+</button>
+<button onclick="copyShareLink()" id="copyLinkBtn" class="wabi-sabi-button w-full py-3.5 rounded-xl font-medium">
+<i class="fas fa-copy mr-2"></i>複製分享連結
+</button>
+</div>
+</div>
+</div>
+<div class="wabi-sabi-card p-7 fade-in" style="animation-delay: 0.1s">
+<div class="card-header mb-5">
+<div class="card-icon">
+<i class="fas fa-edit"></i>
+</div>
+<h2 class="text-xl font-bold text-wabi">問題設置</h2>
+</div>
+<div class="space-y-5">
+<!-- 模式選擇 -->
+<div class="mode-selector">
+  <label><input type="radio" name="questionMode" value="qa" checked onclick="toggleMode()"> 問答模式</label>
+  <label><input type="radio" name="questionMode" value="outline" onclick="toggleMode()"> 大綱模式</label>
+  <label><input type="radio" name="questionMode" value="extended" onclick="toggleMode()"> 拓展模式</label>
+</div>
+<!-- 大綱選項 (隱藏/顯示) -->
+<div id="outlineConfig" class="outline-options hidden p-4 bg-earth-beige rounded-lg border border-gray-200">
+  <div class="mb-3">
+    <span class="font-bold text-gray-700 mr-3">大綱類型:</span>
+    <label><input type="radio" name="outlineType" value="narrative" checked> 敘事抒情</label>
+    <label><input type="radio" name="outlineType" value="argument"> 議論</label>
+  </div>
+</div>
+<div>
+<label class="block text-base font-medium text-wabi-secondary mb-2.5">問題內容</label>
+<textarea id="questionInput" class="input-field w-full px-4.5 py-3.5 rounded-xl min-h-[110px] resize-y" placeholder="請在此輸入問題..."></textarea>
+</div>
+<div class="time-control-container">
+<div class="time-input-wrapper">
+<div class="time-title">計時設定</div>
+<div class="time-input-group">
+<input type="number" id="minutesInput" class="input-field time-input px-3 py-2.5" value="10" min="0">
+<span class="time-unit">分</span>
+<input type="number" id="secondsInput" class="input-field time-input px-3 py-2.5" value="0" min="0" max="59">
+<span class="time-unit">秒</span>
+</div>
+</div>
+<div class="time-button-wrapper">
+    <button id="shareScreenBtn" onclick="toggleScreenSharing()" class="wabi-sabi-button secondary px-7 py-3.5 rounded-xl font-medium text-lg hidden mr-3">
+        <i class="fas fa-broadcast-tower mr-2"></i><span id="shareScreenBtnText"></span>
+    </button>
+    <button id="startBtn" onclick="startSession()" class="wabi-sabi-button primary px-7 py-3.5 rounded-xl font-medium text-lg">
+        <i class="fas fa-play mr-2"></i>開始
+    </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- 右側:學生回答列表 -->
+<div class="space-y-9">
+<div class="wabi-sabi-card p-7 fade-in">
+<div class="card-header mb-5">
+<div class="card-icon">
+<i class="fas fa-users"></i>
+</div>
+<h2 class="text-xl font-bold text-wabi">參與學生
+<span class="text-base font-normal text-wabi-secondary ml-2">(已加入: <span id="participantCount">0</span> 人)</span>
+</h2>
+</div>
+<div id="participantsStatus" class="space-y-3 max-h-64 overflow-y-auto pr-2">
+<!-- 學生狀態將在此顯示 -->
+<div class="text-center py-10 text-wabi-secondary">尚未有人加入</div>
+</div>
+</div>
+<div class="wabi-sabi-card p-7 fade-in" style="animation-delay: 0.1s">
+  <div class="card-header mb-5">
+  <div class="card-icon">
+    <i class="fas fa-comments"></i>
+  </div>
+  <div class="answers-header">
+  <div class="answers-title-wrapper">
+    <h2 class="text-xl font-bold text-wabi">所有回答
+      <span class="text-base font-normal text-wabi-secondary ml-2">(<span id="remainingTimeDisplay">10:00</span>)</span>
+    </h2>
+    <div class="font-controls">
+      <button class="font-btn decrease-font" title="縮小字體">
+        <i class="fas fa-font"></i>
+      </button>
+      <button class="font-btn increase-font" title="放大字體">
+        <i class="fas fa-font"></i><i class="fas fa-plus" style="font-size: 0.6em; margin-left: -2px;"></i>
+      </button>
+      <button onclick="downloadAllAnswers()" class="font-btn" title="下載所有回答">
+        <i class="fas fa-download"></i>
+      </button>
+    </div>
+  </div>
+  <button id="fullscreenToggle" class="fullscreen-toggle-btn" title="全屏檢視回答">
+    <i class="fas fa-expand-arrows-alt"></i>
+  </button>
+</div>
+</div>
+<div id="answersList" class="space-y-5 max-h-[620px] overflow-y-auto pr-2">
+<!-- 學生回答將在此顯示 -->
+<div class="text-center py-12 text-wabi-secondary">尚未開始</div>
+</div>
+<div class="mt-8 flex justify-end space-x-5 pt-5 border-t border-stone-gray border-opacity-30">
+<button onclick="clearSession()" class="wabi-sabi-button danger px-7 py-3.5 rounded-xl font-medium">
+<i class="fas fa-broom mr-2"></i>清空
+</button>
+<button onclick="endSession()" class="wabi-sabi-button primary px-7 py-3.5 rounded-xl font-medium">
+<i class="fas fa-stop mr-2"></i>結束
+</button>
+</div>
+</div>
+</div>
+</div>
+<div class="text-center fade-in" style="animation-delay: 0.2s">
+<button onclick="leaveHost()" class="wabi-sabi-button px-9 py-3.5 rounded-xl font-medium text-lg">
+<i class="fas fa-door-open mr-2"></i>離開房間
+</button>
+</div>
+</div>
+<!-- 學生加入介面 -->
+<div id="joinSection" class="hidden space-y-10">
+<header class="section-header fade-in-scale">
+<h1 class="section-title">
+<i class="fas fa-user-graduate text-moss-green mr-3"></i>
+加入房間
+</h1>
+<p class="section-subtitle">請輸入您的姓名與房間代碼</p>
+</header>
+<div class="max-w-md mx-auto fade-in">
+<div class="wabi-sabi-card p-9">
+<div class="space-y-7">
+<div>
+<label class="block text-base font-medium text-wabi-secondary mb-3">您的姓名</label>
+<input type="text" id="studentName" class="input-field w-full px-5 py-3.5 rounded-xl" placeholder="請輸入您的姓名">
+</div>
+<div>
+<label class="block text-base font-medium text-wabi-secondary mb-3">房間代碼</label>
+<input type="text" id="joinRoomCode" class="input-field w-full px-5 py-3.5 rounded-xl text-center text-2xl tracking-wider font-mono" placeholder="000000" maxlength="6">
+</div>
+<div class="flex gap-5">
+<button onclick="joinAsStudent()" class="wabi-sabi-button primary flex-1 py-4 rounded-xl font-medium text-lg">
+<i class="fas fa-door-open mr-2"></i>進入
+</button>
+<button onclick="showMainMenu()" class="wabi-sabi-button px-6 py-4 rounded-xl">
+<i class="fas fa-arrow-left"></i>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- 學生答題介面 -->
+<div id="studentSection" class="hidden space-y-10">
+<header class="section-header fade-in-scale">
+<h1 class="section-title">
+<i class="fas fa-user-graduate text-moss-green mr-3"></i>
+學生作答
+</h1>
+<p class="section-subtitle">房間: <span id="studentRoomCode" class="room-code"></span> | 姓名: <span id="studentDisplayName"></span></p>
+</header>
+<div class="wabi-sabi-card p-9 text-center fade-in">
+<div class="question-display mb-8">
+<p id="questionDisplay" class="text-xl font-medium text-wabi-secondary">請等待主持人開始計時</p>
+</div>
+<div class="countdown-display mb-10" id="studentCountdown">10:00</div>
+<div id="answerInputArea" class="answer-input-area mb-9">
+  <div id="studentInputContainer">
+    <textarea id="studentAnswer" class="input-field w-full px-5 py-4 rounded-xl min-h-[160px] text-lg resize-y" placeholder="請在此輸入您的回答..." disabled></textarea>
+  </div>
+  <div id="wordCountDisplay" class="text-right mt-2 text-wabi-secondary hidden">
+    剩餘字數: <span id="remainingWords">180</span>
+  </div>
+</div>
+<div class="flex justify-center gap-4">
+  <button onclick="downloadMyAnswer()" id="downloadMyAnswerBtn" class="wabi-sabi-button secondary px-6 py-3.5 rounded-xl font-medium text-base hidden">
+    <i class="fas fa-download mr-2"></i>下載
+  </button>
+  <button id="submitBtn" onclick="submitAnswer()" class="wabi-sabi-button primary px-9 py-4.5 rounded-xl font-medium text-lg hidden" disabled>
+    <i class="fas fa-paper-plane mr-2"></i>提交
+  </button>
+</div>
+<div id="submissionStatus" class="mt-7 text-lg font-medium text-wabi-secondary hidden">
+<i class="fas fa-check-circle text-moss-green mr-2"></i>已提交回答
+</div>
+</div>
+<div class="text-center fade-in">
+<button onclick="leaveStudent()" class="wabi-sabi-button px-9 py-3.5 rounded-xl font-medium text-lg">
+<i class="fas fa-door-open mr-2"></i>離開房間
+</button>
+</div>
+</div>
+</div>
+<!-- Modal Structure for Text Editing -->
+<div id="outline-editor-modal" class="outline-modal-overlay">
+  <div class="outline-modal-content">
+    <button id="modal-close-btn" class="preview-close-btn" title="關閉">&times;</button>
+    <h3 id="modal-title">編輯內容</h3>
+    <textarea id="modal-textarea" rows="15" placeholder="請在此輸入..."></textarea>
+    <div class="modal-buttons">
+      <button id="modal-save-btn" class="wabi-sabi-button primary">確認</button>
+    </div>
+  </div>
+</div>
+<script>
+const firebaseConfig = {
+apiKey: "AIzaSyB17JKsoCf-H66g13EphV9H7GfR3MreFOo",
+authDomain: "collect-358e3.firebaseapp.com",
+databaseURL: "https://collect-358e3-default-rtdb.firebaseio.com",
+projectId: "collect-358e3",
+storageBucket: "collect-358e3.firebasestorage.app",
+messagingSenderId: "1024060422420",
+appId: "1:1024060422420:web:52dd61dff75c7abc44aa01"
+};
+if (!firebase.apps.length) {
+firebase.initializeApp(firebaseConfig);
+}
+const database = firebase.database();
+const answerColors = [
+  { border: '#8a7663', bg: 'rgba(138, 118, 99, 0.08)' },
+  { border: '#5f6e55', bg: 'rgba(95, 110, 85, 0.08)' },
+  { border: '#a86b6b', bg: 'rgba(168, 107, 107, 0.08)' },
+  { border: '#7b8a8a', bg: 'rgba(123, 138, 138, 0.08)' },
+  { border: '#8a7b65', bg: 'rgba(138, 123, 101, 0.08)' },
+  { border: '#658a7b', bg: 'rgba(101, 138, 123, 0.08)' },
+  { border: '#8a658a', bg: 'rgba(138, 101, 138, 0.08)' },
+  { border: '#8a8a65', bg: 'rgba(138, 138, 101, 0.08)' }
+];
+  let fullscreenTimer = null;
+let currentRoom = null;
+let currentUser = null;
+let isHost = false;
+let timer = null; // 這是給學生端使用的
+let hostTimer = null; // 【新增】這是專門給主持人端使用的獨立計時器
+let timeLimit = 600;
+let remainingTime = 0;
+let roomRef = null;
+  let lastCalibrationWarning = 0; // 用於追蹤上次顯示警告的時間
+let sessionActive = false;
+let lastQuestionStartTime = null;
+let hasSubmitted = false;
+let currentQuestionId = null;
+  // 全局變量
+let isSharingScreen = false;
+// 切換畫面同步功能
+async function toggleScreenSharing() {
+  if (!isHost || !currentRoom || !sessionActive) return;
+ 
+  isSharingScreen = !isSharingScreen;
+  const shareScreenBtn = document.getElementById('shareScreenBtn');
+  const shareScreenBtnText = document.getElementById('shareScreenBtnText');
+ 
+  try {
+    await database.ref('class_rooms/' + currentRoom + '/session').update({
+      sharingScreen: isSharingScreen
+    });
+   
+    if (isSharingScreen) {
+      shareScreenBtn.classList.remove('secondary');
+      shareScreenBtn.classList.add('primary');
+      shareScreenBtnText.textContent = '';
+    } else {
+      shareScreenBtn.classList.remove('primary');
+      shareScreenBtn.classList.add('secondary');
+      shareScreenBtnText.textContent = '';
+    }
+  } catch (error) {
+    console.error('切換畫面同步失敗:', error);
+    isSharingScreen = !isSharingScreen; // 回滾狀態
+    alert('切換畫面同步失敗，請重試');
+  }
+}
+// 顯示同步畫面（學生端）
+function showSharedScreen(roomData) {
+  // 隱藏平常的學生答題介面
+  document.getElementById('studentSection').classList.add('hidden');
+  // 顯示共享畫面容器（如果不存在則創建）
+  let sharedScreenContainer = document.getElementById('sharedScreenContainer');
+  if (!sharedScreenContainer) {
+    sharedScreenContainer = document.createElement('div');
+    sharedScreenContainer.id = 'sharedScreenContainer';
+    sharedScreenContainer.className = 'fixed inset-0 bg-earth-beige z-50 p-4 overflow-auto';
+    document.body.appendChild(sharedScreenContainer);
+  }
+  // 生成共享內容
+  let sharedContent = `
+    <div class="max-w-6xl mx-auto">
+      <div class="wabi-sabi-card p-6 mb-6">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-2xl font-bold text-wabi">
+            <i class="fas fa-broadcast-tower mr-2 text-clay-brown"></i>
+            同步畫面
+          </h2>
+          <button onclick="hideSharedScreen()" class="wabi-sabi-button px-4 py-2">
+            <i class="fas fa-times mr-1"></i>
+          </button>
+        </div>
+        <div class="mb-6">
+          <h3 class="text-xl font-bold text-wabi mb-3">問題內容</h3>
+          <div class="p-4 bg-earth-beige rounded-xl border border-stone-gray">
+            <p class="text-lg whitespace-pre-wrap">${roomData.session.question || '無'}</p>
+          </div>
+        </div>
+      </div>
+      <div class="wabi-sabi-card p-6">
+        <h3 class="text-xl font-bold text-wabi mb-4">回答狀態</h3>
+        <div class="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
+  `;
+  // 添加學生回答列表
+  if (roomData.answers && Object.keys(roomData.answers).length > 0) {
+    const answersArray = Object.entries(roomData.answers)
+      .map(([name, answerData]) => ({
+        name,
+        ...answerData
+      }))
+      .sort((a, b) => a.timestamp - b.timestamp);
+    answersArray.forEach((answer) => {
+      const participant = roomData.participants?.[answer.name] || {};
+      const isLate = participant.late || false;
+      const studentColor = getStudentColor(answer.name);
+      // 處理大綱內容和普通文本
+      let previewContent = '';
+      if (answer.text.includes('<table')) {
+        // 為表格添加水平滾動容器，確保完整顯示且可滾動查看
+        previewContent = `
+          <div class="overflow-x-auto mt-2">
+            <div class="min-w-[800px]">
+              ${answer.text.replace('<table', '<table class="rendered-outline-table w-full text-left"')}
+            </div>
+          </div>
+        `;
+      } else {
+        // 普通文本處理
+        previewContent = `<div class="whitespace-pre-wrap break-words text-lg">${answer.text}</div>`;
+      }
+      sharedContent += `
+        <div class="p-4 bg-earth-beige rounded-lg border-l-4" style="border-color: ${studentColor.border}">
+          <div class="font-bold flex items-center mb-2">
+            ${answer.name}
+            ${isLate ?
+              '<span class="ml-2 bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full flex items-center"><i class="fas fa-clock mr-1"></i> 超時</span>' :
+              '<span class="ml-2 bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full flex items-center"><i class="fas fa-check mr-1"></i> 已提交</span>'}
+          </div>
+          <div class="mt-2">
+            ${previewContent}
+          </div>
+        </div>
+      `;
+    });
+  } else {
+    sharedContent += '<div class="text-center py-12 text-wabi-secondary text-lg">尚未有學生提交回答</div>';
+  }
+  sharedContent += `
+        </div>
+      </div>
+    </div>
+  `;
+  sharedScreenContainer.innerHTML = sharedContent;
+ 
+  // 為渲染的表格添加適當樣式
+  document.querySelectorAll('.rendered-outline-table').forEach(table => {
+    // 確保表格有適當的樣式
+    table.style.borderCollapse = 'collapse';
+    table.style.minWidth = '800px';
+   
+    // 設置表格單元格樣式
+    const cells = table.querySelectorAll('td, th');
+    cells.forEach(cell => {
+      cell.style.padding = '12px 15px';
+      cell.style.border = '1px solid rgba(138, 118, 99, 0.3)';
+      cell.style.verticalAlign = 'top';
+      cell.style.fontSize = '1rem';
+      cell.style.lineHeight = '1.5';
+    });
+   
+    // 設置表頭樣式
+    const headers = table.querySelectorAll('th');
+    headers.forEach(header => {
+      header.style.backgroundColor = 'rgba(138, 118, 99, 0.1)';
+      header.style.fontWeight = '600';
+      header.style.color = 'var(--charcoal)';
+    });
+  });
+}
+// 隱藏同步畫面（學生端）
+function hideSharedScreen() {
+  const sharedScreenContainer = document.getElementById('sharedScreenContainer');
+  if (sharedScreenContainer) {
+    sharedScreenContainer.remove();
+  }
+  document.getElementById('studentSection').classList.remove('hidden');
+}
+// 增加這個函數在檔案頂部（全域變數區域之後）
+function calibrateTime(serverTimestamp) {
+  const localTimestamp = Date.now();
+  let timeDiff = 0;
+  
+  // 處理 Firebase 服務器時間戳對象
+  if (typeof serverTimestamp === 'object' && serverTimestamp.hasOwnProperty('.sv')) {
+    console.warn('收到 Firebase 伺服器時間戳對象，使用本地時間校準');
+    timeDiff = 0; // 無法精確校準，使用本地時間
+  } else if (typeof serverTimestamp === 'number') {
+    timeDiff = serverTimestamp - localTimestamp;
+  } else {
+    console.error('無效的伺服器時間戳格式:', serverTimestamp);
+    timeDiff = 0;
+  }
+  
+  // 只在差異過大時記錄警告
+  if (Math.abs(timeDiff) > 10000) { // 10秒
+    console.warn(`客戶端與伺服器時間相差 ${Math.round(timeDiff/1000)} 秒`);
+  }
+  
+  return timeDiff;
+}
+function showTimeSyncWarning(timeDiff) {
+  // 移除已存在的警告
+  const existingWarning = document.querySelector('.time-sync-warning');
+  if (existingWarning) {
+    existingWarning.remove();
+  }
+  
+  // 只有在差異超過10秒時才顯示警告
+  if (Math.abs(timeDiff) < 10000) return;
+  
+  const warningDiv = document.createElement('div');
+  warningDiv.className = 'fixed top-4 right-4 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded shadow-lg z-50 time-sync-warning';
+  warningDiv.innerHTML = `
+    <div class="flex items-center">
+      <i class="fas fa-exclamation-triangle mr-2"></i>
+      <div>
+        <p class="font-bold">系統時間不同步</p>
+        <p>您的電腦時間與伺服器相差 ${Math.abs(Math.round(timeDiff/1000))} 秒，可能影響計時準確性</p>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(warningDiv);
+  
+  // 10秒後自動移除
+  setTimeout(() => {
+    if (warningDiv.parentNode) {
+      warningDiv.style.transition = 'opacity 0.5s';
+      warningDiv.style.opacity = '0';
+      setTimeout(() => {
+        if (warningDiv.parentNode) {
+          warningDiv.remove();
+        }
+      }, 500);
+    }
+  }, 10000);
+}
+ 
+// Student local state for outline configuration
+let studentNarrativeStructure = 'fourPart';
+let studentArgSegments = 3;
+function showMainMenu() {
+  document.getElementById('mainMenu').classList.remove('hidden');
+  document.getElementById('hostSection').classList.add('hidden');
+  document.getElementById('joinSection').classList.add('hidden');
+  document.getElementById('studentSection').classList.add('hidden');
+  if (roomRef) {
+    roomRef.off();
+    roomRef = null;
+  }
+ 
+  // 清除學生計時器
+  if (timer) {
+    clearInterval(timer);
+    timer = null;
+  }
+ 
+  // 清除主持人計時器
+  if (hostTimer) {
+    clearInterval(hostTimer);
+    hostTimer = null;
+  }
+ 
+  // ★★★ 修訂處：先檢查元素是否存在，再執行 classList 操作 ★★★
+  const hostCountdownContainer = document.getElementById('hostCountdownContainer');
+  if (hostCountdownContainer) {
+    hostCountdownContainer.classList.add('hidden');
+  }
+}
+function showHostSection() {
+document.getElementById('mainMenu').classList.add('hidden');
+document.getElementById('hostSection').classList.remove('hidden');
+document.getElementById('joinSection').classList.add('hidden');
+document.getElementById('studentSection').classList.add('hidden');
+createRoom();
+}
+function showJoinSection() {
+document.getElementById('mainMenu').classList.add('hidden');
+document.getElementById('hostSection').classList.add('hidden');
+document.getElementById('joinSection').classList.remove('hidden');
+document.getElementById('studentSection').classList.add('hidden');
+const urlParams = new URLSearchParams(window.location.search);
+const roomCode = urlParams.get('room');
+if (roomCode) {
+document.getElementById('joinRoomCode').value = roomCode;
+}
+}
+function showStudentSection() {
+document.getElementById('mainMenu').classList.add('hidden');
+document.getElementById('hostSection').classList.add('hidden');
+document.getElementById('joinSection').classList.add('hidden');
+document.getElementById('studentSection').classList.remove('hidden');
+hasSubmitted = false;
+document.getElementById('submissionStatus').classList.add('hidden');
+document.getElementById('answerInputArea').classList.remove('submitted', 'late');
+}
+function generateRoomCode() {
+return Math.floor(100000 + Math.random() * 900000).toString();
+}
+function generateQRCode(roomCode) {
+const canvas = document.getElementById('qrCanvas');
+const shareUrl = `${window.location.origin}${window.location.pathname}?room=${roomCode}`;
+QRCode.toCanvas(canvas, shareUrl, {
+width: 200,
+height: 200,
+margin: 2,
+color: {
+dark: "#383833",
+light: "#fdfcf8"
+}
+}, function (error) {
+if (error) {
+console.error('QR CODE生成失敗:', error);
+alert('QR CODE生成失敗');
+}
+});
+}
+function copyShareLink() {
+const shareUrl = `${window.location.origin}${window.location.pathname}?room=${currentRoom}`;
+const copyBtn = document.getElementById('copyLinkBtn');
+navigator.clipboard.writeText(shareUrl).then(() => {
+copyBtn.classList.add('copy-success');
+copyBtn.innerHTML = '<i class="fas fa-check mr-2"></i>已複製!';
+setTimeout(() => {
+copyBtn.classList.remove('copy-success');
+copyBtn.innerHTML = '<i class="fas fa-copy mr-2"></i>複製分享連結';
+}, 3000);
+}).catch(err => {
+console.error('複製失敗:', err);
+prompt('請手動複製以下連結:', shareUrl);
+});
+}
+function downloadQR() {
+const canvas = document.getElementById('qrCanvas');
+const link = document.createElement('a');
+link.download = `wabi-sabi-room-${currentRoom}-qr.png`;
+link.href = canvas.toDataURL();
+link.click();
+}
+async function createRoom() {
+try {
+const roomCode = generateRoomCode();
+const hostName = "主持人";
+const roomData = {
+code: roomCode,
+host: hostName,
+created: firebase.database.ServerValue.TIMESTAMP,
+participants: {},
+session: {
+active: false,
+question: "",
+questionId: Date.now(),
+timeLimit: 600,
+startTime: null,
+endTime: null
+},
+answers: {}
+};
+await database.ref('class_rooms/' + roomCode).set(roomData);
+currentRoom = roomCode;
+currentUser = hostName;
+isHost = true;
+currentQuestionId = roomData.session.questionId;
+document.getElementById('hostRoomCode').textContent = roomCode;
+generateQRCode(roomCode);
+setupRoomListener();
+} catch (error) {
+console.error('創建房間失敗:', error);
+alert('創建房間失敗,請重試');
+}
+}
+async function joinAsStudent() {
+const studentName = document.getElementById('studentName').value.trim();
+const roomCode = document.getElementById('joinRoomCode').value.trim();
+if (!studentName || !roomCode) {
+alert('請輸入姓名和房間代碼');
+return;
+}
+if (roomCode.length !== 6) {
+alert('房間代碼必須是6位數');
+return;
+}
+try {
+const roomSnapshot = await database.ref('class_rooms/' + roomCode).once('value');
+if (!roomSnapshot.exists()) {
+alert('房間不存在');
+return;
+}
+const roomData = roomSnapshot.val();
+if (roomData.participants && roomData.participants[studentName]) {
+alert('此名稱已被使用,請選擇其他名稱');
+return;
+}
+await database.ref('class_rooms/' + roomCode + '/participants/' + studentName).set({
+name: studentName,
+joined: firebase.database.ServerValue.TIMESTAMP,
+submitted: false,
+late: false,
+lastQuestionId: roomData.session.questionId || null
+});
+currentRoom = roomCode;
+currentUser = studentName;
+isHost = false;
+document.getElementById('studentRoomCode').textContent = roomCode;
+document.getElementById('studentDisplayName').textContent = studentName;
+setupRoomListener();
+showStudentSection();
+} catch (error) {
+console.error('加入房間失敗:', error);
+alert('加入房間失敗,請重試');
+}
+}
+function setupRoomListener() {
+  if (roomRef) {
+    roomRef.off();
+  }
+  roomRef = database.ref('class_rooms/' + currentRoom);
+  let updateTimeout = null;
+  let lastUpdateTime = 0;
+  const MIN_UPDATE_INTERVAL = 300;
+  
+  roomRef.on('value', (snapshot) => {
+    if (!snapshot.exists()) {
+      alert('房間已不存在');
+      showMainMenu();
+      return;
+    }
+    
+    const roomData = snapshot.val();
+    
+    // 時間校準 - 只在會話活動時進行
+    if (roomData.session?.active && roomData.session.startTime) {
+      calibrateTime(roomData.session.startTime);
+    }
+    
+    // 檢查是否為關鍵更新 (計時相關)
+    const isCriticalUpdate = 
+      roomData.session?.active !== sessionActive ||
+      (roomData.session?.active && roomData.session.startTime !== lastQuestionStartTime) ||
+      (roomData.session?.active && roomData.session.timeLimit !== timeLimit);
+    
+    if (isCriticalUpdate) {
+      // 關鍵更新 - 立即執行，不使用去抖
+      performUIUpdate(roomData);
+      lastUpdateTime = Date.now();
+    } else {
+      // 非關鍵更新 - 使用去抖
+      clearTimeout(updateTimeout);
+      updateTimeout = setTimeout(() => {
+        performUIUpdate(roomData);
+        lastUpdateTime = Date.now();
+      }, 50);
+    }
+  });
+}
+function performUIUpdate(roomData) {
+  updateParticipantCount(roomData.participants);
+  if (isHost) {
+    updateHostUI(roomData);
+  } else {
+    updateStudentUI(roomData);
+  }
+}
+let currentFontSize = 1.3;
+function initializeFontControls() {
+  document.querySelectorAll('.increase-font').forEach(btn => {
+    btn.addEventListener('click', increaseFontSize);
+  });
+  document.querySelectorAll('.decrease-font').forEach(btn => {
+    btn.addEventListener('click', decreaseFontSize);
+  });
+  applyFontSize();
+}
+function increaseFontSize() {
+  currentFontSize = Math.min(3.0, currentFontSize + 0.3);
+  applyFontSize();
+}
+function decreaseFontSize() {
+  currentFontSize = Math.max(1.1, currentFontSize - 0.3);
+  applyFontSize();
+}
+function applyFontSize() {
+  document.querySelectorAll('.answer-display').forEach(element => {
+    element.style.fontSize = `${currentFontSize}rem`;
+    element.style.lineHeight = '1.8';
+  });
+  document.querySelectorAll('#fullscreenAnswers .answer-display').forEach(element => {
+    element.style.fontSize = `${currentFontSize * 1.2}rem`;
+    element.style.lineHeight = '1.8';
+  });
+  localStorage.setItem('answerFontSize', currentFontSize);
+}
+document.addEventListener('DOMContentLoaded', () => {
+// 設置全屏倒計時按鈕
+const remainingTimeDisplay = document.getElementById('remainingTimeDisplay');
+if (remainingTimeDisplay) {
+  remainingTimeDisplay.style.cursor = 'pointer';
+  remainingTimeDisplay.title = '點擊放大顯示';
+ 
+  remainingTimeDisplay.addEventListener('click', function(e) {
+    // 防止點擊觸發父元素事件
+    e.stopPropagation();
+    if (!sessionActive || !isHost) return;
+    openFullscreenCountdown();
+  });
+}
+// 初始化全屏倒計時按鈕
+const closeFullscreenCountdownBtn = document.getElementById('closeFullscreenCountdown');
+if (closeFullscreenCountdownBtn) {
+  closeFullscreenCountdownBtn.addEventListener('click', closeFullscreenCountdown);
+}
+// 按ESC鍵關閉全屏
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape' && !document.getElementById('fullscreenCountdown').classList.contains('hidden')) {
+    closeFullscreenCountdown();
+  }
+});
+ 
+  const savedFontSize = localStorage.getItem('answerFontSize');
+  if (savedFontSize) {
+    currentFontSize = parseFloat(savedFontSize);
+  }
+  initializeFontControls();
+  setTimeout(applyFontSize, 100);
+});
+function updateParticipantCount(participants) {
+  const countElement = document.getElementById('participantCount');
+  if (!countElement) return;
+ 
+  const newCount = participants ? Object.values(participants).length : 0;
+  const currentCount = parseInt(countElement.textContent) || 0;
+ 
+  if (newCount !== currentCount) {
+    countElement.textContent = newCount;
+    updateParticipantsStatus(participants);
+  }
+}
+function updateParticipantsStatus(participants) {
+  const statusElement = document.getElementById('participantsStatus');
+  if (!statusElement) return;
+ 
+  const currentHTML = statusElement.innerHTML;
+  const shouldUpdate = shouldUpdateParticipants(participants, currentHTML);
+ 
+  if (!shouldUpdate) return;
+ 
+  if (!participants || Object.keys(participants).length === 0) {
+    statusElement.innerHTML = '<div class="text-center py-10 text-wabi-secondary">尚未有人加入</div>';
+    return;
+  }
+ 
+  const participantArray = Object.values(participants);
+  participantArray.sort((a, b) => (a.joined || 0) - (b.joined || 0));
+ 
+  let newHTML = '';
+  participantArray.forEach(participant => {
+    const statusText = participant.submitted ?
+      (participant.late ? '<span class="text-red-600 font-medium">已提交(超時)</span>' :
+                          '<span class="text-moss-green font-medium">已提交</span>') :
+      '<span class="text-stone-gray font-medium">未提交</span>';
+   
+    newHTML += `
+      <div class="flex items-center justify-between p-3.5 rounded-xl bg-earth-beige bg-opacity-40 hover:shadow-md transition-shadow">
+        <div class="flex items-center">
+          <i class="fas fa-user text-clay-brown mr-3 text-lg"></i>
+          <span class="font-medium text-base">${participant.name}</span>
+        </div>
+        <div class="font-medium">${statusText}</div>
+      </div>
+    `;
+  });
+ 
+  statusElement.innerHTML = newHTML;
+}
+function shouldUpdateParticipants(participants, currentHTML) {
+  if (!participants || Object.keys(participants).length === 0) {
+    return currentHTML.includes('尚未有人加入');
+  }
+  const participantCount = Object.keys(participants).length;
+  const currentItemCount = (currentHTML.match(/flex items-center justify-between/g) || []).length;
+  return participantCount !== currentItemCount;
+}
+function openFullscreenCountdown() {
+  const fullscreenCountdown = document.getElementById('fullscreenCountdown');
+  const fullscreenCountdownDisplay = document.getElementById('fullscreenCountdownDisplay');
+ 
+  // 設置初始值
+  const remainingTimeDisplay = document.getElementById('remainingTimeDisplay');
+  if (remainingTimeDisplay) {
+    fullscreenCountdownDisplay.textContent = remainingTimeDisplay.textContent;
+   
+    // 設置脈衝效果
+    if (remainingTime <= 5) {
+      fullscreenCountdownDisplay.classList.add('fullscreen-countdown-pulse');
+    }
+  }
+ 
+  // 顯示全屏
+  fullscreenCountdown.classList.remove('hidden');
+  document.body.style.overflow = 'hidden'; // 防止背景滾動
+ 
+  // 開始更新計時
+  clearInterval(fullscreenTimer);
+  fullscreenTimer = setInterval(updateFullscreenCountdown, 100);
+}
+function updateFullscreenCountdown() {
+  if (!sessionActive) {
+    closeFullscreenCountdown();
+    return;
+  }
+ 
+  const fullscreenCountdownDisplay = document.getElementById('fullscreenCountdownDisplay');
+  const remainingTimeDisplay = document.getElementById('remainingTimeDisplay');
+ 
+  if (remainingTimeDisplay && fullscreenCountdownDisplay) {
+    fullscreenCountdownDisplay.textContent = remainingTimeDisplay.textContent;
+   
+    // 根據剩餘時間更新樣式
+    if (remainingTime <= 5) {
+      fullscreenCountdownDisplay.style.color = '#ef4444'; // 紅色
+      fullscreenCountdownDisplay.style.textShadow = '0 0 50px rgba(239, 68, 68, 0.9), 0 0 70px rgba(239, 68, 68, 0.7)';
+    } else if (remainingTime <= 10) {
+      fullscreenCountdownDisplay.style.color = '#fbbf24'; // 黃色
+      fullscreenCountdownDisplay.style.textShadow = '0 0 50px rgba(251, 191, 36, 0.9), 0 0 70px rgba(251, 191, 36, 0.7)';
+    } else {
+      fullscreenCountdownDisplay.style.color = '#fbbf24'; // 黃色
+      fullscreenCountdownDisplay.style.textShadow = '0 0 40px rgba(251, 191, 36, 0.8), 0 0 60px rgba(251, 191, 36, 0.6)';
+    }
+  }
+}
+function closeFullscreenCountdown() {
+  const fullscreenCountdown = document.getElementById('fullscreenCountdown');
+  if (fullscreenCountdown) {
+    fullscreenCountdown.classList.add('hidden');
+  }
+  document.body.style.overflow = '';
+  clearInterval(fullscreenTimer);
+  fullscreenTimer = null;
+}
+ 
+// Host UI Toggle Logic
+function toggleMode() {
+  const mode = document.querySelector('input[name="questionMode"]:checked').value;
+  const outlineConfig = document.getElementById('outlineConfig');
+  const wordCountDisplay = document.getElementById('wordCountDisplay');
+  const studentAnswer = document.getElementById('studentAnswer');
+  
+  if (mode === 'outline') {
+    outlineConfig.classList.remove('hidden');
+    if (wordCountDisplay) wordCountDisplay.classList.add('hidden');
+  } else {
+    outlineConfig.classList.add('hidden');
+  }
+  
+  // 拓展模式特殊處理
+  if (mode === 'extended') {
+    // 關鍵修訂：確保字數計數器可見
+    if (wordCountDisplay) {
+      wordCountDisplay.classList.remove('hidden');
+      // 重置字數顯示
+      const remainingWordsElement = document.getElementById('remainingWords');
+      if (remainingWordsElement) remainingWordsElement.textContent = '180';
+    }
+    // 設置輸入框屬性
+    if (studentAnswer) {
+      studentAnswer.maxLength = 180;
+      studentAnswer.placeholder = '請在此輸入您的回答 (最多180字)...';
+    }
+  } else {
+    if (wordCountDisplay) wordCountDisplay.classList.add('hidden');
+    if (studentAnswer) {
+      studentAnswer.removeAttribute('maxLength');
+      studentAnswer.placeholder = '請在此輸入您的回答...';
+    }
+  }
+}
+// Student Configuration Logic
+function renderStudentOutlineUI(mode) {
+  const container = document.getElementById('studentInputContainer');
+  const existingWordCount = document.getElementById('wordCountDisplay');
+  if (existingWordCount) existingWordCount.remove();
+  
+  container.innerHTML = '';
+  
+  if (mode === 'extended') {
+    // 拓展模式 - 文本輸入框 + 字數限制
+    const textarea = document.createElement('textarea');
+    textarea.id = 'studentAnswer';
+    textarea.className = 'input-field w-full px-5 py-4 rounded-xl min-h-[160px] text-lg no-modal-editor';
+    textarea.placeholder = '請在此輸入您的回答 (最多180字)...';
+    textarea.maxLength = 180;
+    textarea.disabled = true; // 初始禁用，等待計時開始
+    container.appendChild(textarea);
+    
+    // 添加字數顯示 - 關鍵修訂：移除 hidden 類別
+    const wordCountDiv = document.createElement('div');
+    wordCountDiv.id = 'wordCountDisplay';
+    wordCountDiv.className = 'text-right mt-2 text-wabi-secondary'; // 移除 hidden 類別
+    wordCountDiv.innerHTML = '剩餘字數: <span id="remainingWords">180</span>';
+    container.appendChild(wordCountDiv);
+    
+    return;
+  } else if (mode === 'qa') {
+    // 普通問答模式
+    const textarea = document.createElement('textarea');
+    textarea.id = 'studentAnswer';
+    textarea.className = 'input-field w-full px-5 py-4 rounded-xl min-h-[160px] text-lg no-modal-editor';
+    textarea.placeholder = '請在此輸入您的回答...';
+    textarea.disabled = true;
+    container.appendChild(textarea);
+    return;
+  }
+  
+  // 原有的大綱模式代碼
+  const configDiv = document.createElement('div');
+  configDiv.className = 'student-config-area';
+  const type = mode === 'outline' ? (document.querySelector('input[name="outlineType"]:checked').value || 'narrative') : 'narrative';
+  
+  if (type === 'narrative') {
+    const label = document.createElement('span');
+    label.innerText = '選擇結構: ';
+    label.className = 'font-bold text-charcoal';
+    const select = document.createElement('select');
+    select.className = 'config-select';
+    select.innerHTML = `
+      <option value="fourPart" ${studentNarrativeStructure === 'fourPart' ? 'selected' : ''}>起承轉合</option>
+      <option value="threeLine" ${studentNarrativeStructure === 'threeLine' ? 'selected' : ''}>三線</option>
+    `;
+    select.onchange = (e) => {
+      studentNarrativeStructure = e.target.value;
+      renderNarrativeTable();
+    };
+    configDiv.appendChild(label);
+    configDiv.appendChild(select);
+    container.appendChild(configDiv);
+    renderNarrativeTable();
+  } else { // argument
+    const label = document.createElement('span');
+    label.innerText = '結構段數量: ';
+    label.className = 'font-bold text-charcoal';
+    const minusBtn = document.createElement('button');
+    minusBtn.className = 'outline-control-btn';
+    minusBtn.innerHTML = '<i class="fas fa-minus"></i>';
+    minusBtn.onclick = () => { changeStudentArgSegments(-1); };
+    const countSpan = document.createElement('span');
+    countSpan.id = 'studentArgCount';
+    countSpan.className = 'font-bold text-lg w-6 text-center';
+    countSpan.innerText = studentArgSegments;
+    const plusBtn = document.createElement('button');
+    plusBtn.className = 'outline-control-btn';
+    plusBtn.innerHTML = '<i class="fas fa-plus"></i>';
+    plusBtn.onclick = () => { changeStudentArgSegments(1); };
+    configDiv.appendChild(label);
+    configDiv.appendChild(minusBtn);
+    configDiv.appendChild(countSpan);
+    configDiv.appendChild(plusBtn);
+    container.appendChild(configDiv);
+    renderArgumentTable();
+  }
+}
+
+
+function countWords() {
+  const studentAnswer = document.getElementById('studentAnswer');
+  const remainingWordsElement = document.getElementById('remainingWords');
+  
+  if (!studentAnswer || !remainingWordsElement) return;
+  
+  const currentText = studentAnswer.value || '';
+  const remaining = 180 - currentText.length;
+  
+  remainingWordsElement.textContent = remaining;
+  
+  // 如果字數接近限制，改變顏色提示
+  if (remaining < 0) {
+    remainingWordsElement.style.color = '#a86b6b';
+    studentAnswer.style.borderColor = '#a86b6b';
+  } else if (remaining < 20) {
+    remainingWordsElement.style.color = '#8a7663';
+    studentAnswer.style.borderColor = '#8a7663';
+  } else {
+    remainingWordsElement.style.color = '';
+    studentAnswer.style.borderColor = '';
+  }
+}
+
+	
+function changeStudentArgSegments(delta) {
+  studentArgSegments += delta;
+  if (studentArgSegments < 1) studentArgSegments = 1;
+  if (studentArgSegments > 10) studentArgSegments = 10;
+  document.getElementById('studentArgCount').innerText = studentArgSegments;
+  renderArgumentTable();
+}
+function renderNarrativeTable() {
+  const container = document.getElementById('studentInputContainer');
+  // Remove existing table if any
+  const existingTable = container.querySelector('table');
+  if (existingTable) existingTable.remove();
+ 
+  const table = document.createElement('table');
+  table.className = 'outline-table';
+ 
+  const thead = document.createElement('thead');
+  thead.innerHTML = '<tr><th>部份</th><th>結構段重點</th><th>情節大要</th><th>物象</th></tr>';
+  table.appendChild(thead);
+ 
+  const tbody = document.createElement('tbody');
+  const rows = studentNarrativeStructure === 'fourPart' ? ['起', '承', '轉', '合'] : ['起', '一線', '二線', '三線', '合'];
+ 
+  rows.forEach(r => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${r}</td><td><textarea placeholder="..."></textarea></td><td><textarea placeholder="..."></textarea></td><td><textarea placeholder="..."></textarea></td>`;
+    tbody.appendChild(tr);
+  });
+ 
+  table.appendChild(tbody);
+  container.appendChild(table);
+}
+function renderArgumentTable() {
+  const container = document.getElementById('studentInputContainer');
+  const existingTable = container.querySelector('table');
+  if (existingTable) existingTable.remove();
+ 
+  const table = document.createElement('table');
+  table.className = 'outline-table';
+ 
+  const thead = document.createElement('thead');
+  thead.innerHTML = '<tr><th>部份</th><th>論點</th><th>論據及論證</th></tr>';
+  table.appendChild(thead);
+ 
+  const tbody = document.createElement('tbody');
+  const rows = ['起'];
+  for(let i=1; i<=studentArgSegments; i++) rows.push(`結構段${i}`);
+  rows.push('合');
+ 
+  rows.forEach(r => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${r}</td><td><textarea placeholder="..."></textarea></td><td><textarea placeholder="..."></textarea></td>`;
+    tbody.appendChild(tr);
+  });
+ 
+  table.appendChild(tbody);
+  container.appendChild(table);
+}
+function updateStudentUI(roomData) {
+  const questionDisplay = document.getElementById('questionDisplay');
+  const countdownDisplay = document.getElementById('studentCountdown');
+  const submitBtn = document.getElementById('submitBtn');
+  const submissionStatus = document.getElementById('submissionStatus');
+  const answerInputArea = document.getElementById('answerInputArea');
+  const container = document.getElementById('studentInputContainer');
+  const participant = roomData.participants?.[currentUser] || {};
+  const wordCountDisplay = document.getElementById('wordCountDisplay');
+
+  // 確保 container 存在
+  if (!container) return;
+
+  // 獲取當前回合 ID 和已渲染的回合 ID
+  const currentMode = roomData.session?.mode || 'qa';
+  const currentQID = roomData.session?.questionId ? String(roomData.session.questionId) : null;
+  const renderedQID = container.getAttribute('data-qid');
+
+  // 檢查是否需要更新 UI (模式變更、問題 ID 變更、或首次加載)
+  const needsUIUpdate = currentMode !== container.getAttribute('data-mode') ||
+                        currentQID !== renderedQID ||
+                        !container.hasChildNodes();
+
+  if (needsUIUpdate && currentQID) {
+    // 保存滾動位置
+    const scrollPos = container.scrollTop;
+    // 清除並重建 UI
+    container.innerHTML = '';
+    container.setAttribute('data-mode', currentMode);
+    container.setAttribute('data-qid', currentQID);
+    // 重置所有本地提交狀態
+    hasSubmitted = false;
+    submissionStatus.classList.add('hidden');
+    answerInputArea.classList.remove('submitted', 'late');
+    // 隱藏下載按鈕
+    const downloadBtn = document.getElementById('downloadMyAnswerBtn');
+    if (downloadBtn) downloadBtn.classList.add('hidden');
+    
+    // 根據模式創建適當的輸入元素
+    if (currentMode === 'qa') {
+      renderStudentOutlineUI('qa');
+    } else if (currentMode === 'extended') {
+      renderStudentOutlineUI('extended');
+      // 關鍵修訂：確保字數計數器可見
+      if (wordCountDisplay) {
+        wordCountDisplay.classList.remove('hidden');
+        // 設置初始字數
+        document.getElementById('remainingWords').textContent = '180';
+      }
+    } else if (currentMode === 'outline') {
+      const type = roomData.session?.outlineConfig?.type || 'narrative';
+      renderStudentOutlineUI('outline');
+      // 隱藏字數計數器
+      if (wordCountDisplay) wordCountDisplay.classList.add('hidden');
+    }
+    // 恢復滾動位置
+    container.scrollTop = scrollPos;
+  }
+
+  // 處理畫面同步
+  if (roomData.session && roomData.session.sharingScreen && roomData.session.active) {
+    showSharedScreen(roomData);
+  } else {
+    hideSharedScreen();
+  }
+
+  // 處理計時狀態
+  if (roomData.session?.active) {
+    questionDisplay.textContent = roomData.session.question || '請等待主持人開始計時';
+    questionDisplay.classList.remove('text-wabi-secondary');
+    questionDisplay.classList.add('text-charcoal');
+    
+    // 處理 startTime - 轉換 Firebase 伺服器時間戳
+    let serverStartTime = roomData.session.startTime;
+    // 檢查是否為 Firebase 服務器時間戳對象
+    if (typeof serverStartTime === 'object' && serverStartTime.hasOwnProperty('.sv')) {
+      // 使用本地時間作為補償，但記錄警告
+      console.warn('收到 Firebase 服務器時間戳對象，使用本地時間作為起始點');
+      serverStartTime = Date.now();
+    }
+    // 確保 startTime 是有效的數字
+    if (typeof serverStartTime !== 'number' || isNaN(serverStartTime)) {
+      console.error('無效的開始時間格式:', serverStartTime);
+      serverStartTime = Date.now();
+    }
+    // 確保計時器已啟動並同步
+    if (roomData.session.timeLimit !== undefined && roomData.session.timeLimit !== null) {
+      // 檢查是否需要重新啟動計時器
+      const needsNewTimer = !timer || 
+                           lastQuestionStartTime !== serverStartTime || 
+                           timeLimit !== roomData.session.timeLimit;
+      if (needsNewTimer) {
+        startLocalTimer(serverStartTime, roomData.session.timeLimit);
+      }
+    }
+    // 根據剩餘時間更新 UI
+    if (remainingTime <= 0) {
+      // 時間已到
+      disableAllInputs();
+      submitBtn.classList.add('hidden');
+      submitBtn.disabled = true;
+    } else {
+      // 還有時間
+      enableInputsIfNotSubmitted(); // 啟用輸入 (如果未提交)
+      // 確保提交按鈕在有時間時顯示 (除非已提交)
+      if (!hasSubmitted) {
+        submitBtn.classList.remove('hidden');
+        submitBtn.disabled = false;
+      }
+    }
+    
+    // 如果是拓展模式，設置字數監聽
+    if (currentMode === 'extended') {
+      const studentAnswer = document.getElementById('studentAnswer');
+      if (studentAnswer) {
+        // 先移除可能存在的重複監聽器
+        studentAnswer.removeEventListener('input', countWords);
+        studentAnswer.addEventListener('input', countWords);
+        // 觸發初始計數
+        countWords();
+        
+        // 關鍵修訂：確保字數計數器元素存在且顯示
+        let wordCountElement = document.getElementById('wordCountDisplay');
+        if (!wordCountElement) {
+          // 重新創建字數計數器
+          wordCountElement = document.createElement('div');
+          wordCountElement.id = 'wordCountDisplay';
+          wordCountElement.className = 'text-right mt-2 text-wabi-secondary';
+          wordCountElement.innerHTML = '剩餘字數: <span id="remainingWords">180</span>';
+          container.appendChild(wordCountElement);
+        }
+        wordCountElement.classList.remove('hidden');
+      }
+    }
+  } else {
+    // 計時未開始或房間不存在
+    questionDisplay.textContent = '請等待主持人開始計時';
+    questionDisplay.classList.add('text-wabi-secondary');
+    questionDisplay.classList.remove('text-charcoal');
+    countdownDisplay.textContent = '10:00';
+    // 清除本地計時器，因為服務器端已停止
+    if (timer) {
+      clearInterval(timer);
+      timer = null;
+    }
+    // 重置剩餘時間
+    remainingTime = 0;
+    updateCountdownDisplay(remainingTime);
+    // 禁用所有輸入，直到計時開始
+    disableAllInputs();
+    submitBtn.classList.add('hidden');
+    submitBtn.disabled = true;
+    
+    // 隱藏字數計數器
+    if (wordCountDisplay) wordCountDisplay.classList.add('hidden');
+  }
+
+  // 輔助函數：禁用所有輸入
+  function disableAllInputs() {
+    const inputs = container.querySelectorAll('textarea, select, button');
+    inputs.forEach(el => {
+      el.disabled = true;
+      if (el.tagName === 'TEXTAREA') {
+        el.placeholder = '請等待主持人開始計時';
+      }
+    });
+  }
+
+  // 輔助函數：如果未提交則啟用輸入
+  function enableInputsIfNotSubmitted() {
+    // 檢查學生是否已針對當前問題提交
+    const currentQID = roomData.session?.questionId ? String(roomData.session.questionId) : null;
+    const hasSubmittedCurrentQuestion =
+      participant.submitted &&
+      String(participant.lastQuestionId) === currentQID;
+    
+    if (hasSubmittedCurrentQuestion) {
+      // 已提交當前問題
+      hasSubmitted = true;
+      submissionStatus.classList.remove('hidden');
+      // 顯示下載按鈕
+      if (document.getElementById('downloadMyAnswerBtn')) {
+        document.getElementById('downloadMyAnswerBtn').classList.remove('hidden');
+      }
+      // 如果是超時提交，添加相應樣式
+      if (participant.late) {
+        answerInputArea.classList.add('late');
+      }
+      // 禁用所有輸入
+      const inputs = container.querySelectorAll('textarea, select, button');
+      inputs.forEach(el => el.disabled = true);
+      submitBtn.classList.add('hidden');
+      submitBtn.disabled = true;
+      answerInputArea.classList.add('submitted');
+    } else {
+      // 未提交或提交的是舊問題
+      hasSubmitted = false;
+      submissionStatus.classList.add('hidden');
+      answerInputArea.classList.remove('submitted', 'late');
+      // 隱藏下載按鈕
+      if (document.getElementById('downloadMyAnswerBtn')) {
+        document.getElementById('downloadMyAnswerBtn').classList.add('hidden');
+      }
+      // 啟用輸入
+      const inputs = container.querySelectorAll('textarea, select, button');
+      inputs.forEach(el => {
+        el.disabled = false;
+        if (el.tagName === 'TEXTAREA') {
+          if (currentMode === 'extended') {
+            el.placeholder = '請在此輸入您的回答 (最多180字)...';
+          } else {
+            el.placeholder = '請在此輸入您的回答...';
+          }
+        }
+      });
+      // 顯示提交按鈕
+      if (remainingTime > 0) {
+        submitBtn.classList.remove('hidden');
+        submitBtn.disabled = false;
+      }
+    }
+  }
+}
+function startLocalTimer(startTime, totalTime) {
+  // 清除現有的計時器
+  if (timer) {
+    clearInterval(timer);
+    timer = null;
+  }
+  
+  // 驗證參數
+  if (typeof startTime !== 'number' || isNaN(startTime) || startTime <= 0) {
+    console.error('無效的開始時間:', startTime);
+    startTime = Date.now();
+  }
+  
+  if (typeof totalTime !== 'number' || isNaN(totalTime) || totalTime <= 0) {
+    console.error('無效的總時間:', totalTime);
+    totalTime = 600; // 預設10分鐘
+  }
+  
+  // 更新全域變數
+  lastQuestionStartTime = startTime;
+  timeLimit = totalTime;
+  
+  // 初始化剩餘時間
+  const now = Date.now();
+  const elapsed = Math.max(0, Math.floor((now - startTime) / 1000));
+  remainingTime = Math.max(0, totalTime - elapsed);
+  
+  // 立即更新顯示
+  updateCountdownDisplay(remainingTime);
+  
+  // 啟動計時器
+  timer = setInterval(() => {
+    const currentTime = Date.now();
+    const elapsed = Math.max(0, Math.floor((currentTime - startTime) / 1000));
+    remainingTime = Math.max(0, totalTime - elapsed);
+    
+    // 更新顯示
+    updateCountdownDisplay(remainingTime);
+    
+    // 檢查是否時間已到
+    if (remainingTime <= 0) {
+      clearInterval(timer);
+      timer = null;
+      
+      // 時間結束處理
+      const container = document.getElementById('studentInputContainer');
+      if (container) {
+        const inputs = container.querySelectorAll('textarea, select, button');
+        inputs.forEach(el => {
+          el.disabled = true;
+          if (el.tagName === 'TEXTAREA') {
+            el.placeholder = '時間已到，無法繼續輸入';
+          }
+        });
+      }
+      
+      const submitBtn = document.getElementById('submitBtn');
+      if (submitBtn) {
+        submitBtn.classList.add('hidden');
+        submitBtn.disabled = true;
+      }
+    }
+  }, 1000);
+}
+ 
+function updateCountdownDisplay(seconds) {
+  const minutes = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  const formattedTime = `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  // 更新學生介面
+  const studentCountdown = document.getElementById('studentCountdown');
+  if (studentCountdown) {
+    studentCountdown.textContent = formattedTime;
+    if (seconds <= 5) {
+      studentCountdown.style.color = '#a86b6b';
+      studentCountdown.classList.add('pulse');
+    } else if (seconds <= 10) {
+      studentCountdown.style.color = '#8a7663';
+      studentCountdown.classList.remove('pulse');
+    } else {
+      studentCountdown.style.color = '#383833';
+      studentCountdown.classList.remove('pulse');
+    }
+  }
+  // 更新主持人介面 - 新的剩餘時間顯示
+  const remainingTimeDisplay = document.getElementById('remainingTimeDisplay');
+  if (remainingTimeDisplay) {
+    remainingTimeDisplay.textContent = formattedTime;
+    if (seconds <= 5) {
+      remainingTimeDisplay.style.color = '#a86b6b';
+    } else if (seconds <= 10) {
+      remainingTimeDisplay.style.color = '#8a7663';
+    } else {
+      remainingTimeDisplay.style.color = '#383833';
+    }
+  }
+}
+ 
+function updateHostUI(roomData) {
+  // 更新按鈕狀態
+  if (roomData.session.active && roomData.session.startTime) {
+    document.getElementById('startBtn').innerHTML = '<i class="fas fa-pause mr-2"></i>';
+    
+    // 【重要修訂】統一使用 hostTimer 計時器
+    if (!hostTimer) {
+      const now = Date.now();
+      // 處理 Firebase 伺服器時間戳
+      let serverStartTime = roomData.session.startTime;
+      if (typeof serverStartTime === 'object' && serverStartTime.hasOwnProperty('.sv')) {
+        serverStartTime = now;
+      }
+      
+      // 驗證 startTime 是否有效
+      if (typeof serverStartTime !== 'number' || isNaN(serverStartTime)) {
+        console.error('無效的開始時間，重置計時器');
+        remainingTime = roomData.session.timeLimit || timeLimit;
+        updateCountdownDisplay(remainingTime);
+        return;
+      }
+      
+      const totalTime = roomData.session.timeLimit || timeLimit;
+      // 【重要】清除可能存在的 timer 計時器
+      if (timer) {
+        clearInterval(timer);
+        timer = null;
+      }
+      
+      // 計算已過時間
+      const elapsed = Math.max(0, Math.floor((now - serverStartTime) / 1000));
+      remainingTime = Math.max(0, totalTime - elapsed);
+      
+      // 啟動主持人專用計時器
+      startHostTimer(serverStartTime, totalTime);
+    }
+    
+    // 更新分享按鈕狀態
+    const shareScreenBtn = document.getElementById('shareScreenBtn');
+    if (shareScreenBtn) {
+      shareScreenBtn.classList.remove('hidden');
+      // ...原有分享按鈕狀態更新代碼...
+    }
+  } else {
+    // 會話未活動
+    clearInterval(hostTimer);
+    hostTimer = null;
+    // 重置剩餘時間
+    remainingTime = roomData.session.timeLimit || timeLimit;
+    updateCountdownDisplay(remainingTime);
+    document.getElementById('startBtn').innerHTML = '<i class="fas fa-play mr-2"></i>開始';
+    // 隱藏分享按鈕
+    const shareScreenBtn = document.getElementById('shareScreenBtn');
+    if (shareScreenBtn) {
+      shareScreenBtn.classList.add('hidden');
+    }
+  }
+  
+  // 更新回答列表
+  updateAnswersList(roomData.answers, roomData.participants);
+  
+  // 確保剩餘時間顯示正確
+  updateCountdownDisplay(remainingTime);
+}
+
+function startHostTimer() {
+  // 清除現有計時器
+  if (hostTimer) {
+    clearInterval(hostTimer);
+    hostTimer = null;
+  }
+  
+  // 【關鍵】使用本地時間作為參考
+  lastQuestionStartTime = Date.now();
+  
+  // 更新顯示
+  updateCountdownDisplay(remainingTime);
+  
+  // 启动独立的主持人計時器
+  hostTimer = setInterval(() => {
+    if (!sessionActive) {
+      clearInterval(hostTimer);
+      hostTimer = null;
+      return;
+    }
+    
+    // 計算剩餘時間
+    const elapsed = Math.floor((Date.now() - lastQuestionStartTime) / 1000);
+    remainingTime = Math.max(0, timeLimit - elapsed);
+    
+    // 更新顯示
+    updateCountdownDisplay(remainingTime);
+    
+    // 時間到
+    if (remainingTime <= 0) {
+      clearInterval(hostTimer);
+      hostTimer = null;
+      // 嘗試更新 Firebase
+      if (currentRoom) {
+        database.ref('class_rooms/' + currentRoom + '/session').update({
+          active: false,
+          endTime: firebase.database.ServerValue.TIMESTAMP
+        }).catch(error => {
+          console.warn('無法更新 Firebase，但本地計時已完成', error);
+        });
+      }
+    }
+  }, 1000);
+}
+
+function useLocalSession() {
+  sessionActive = !sessionActive;
+  
+  if (sessionActive) {
+    const question = document.getElementById('questionInput').value.trim();
+    document.getElementById('questionDisplay').textContent = question;
+    document.getElementById('startBtn').innerHTML = '<i class="fas fa-pause mr-2"></i>暫停';
+    
+    startHostTimer();
+  } else {
+    clearInterval(hostTimer);
+    hostTimer = null;
+    document.getElementById('startBtn').innerHTML = '<i class="fas fa-play mr-2"></i>開始';
+  }
+  
+  // 更新 UI
+  updateCountdownDisplay(remainingTime);
+}
+	
+ 
+function getStudentColor(studentName) {
+  let hash = 0;
+  for (let i = 0; i < studentName.length; i++) {
+    hash = studentName.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const index = Math.abs(hash) % answerColors.length;
+  return answerColors[index];
+}
+
+  
+function setupDoubleClickEditing(cardElement, studentName) {
+  // 新增：關閉繪圖工具
+  const drawingCanvasContainer = document.getElementById('drawingCanvasContainer');
+  const drawingTools = document.getElementById('drawingTools');
+  if (drawingCanvasContainer && drawingTools) {
+    drawingCanvasContainer.classList.add('hidden');
+    drawingTools.classList.add('hidden');
+  }
+  
+  const answerElement = cardElement.querySelector('.answer-display');
+  const saveStatus = cardElement.querySelector('.save-status');
+ 
+  let originalText = answerElement.innerHTML;
+  let saveTimeout = null;
+  let isEditing = false;
+ 
+  function startEditing() {
+    isEditing = true;
+    cardElement.classList.add('editing');
+    originalText = answerElement.innerHTML;
+    answerElement.contentEditable = "true";
+    answerElement.focus();
+  }
+ 
+  function endEditing() {
+    isEditing = false;
+    cardElement.classList.remove('editing');
+    answerElement.contentEditable = "false";
+    autoSave();
+  }
+ 
+  function autoSave() {
+    if (!isEditing) return;
+    const currentText = answerElement.innerHTML;
+    if (currentText === originalText) return;
+   
+    if (saveTimeout) clearTimeout(saveTimeout);
+   
+    saveTimeout = setTimeout(async () => {
+      try {
+        await database.ref(`class_rooms/${currentRoom}/answers/${studentName}`).update({
+          text: currentText
+        });
+        saveStatus.classList.remove('hidden');
+        setTimeout(() => {
+          saveStatus.classList.add('hidden');
+        }, 2000);
+        originalText = currentText;
+      } catch (error) {
+        console.error('自動保存失敗:', error);
+      }
+    }, 1000);
+  }
+ 
+  answerElement.addEventListener('dblclick', () => {
+    if (isHost && !isEditing) {
+      startEditing();
+    }
+  });
+ 
+  answerElement.addEventListener('blur', () => {
+    if (isEditing) {
+      endEditing();
+    }
+  });
+ 
+  answerElement.addEventListener('input', autoSave);
+ 
+  answerElement.addEventListener('keydown', (e) => {
+    if (e.key === 's' && e.ctrlKey) {
+      e.preventDefault();
+      autoSave();
+      saveStatus.innerHTML = '<i class="fas fa-save mr-1"></i>已手動保存';
+      saveStatus.classList.remove('hidden');
+      setTimeout(() => {
+        saveStatus.classList.add('hidden');
+      }, 2000);
+    } else if (e.key === 'Escape') {
+      answerElement.innerHTML = originalText;
+      endEditing();
+    }
+  });
+ 
+  answerElement.title = '雙擊編輯答案，自動保存。按 Ctrl+S 手動保存，按 Escape 取消。';
+}
+function setupFullscreenAnswers() {
+  const fullscreenContainer = document.getElementById('fullscreenAnswers');
+  const closeBtn = document.getElementById('closeFullscreen');
+ 
+  closeBtn.addEventListener('click', closeFullscreenAnswers);
+ 
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !fullscreenContainer.classList.contains('hidden')) {
+      closeFullscreenAnswers();
+    }
+  });
+}
+function openFullscreenAnswers(answers, participants) {
+  const fullscreenContainer = document.getElementById('fullscreenAnswers');
+  const answersList = document.getElementById('fullscreenAnswersList');
+  document.getElementById('hostSection').classList.add('hidden');
+ 
+  const drawingCanvasContainer = document.getElementById('drawingCanvasContainer');
+  const drawingCanvas = document.getElementById('drawingCanvas');
+ 
+  if (!answers || Object.keys(answers).length === 0) {
+    answersList.innerHTML = '<div class="text-center py-20 text-wabi-secondary text-xl">尚未有回答</div>';
+  } else {
+    answersList.innerHTML = generateFullscreenAnswersHTML(answers, participants);
+    setupFullscreenEditing(answers, participants);
+  }
+ 
+  // 重置並顯示canvas
+  const drawingCtx = drawingCanvas.getContext('2d');
+  drawingCtx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height);
+  drawingCanvasContainer.classList.add('hidden');
+  document.getElementById('drawingTools').classList.add('hidden');
+ 
+  fullscreenContainer.classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+ 
+  // 調整canvas大小
+  setTimeout(() => {
+    const container = document.getElementById('fullscreenAnswers');
+    drawingCanvas.width = container.clientWidth;
+    drawingCanvas.height = container.clientHeight;
+  }, 300);
+}
+function closeFullscreenAnswers() {
+  closeDrawingTools(); // 關閉繪圖工具
+  const fullscreenContainer = document.getElementById('fullscreenAnswers');
+  fullscreenContainer.classList.add('hidden');
+  document.body.style.overflow = '';
+  document.getElementById('hostSection').classList.remove('hidden');
+}
+function generateFullscreenAnswersHTML(answers, participants) {
+  const answersArray = Object.entries(answers)
+    .map(([name, answerData]) => ({
+      name,
+      ...answerData
+    }))
+    .sort((a, b) => a.timestamp - b.timestamp);
+  let html = '';
+ 
+  answersArray.forEach((answer, index) => {
+    const participant = participants[answer.name] || {};
+    const isLate = participant.late || false;
+    const studentColor = getStudentColor(answer.name);
+   
+    const timestamp = new Date(answer.timestamp);
+    const timeString = timestamp.toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false
+    });
+   
+    // Use text directly as HTML for tables, or replace newlines for text
+    let displayContent = answer.text;
+    if (!displayContent.includes('<table')) {
+       displayContent = displayContent.replace(/\n/g, '<br>');
+    }
+   
+    html += `
+      <div class="fullscreen-answer-card student-card p-6 rounded-xl ${isLate ? 'late' : 'answered'} fade-in"
+           data-student="${answer.name}"
+           style="border-color: ${studentColor.border}; background-color: ${studentColor.bg};">
+        <div class="editing-indicator">
+          <i class="fas fa-edit mr-1"></i>編輯中
+        </div>
+        <div class="flex justify-between items-start mb-4">
+          <div class="font-medium text-xl flex items-center">
+            ${isLate ? '<i class="fas fa-clock text-red-500 mr-2 text-xl"></i>' : '<i class="fas fa-check-circle text-moss-green mr-2 text-xl"></i>'}
+            <span class="student-name-tag text-lg px-4 py-2" style="background-color: ${studentColor.border}15; color: ${studentColor.border};">${answer.name}</span>
+          </div>
+          <div class="text-base text-wabi-secondary bg-earth-beige px-4 py-2 rounded-full font-medium">
+            ${timeString} ${isLate ? '(超時)' : ''}
+          </div>
+        </div>
+       
+        <div class="answer-display mt-4 text-left text-xl"
+             data-student="${answer.name}"
+             contenteditable="false"
+             spellcheck="false">
+          ${displayContent}
+        </div>
+       
+        <div class="save-status text-sm text-wabi-secondary mt-3 text-right hidden">
+          <i class="fas fa-save mr-1"></i>已自動保存
+        </div>
+      </div>
+    `;
+  });
+ 
+  return html;
+}
+function setupFullscreenEditing(answers, participants) {
+  const answerCards = document.querySelectorAll('.fullscreen-answer-card');
+  answerCards.forEach(card => {
+    const studentName = card.getAttribute('data-student');
+    setupDoubleClickEditing(card, studentName);
+  });
+}
+function updateAnswersList(answers, participants) {
+  const answersList = document.getElementById('answersList');
+  const currentAnswers = JSON.stringify(answers || {});
+  const lastAnswers = answersList.getAttribute('data-last-answers') || '{}';
+ 
+  if (currentAnswers === lastAnswers) return;
+  answersList.setAttribute('data-last-answers', currentAnswers);
+  answersList.innerHTML = '';
+ 
+  if (!sessionActive) {
+    answersList.innerHTML += '<div class="text-center py-12 text-wabi-secondary">尚未開始</div>';
+    return;
+  }
+ 
+  if (!answers || Object.keys(answers).length === 0) {
+    answersList.innerHTML += '<div class="text-center py-12 text-wabi-secondary">尚未有回答</div>';
+    return;
+  }
+  const answersArray = Object.entries(answers)
+    .map(([name, answerData]) => ({
+      name,
+      ...answerData
+    }))
+    .sort((a, b) => a.timestamp - b.timestamp);
+  answersArray.forEach((answer, index) => {
+    const participant = participants[answer.name] || {};
+    const isLate = participant.late || false;
+    const studentColor = getStudentColor(answer.name);
+   
+    const div = document.createElement('div');
+    div.className = `student-card p-5 rounded-xl ${isLate ? 'late' : 'answered'} fade-in`;
+    div.style.borderColor = studentColor.border;
+    div.style.backgroundColor = studentColor.bg;
+    const timestamp = new Date(answer.timestamp);
+    const timeString = timestamp.toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false
+    });
+    // Check if answer is an HTML table or plain text
+    let displayContent = answer.text;
+    if (!displayContent.includes('<table')) {
+       // If strictly text, convert newlines to <br>
+       displayContent = displayContent.replace(/\n/g, '<br>');
+    }
+   
+    div.innerHTML = `
+      <div class="editing-indicator">
+        <i class="fas fa-edit mr-1"></i>編輯中
+      </div>
+      <div class="flex justify-between items-start mb-3">
+        <div class="font-medium text-lg flex items-center">
+          ${isLate ? '<i class="fas fa-clock text-red-500 mr-2 text-lg"></i>' : '<i class="fas fa-check-circle text-moss-green mr-2 text-lg"></i>'}
+          <span class="student-name-tag" style="background-color: ${studentColor.border}15; color: ${studentColor.border};">${answer.name}</span>
+        </div>
+        <div class="text-sm text-wabi-secondary bg-earth-beige px-3.5 py-1.5 rounded-full font-medium">
+          ${timeString} ${isLate ? '(超時)' : ''}
+        </div>
+      </div>
+     
+      <div class="answer-display mt-3 text-left text-base"
+           data-student="${answer.name}"
+           contenteditable="false"
+           spellcheck="false">
+        ${displayContent}
+      </div>
+     
+      <div class="save-status text-xs text-wabi-secondary mt-2 text-right hidden">
+        <i class="fas fa-save mr-1"></i>已自動保存
+      </div>
+    `;
+   
+    answersList.appendChild(div);
+    if (isHost) {
+      setupDoubleClickEditing(div, answer.name);
+    }
+  });
+}
+async function startSession() {
+  if (!isHost || !currentRoom) return;
+  const question = document.getElementById('questionInput').value.trim();
+  if (!question) {
+    alert('請輸入問題內容');
+    return;
+  }
+  const minutes = parseInt(document.getElementById('minutesInput').value) || 0;
+  const seconds = parseInt(document.getElementById('secondsInput').value) || 0;
+  timeLimit = minutes * 60 + seconds;
+  if (timeLimit <= 0) {
+    alert('請設定有效的時間');
+    return;
+  }
+  // 驗證時間限制是否合理
+  if (timeLimit > 3600) { // 1小時
+    if (!confirm('您設定的時間超過1小時，確定要繼續嗎？')) {
+      return;
+    }
+  }
+  // 清除現有計時器
+  if (timer) {
+    clearInterval(timer);
+    timer = null;
+  }
+  if (hostTimer) {
+    clearInterval(hostTimer);
+    hostTimer = null;
+  }
+  // 【關鍵修訂】檢查 Firebase 連線狀態
+  let firebaseConnected = true;
+  try {
+    await database.ref('.info/connected').once('value');
+  } catch (error) {
+    console.warn('Firebase 連線異常，將使用本地計時器', error);
+    firebaseConnected = false;
+  }
+  if (!firebaseConnected) {
+    // 使用純本地模式
+    alert('無法連接 Firebase 服務，將使用本地計時器。學生端可能無法同步看到問題和計時。');
+    useLocalSession();
+    return;
+  }
+  // 原有的 Firebase 寫入邏輯
+  const sessionRef = database.ref('class_rooms/' + currentRoom + '/session');
+  const sessionSnapshot = await sessionRef.once('value').catch(() => null);
+  const currentSession = sessionSnapshot ? sessionSnapshot.val() : null;
+  if (currentSession && currentSession.active) {
+    // 暫停會話
+    await sessionRef.update({
+      active: false,
+      sharingScreen: false
+    }).catch(error => {
+      console.error('無法更新 Firebase，切換到本地模式', error);
+      useLocalSession();
+      return;
+    });
+    sessionActive = false;
+    document.getElementById('shareScreenBtn').classList.add('hidden');
+  } else {
+    // 開始會話
+    const newQuestionId = Date.now();
+    currentQuestionId = newQuestionId;
+    const mode = document.querySelector('input[name="questionMode"]:checked').value;
+    let outlineConfig = null;
+    if (mode === 'outline') {
+      const outlineType = document.querySelector('input[name="outlineType"]:checked').value;
+      outlineConfig = { type: outlineType };
+    }
+    try {
+      // 先更新 session
+      const sessionUpdate = {
+        active: true,
+        question: question,
+        questionId: newQuestionId,
+        timeLimit: timeLimit,
+        startTime: firebase.database.ServerValue.TIMESTAMP,
+        endTime: null,
+        mode: mode,
+        outlineConfig: outlineConfig,
+        sharingScreen: false
+      };
+      await database.ref('class_rooms/' + currentRoom + '/session').update(sessionUpdate);
+      // 重置答案
+      await database.ref('class_rooms/' + currentRoom + '/answers').set({});
+      // 重置所有參與者狀態
+      const participantsRef = database.ref('class_rooms/' + currentRoom + '/participants');
+      const participantsSnapshot = await participantsRef.once('value').catch(() => null);
+      const participants = participantsSnapshot ? participantsSnapshot.val() : null;
+      if (participants) {
+        const updatePromises = [];
+        for (const name in participants) {
+          if (participants.hasOwnProperty(name)) {
+            updatePromises.push(
+              participantsRef.child(name).update({
+                submitted: false,
+                late: false,
+                lastQuestionId: newQuestionId
+              })
+            );
+          }
+        }
+        await Promise.all(updatePromises);
+      }
+      sessionActive = true;
+      remainingTime = timeLimit;
+      document.getElementById('shareScreenBtn').classList.remove('hidden');
+      updateCountdownDisplay(remainingTime);
+      // 【關鍵】重新設計主持人計時器
+      startHostTimer();
+    } catch (error) {
+      console.error('Firebase 寫入失敗，切換到本地模式', error);
+      useLocalSession();
+    }
+  }
+}
+ 
+async function endSession() {
+ // 關閉全屏倒計時
+  if (fullscreenTimer) {
+    clearInterval(fullscreenTimer);
+    fullscreenTimer = null;
+    closeFullscreenCountdown();
+  }
+ 
+  if (!isHost || !currentRoom) return;
+  // 清除計時器
+  if (timer) {
+    clearInterval(timer);
+    timer = null;
+  }
+  sessionActive = false;
+  await database.ref('class_rooms/' + currentRoom + '/session').update({
+    active: false,
+    endTime: firebase.database.ServerValue.TIMESTAMP
+  });
+  // 重置顯示
+  remainingTime = timeLimit;
+  updateCountdownDisplay(remainingTime);
+}
+async function clearSession() {
+  // 關閉全屏倒計時
+  if (fullscreenTimer) {
+    clearInterval(fullscreenTimer);
+    fullscreenTimer = null;
+    closeFullscreenCountdown();
+  }
+ 
+  if (!isHost || !currentRoom) return;
+  // 清除計時器
+  if (timer) {
+    clearInterval(timer);
+    timer = null;
+  }
+  sessionActive = false;
+  await database.ref('class_rooms/' + currentRoom).update({
+    session: {
+      active: false,
+      question: "",
+      questionId: Date.now(),
+      timeLimit: 600,
+      startTime: null,
+      endTime: null
+    },
+    answers: {}
+  });
+  const participantsRef = database.ref('class_rooms/' + currentRoom + '/participants');
+  const participantsSnapshot = await participantsRef.once('value');
+  const participants = participantsSnapshot.val() || {};
+  for (const name in participants) {
+    if (participants.hasOwnProperty(name)) {
+      await participantsRef.child(name).update({
+        submitted: false,
+        late: false,
+        lastQuestionId: null
+      });
+    }
+  }
+  // 重置 UI
+  remainingTime = 600;
+  updateCountdownDisplay(remainingTime);
+  document.getElementById('questionInput').value = '';
+  document.getElementById('minutesInput').value = '10';
+  document.getElementById('secondsInput').value = '0';
+}
+ 
+async function submitAnswer() {
+  if (!currentRoom || !currentUser || isHost || hasSubmitted) return;
+  let answerText = '';
+  const container = document.getElementById('studentInputContainer');
+  const table = container.querySelector('table');
+  const studentAnswer = document.getElementById('studentAnswer');
+  
+  if (table) {
+    // Format Table Inputs into HTML string
+    const clonedTable = table.cloneNode(true);
+    const textareas = table.querySelectorAll('textarea');
+    const clonedCells = clonedTable.querySelectorAll('textarea');
+    // Convert textarea values to text/html inside cell
+    for (let i = 0; i < textareas.length; i++) {
+        const val = textareas[i].value || '';
+        const parent = clonedCells[i].parentNode;
+        // Replace textarea with div or simple text
+        parent.innerHTML = val.replace(/\n/g, '<br>');
+    }
+    // Add styles to ensure it looks good on host side
+    clonedTable.classList.add('rendered-outline-table');
+    answerText = clonedTable.outerHTML;
+  } else if (studentAnswer) {
+    answerText = studentAnswer.value.trim();
+  }
+
+  // 檢查拓展模式的字數限制
+  const roomSnapshot = await database.ref('class_rooms/' + currentRoom).once('value');
+  const roomData = roomSnapshot.val();
+  const currentMode = roomData.session?.mode || 'qa';
+  
+  if (currentMode === 'extended') {
+    if (answerText.length > 180) {
+      alert('字數超過限制，最多只能輸入180字');
+      return;
+    }
+    if (answerText.length === 0) {
+      alert('請輸入回答內容');
+      return;
+    }
+  } else if (table) {
+     let hasContent = false;
+     container.querySelectorAll('textarea').forEach(t => { if(t.value.trim()) hasContent = true; });
+     if(!hasContent) { alert('請填寫內容'); return; }
+  } else if (!answerText) {
+     alert('請輸入答案');
+     return;
+  }
+
+  try {
+    let isLate = false;
+    if (roomData.session.active && roomData.session.startTime) {
+      const startTime = roomData.session.startTime;
+      const currentTime = Date.now();
+      const elapsed = Math.floor((currentTime - startTime) / 1000);
+      isLate = elapsed > roomData.session.timeLimit;
+    }
+    
+    if (remainingTime <= 0) {
+      alert('時間已到,無法提交答案');
+      return;
+    }
+    
+    const answerData = {
+      text: answerText,
+      timestamp: firebase.database.ServerValue.TIMESTAMP,
+      late: isLate
+    };
+    
+    await database.ref('class_rooms/' + currentRoom + '/answers/' + currentUser).set(answerData);
+    await database.ref('class_rooms/' + currentRoom + '/participants/' + currentUser).update({
+      submitted: true,
+      late: isLate,
+      lastQuestionId: roomData.session.questionId
+    });
+    
+    hasSubmitted = true;
+    const submissionStatus = document.getElementById('submissionStatus');
+    const answerInputArea = document.getElementById('answerInputArea');
+    submissionStatus.classList.remove('hidden');
+    // Disable inputs
+    if(table) {
+       container.querySelectorAll('textarea').forEach(t => t.disabled = true);
+    } else if (studentAnswer) {
+       studentAnswer.disabled = true;
+    }
+    document.getElementById('submitBtn').classList.add('hidden');
+    answerInputArea.classList.add('submitted');
+    // 顯示下載按鈕
+    document.getElementById('downloadMyAnswerBtn').classList.remove('hidden');
+    if (isLate) {
+      answerInputArea.classList.add('late');
+      submissionStatus.innerHTML = '<i class="fas fa-clock text-red-500 mr-2"></i>已超時提交';
+    }
+  } catch (error) {
+    console.error('提交答案失敗:', error);
+    alert('提交答案失敗,請重試');
+  }
+}
+// 生成並下載HTML文件
+function downloadHTML(content, filename) {
+    const blob = new Blob([content], {type: 'text/html'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => {
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }, 0);
+}
+// 下載所有回答 (主持人使用)
+function downloadAllAnswers() {
+    if (!isHost || !currentRoom) return;
+   
+    database.ref('class_rooms/' + currentRoom).once('value').then(snapshot => {
+        const roomData = snapshot.val();
+        if (!roomData || !roomData.answers) return;
+       
+        // 構建HTML內容
+        let htmlContent = `
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>脈問堂 - 回答列表</title>
+    <style>
+        body { font-family: 'Noto Serif TC', sans-serif; line-height: 1.6; color: #333; max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .answer-card { margin-bottom: 30px; padding: 25px; border: 1px solid #ddd; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .student-name { font-size: 1.4em; font-weight: bold; margin-bottom: 10px; color: #5f6e55; display: flex; align-items: center; gap: 10px; }
+        .timestamp { color: #888; margin-bottom: 15px; }
+        .answer-content { margin-top: 15px; }
+        .rendered-outline-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        .rendered-outline-table th, .rendered-outline-table td {
+            border: 1px solid #ddd; padding: 12px; text-align: left; vertical-align: top;
+        }
+        .rendered-outline-table th { background-color: #f5f5f5; font-weight: bold; }
+        .late-tag { background-color: #f8d7da; color: #721c24; padding: 2px 8px; border-radius: 4px; font-size: 0.9em; }
+        .normal-tag { background-color: #d4edda; color: #155724; padding: 2px 8px; border-radius: 4px; font-size: 0.9em; }
+        .header { text-align: center; margin-bottom: 30px; }
+        .room-info { background: #f9f6f1; padding: 15px; border-radius: 10px; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>脈問堂 - 所有回答列表</h1>
+        <div class="room-info">
+            <p><strong>房間代碼:</strong> ${currentRoom}</p>
+            <p><strong>問題:</strong> "${roomData.session.question || '無'}"</p>
+            <p><strong>導出時間:</strong> ${new Date().toLocaleString('zh-TW')}</p>
+        </div>
+    </div>
+    <hr style="margin: 30px 0;">
+        `;
+       
+        // 獲取答案並按照時間排序
+        const answersArray = Object.entries(roomData.answers)
+            .map(([name, answerData]) => ({
+                name,
+                ...answerData,
+                late: roomData.participants?.[name]?.late || false
+            }))
+            .sort((a, b) => a.timestamp - b.timestamp);
+           
+        answersArray.forEach((answer, index) => {
+            const timestamp = new Date(answer.timestamp);
+            const timeString = timestamp.toLocaleString('zh-TW');
+           
+            htmlContent += `
+            <div class="answer-card">
+                <div class="student-name">
+                    ${answer.name}
+                    ${answer.late ?
+                        '<span class="late-tag"><i class="fas fa-clock mr-1"></i>超時</span>' :
+                        '<span class="normal-tag"><i class="fas fa-check mr-1"></i>已提交</span>'
+                    }
+                </div>
+                <div class="timestamp">提交時間: ${timeString}</div>
+                <div class="answer-content">
+                    ${answer.text}
+                </div>
+            </div>
+            `;
+        });
+       
+        htmlContent += `
+</body>
+</html>
+        `;
+       
+        // 下載文件
+        downloadHTML(htmlContent, `脈問堂_回答列表_${currentRoom}_${new Date().toISOString().slice(0,10)}.html`);
+    }).catch(error => {
+        console.error('下載回答失敗:', error);
+        alert('下載回答失敗，請重試');
+    });
+}
+// 下載我的回答 (學生使用)
+function downloadMyAnswer() {
+    if (isHost || !currentRoom || !currentUser) return;
+   
+    Promise.all([
+        database.ref(`class_rooms/${currentRoom}/answers/${currentUser}`).once('value'),
+        database.ref(`class_rooms/${currentRoom}/session`).once('value'),
+        database.ref(`class_rooms/${currentRoom}/participants/${currentUser}`).once('value')
+    ]).then(([answerSnapshot, sessionSnapshot, participantSnapshot]) => {
+        const answerData = answerSnapshot.val();
+        const sessionData = sessionSnapshot.val();
+        const participantData = participantSnapshot.val();
+       
+        if (!answerData) {
+            alert('沒有可下載的回答');
+            return;
+        }
+       
+        const question = sessionData?.question || '無';
+        const isLate = participantData?.late || false;
+       
+        // 構建HTML內容
+        let htmlContent = `
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>脈問堂 - 我的回答</title>
+    <style>
+        body { font-family: 'Noto Serif TC', sans-serif; line-height: 1.6; color: #333; max-width: 900px; margin: 0 auto; padding: 30px; }
+        .header { text-align: center; margin-bottom: 30px; }
+        .question { background-color: #f9f9f9; padding: 20px; border-radius: 10px; margin-bottom: 25px; border-left: 4px solid #5f6e55; }
+        .question-title { font-size: 1.2em; font-weight: bold; margin-bottom: 10px; color: #5f6e55; }
+        .my-answer { margin-top: 25px; }
+        .student-name { font-size: 1.5em; font-weight: bold; color: #8a7663; margin-bottom: 5px; }
+        .timestamp { color: #888; margin-bottom: 20px; }
+        .rendered-outline-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        .rendered-outline-table th, .rendered-outline-table td {
+            border: 1px solid #ddd; padding: 12px; text-align: left; vertical-align: top;
+        }
+        .rendered-outline-table th { background-color: #f5f5f5; font-weight: bold; }
+        .late-tag { background-color: #f8d7da; color: #721c24; padding: 2px 8px; border-radius: 4px; font-size: 0.9em; display: inline-flex; align-items: center; }
+        .normal-tag { background-color: #d4edda; color: #155724; padding: 2px 8px; border-radius: 4px; font-size: 0.9em; display: inline-flex; align-items: center; }
+        .room-info { background: #f9f6f1; padding: 15px; border-radius: 10px; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>脈問堂 - 我的回答</h1>
+        <div class="room-info">
+            <p><strong>房間代碼:</strong> ${currentRoom}</p>
+            <p><strong>姓名:</strong> ${currentUser}</p>
+            <p><strong>導出時間:</strong> ${new Date().toLocaleString('zh-TW')}</p>
+        </div>
+    </div>
+   
+    <div class="question">
+        <div class="question-title">問題內容</div>
+        <p>${question}</p>
+    </div>
+   
+    <div class="my-answer">
+        <div class="student-name">${currentUser}</div>
+        <div class="timestamp">提交時間: ${new Date(answerData.timestamp).toLocaleString('zh-TW')}</div>
+        ${isLate ?
+            '<span class="late-tag"><i class="fas fa-clock mr-1"></i>超時提交</span>' :
+            '<span class="normal-tag"><i class="fas fa-check mr-1"></i>按時提交</span>'
+        }
+        <div style="margin-top: 20px;">
+            ${answerData.text}
+        </div>
+    </div>
+</body>
+</html>
+        `;
+       
+        // 下載文件
+        downloadHTML(htmlContent, `脈問堂_我的回答_${currentUser}_${new Date().toISOString().slice(0,10)}.html`);
+    }).catch(error => {
+        console.error('下載回答失敗:', error);
+        alert('下載回答失敗，請重試');
+    });
+}
+
+function initDrawingTools() {
+  const drawingCanvas = document.getElementById('drawingCanvas');
+  const feedbackCanvas = document.getElementById('feedbackCanvas');
+  const ctx = drawingCanvas.getContext('2d');
+  const feedbackCtx = feedbackCanvas.getContext('2d');
+  
+  const drawingCanvasContainer = document.getElementById('drawingCanvasContainer');
+  const drawingTools = document.getElementById('drawingTools');
+  const toggleDrawingToolsBtn = document.getElementById('toggleDrawingTools');
+  const answersList = document.getElementById('fullscreenAnswersList');
+
+  // 狀態變數
+  let isDrawing = false;
+  let startX = 0;
+  let startY = 0;
+  let currentTool = 'pen'; 
+  
+  // 定義固定五種顏色（主色）
+  const fixedColors = [
+    '#FF0000', // 紅色
+    '#0000FF', // 藍色
+    '#00FF00', // 綠色
+    '#FFFF00', // 黃色
+    '#800080'  // 紫色
+  ];
+  let currentColorIndex = 0;
+  
+  // 基礎的熒光筆顏色（RGB值，不包含透明度）
+  const highlighterBaseColors = [
+    'rgb(255, 0, 0)',     // 紅色
+    'rgb(0, 0, 255)',     // 藍色
+    'rgb(0, 255, 0)',     // 綠色
+    'rgb(255, 255, 0)',   // 黃色
+    'rgb(128, 0, 128)'    // 紫色
+  ];
+  
+  // 動態生成的熒光筆顏色，透明度可調
+  let highlighterColors = [
+    'rgba(255, 0, 0, 0.3)',     // 紅色熒光筆
+    'rgba(0, 0, 255, 0.3)',     // 藍色熒光筆
+    'rgba(0, 255, 0, 0.3)',     // 綠色熒光筆
+    'rgba(255, 255, 0, 0.3)',   // 黃色熒光筆
+    'rgba(128, 0, 128, 0.3)'    // 紫色熒光筆
+  ];
+  
+  let currentColor = fixedColors[currentColorIndex];
+  let penSize = 2;
+  let eraserSize = 30;
+  let highlighterAlpha = 0.3; // 熒光筆透明度（0-1）
+  let isScrollMode = false;
+
+  // 歷史記錄
+  let drawingHistory = [];
+  let historyIndex = -1;
+  const maxHistorySteps = 50;
+
+  // --- 新增：從 localStorage 載入設定 ---
+  function loadDrawingSettings() {
+    try {
+      const savedSettings = localStorage.getItem('drawingSettings');
+      if (savedSettings) {
+        const settings = JSON.parse(savedSettings);
+        
+        // 載入工具設定
+        if (settings.currentTool) {
+          currentTool = settings.currentTool;
+        }
+        
+        // 載入顏色索引
+        if (typeof settings.currentColorIndex === 'number') {
+          currentColorIndex = settings.currentColorIndex;
+          currentColor = fixedColors[currentColorIndex];
+        }
+        
+        // 載入筆刷大小
+        if (typeof settings.penSize === 'number') {
+          penSize = settings.penSize;
+        }
+        
+        // 載入橡皮擦大小
+        if (typeof settings.eraserSize === 'number') {
+          eraserSize = settings.eraserSize;
+        }
+        
+        // 載入熒光筆透明度
+        if (typeof settings.highlighterAlpha === 'number') {
+          highlighterAlpha = settings.highlighterAlpha;
+          updateHighlighterColors(highlighterAlpha);
+        }
+        
+        // 載入滾動模式狀態
+        if (typeof settings.isScrollMode === 'boolean') {
+          isScrollMode = settings.isScrollMode;
+        }
+        
+        console.log('繪畫設定已從 localStorage 載入:', settings);
+      }
+    } catch (error) {
+      console.error('載入繪畫設定失敗:', error);
+    }
+  }
+
+  // --- 新增：儲存設定到 localStorage ---
+  function saveDrawingSettings() {
+    try {
+      const settings = {
+        currentTool: currentTool,
+        currentColorIndex: currentColorIndex,
+        penSize: penSize,
+        eraserSize: eraserSize,
+        highlighterAlpha: highlighterAlpha,
+        isScrollMode: isScrollMode,
+        // 儲存時間戳記，方便追蹤
+        lastSaved: new Date().toISOString()
+      };
+      
+      localStorage.setItem('drawingSettings', JSON.stringify(settings));
+      console.log('繪畫設定已儲存到 localStorage:', settings);
+    } catch (error) {
+      console.error('儲存繪畫設定失敗:', error);
+    }
+  }
+
+  // 輔助函數：將十六進制顏色轉換為 rgba
+  function hexToRgba(hex, alpha) {
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  }
+
+  // 輔助函數：更新熒光筆顏色透明度
+  function updateHighlighterColors(alpha) {
+    highlighterAlpha = alpha;
+    // 從基礎顏色生成新的顏色
+    highlighterColors = highlighterBaseColors.map(baseColor => {
+      const rgb = baseColor.match(/\d+/g).map(Number);
+      return `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${alpha})`;
+    });
+  }
+
+  // --- 核心修正：計算總高度並調整 Canvas ---
+  function resizeCanvas() {
+    const container = answersList;
+    
+    const width = container.clientWidth;
+    const height = Math.max(container.scrollHeight, container.clientHeight);
+    const dpr = window.devicePixelRatio || 1;
+
+    drawingCanvasContainer.style.width = width + 'px';
+    drawingCanvasContainer.style.height = height + 'px';
+
+    drawingCanvas.style.width = width + 'px';
+    drawingCanvas.style.height = height + 'px';
+    
+    feedbackCanvas.style.width = width + 'px';
+    feedbackCanvas.style.height = height + 'px';
+
+    if (drawingCanvas.width !== width * dpr || drawingCanvas.height !== height * dpr) {
+        drawingCanvas.width = width * dpr;
+        drawingCanvas.height = height * dpr;
+        
+        feedbackCanvas.width = width * dpr;
+        feedbackCanvas.height = height * dpr;
+
+        ctx.scale(dpr, dpr);
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        
+        feedbackCtx.scale(dpr, dpr);
+        feedbackCtx.lineCap = 'round';
+        feedbackCtx.lineJoin = 'round';
+
+        if (historyIndex >= 0 && drawingHistory[historyIndex]) {
+             ctx.putImageData(drawingHistory[historyIndex], 0, 0);
+        }
+    }
+  }
+
+  // --- 核心修正：座標計算 ---
+  function getCoordinates(e) {
+    const rect = drawingCanvas.getBoundingClientRect();
+    
+    let clientX, clientY;
+    
+    if (e.type.includes('touch')) {
+      // 處理觸控事件
+      if (e.touches && e.touches.length > 0) {
+        clientX = e.touches[0].clientX;
+        clientY = e.touches[0].clientY;
+      } else if (e.changedTouches && e.changedTouches.length > 0) {
+        clientX = e.changedTouches[0].clientX;
+        clientY = e.changedTouches[0].clientY;
+      } else {
+        return { x: 0, y: 0 };
+      }
+    } else {
+      // 處理滑鼠事件
+      clientX = e.clientX;
+      clientY = e.clientY;
+    }
+    
+    return {
+        x: clientX - rect.left,
+        y: clientY - rect.top 
+    };
+  }
+
+  // --- 更新 UI ---
+  function updateUI() {
+    const penBtn = document.getElementById('redPenBtn');
+    const highlighterBtn = document.getElementById('highlighterBtn');
+    const eraserBtn = document.getElementById('eraserBtn');
+    const scrollModeBtn = document.getElementById('scrollModeBtn');
+    const slider = document.getElementById('brushSizeSlider');
+    const indicator = document.getElementById('sizeIndicatorCircle');
+    const colorBtn = document.getElementById('colorPreviewBtn');
+    
+    // 更新顏色按鈕背景
+    colorBtn.style.backgroundColor = fixedColors[currentColorIndex];
+    
+    if (isScrollMode) {
+        scrollModeBtn.classList.add('active');
+        penBtn.classList.remove('active');
+        highlighterBtn.classList.remove('active');
+        eraserBtn.classList.remove('active');
+        drawingCanvasContainer.classList.remove('active-drawing');
+        drawingCanvasContainer.classList.add('active-scroll'); 
+    } else {
+        scrollModeBtn.classList.remove('active');
+        drawingCanvasContainer.classList.add('active-drawing');
+        drawingCanvasContainer.classList.remove('active-scroll');
+    }
+
+    if (!isScrollMode) {
+        // 移除所有工具的 active 狀態
+        penBtn.classList.remove('active');
+        highlighterBtn.classList.remove('active');
+        eraserBtn.classList.remove('active');
+        
+        // 設置當前工具的 active 狀態
+        if (currentTool === 'pen') {
+            penBtn.classList.add('active');
+            slider.value = penSize;
+            indicator.style.width = Math.min(24, Math.max(4, penSize)) + 'px';
+            indicator.style.height = Math.min(24, Math.max(4, penSize)) + 'px';
+            indicator.style.backgroundColor = hexToRgba(fixedColors[currentColorIndex], 0.8);
+        } else if (currentTool === 'highlighter') {
+            highlighterBtn.classList.add('active');
+            // 滑桿顯示透明度（0-100）
+            slider.value = highlighterAlpha * 100;
+            indicator.style.width = '20px';
+            indicator.style.height = '20px';
+            indicator.style.backgroundColor = highlighterColors[currentColorIndex];
+        } else if (currentTool === 'eraser') {
+            eraserBtn.classList.add('active');
+            slider.value = eraserSize;
+            indicator.style.width = Math.min(24, Math.max(4, eraserSize / 2)) + 'px';
+            indicator.style.height = Math.min(24, Math.max(4, eraserSize / 2)) + 'px';
+            indicator.style.backgroundColor = '#888';
+        }
+    }
+    
+    // 儲存設定
+    saveDrawingSettings();
+  }
+
+  // --- 設置繪圖上下文 ---
+  function setDrawingContext() {
+    if (currentTool === 'pen') {
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.strokeStyle = hexToRgba(fixedColors[currentColorIndex], 0.8);
+      ctx.fillStyle = hexToRgba(fixedColors[currentColorIndex], 0.8);
+      ctx.lineWidth = penSize;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+    } else if (currentTool === 'highlighter') {
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.fillStyle = highlighterColors[currentColorIndex];
+      ctx.strokeStyle = highlighterColors[currentColorIndex];
+      // 不再設置固定的 lineWidth，因為現在是自由拖拽長方形
+    } else if (currentTool === 'eraser') {
+      ctx.globalCompositeOperation = 'destination-out';
+      ctx.strokeStyle = 'rgba(0,0,0,1)';
+      ctx.fillStyle = 'rgba(0,0,0,1)';
+      ctx.lineWidth = eraserSize;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+    }
+    
+    feedbackCtx.globalCompositeOperation = 'source-over';
+    feedbackCtx.strokeStyle = 'rgba(100, 100, 100, 0.3)';
+    feedbackCtx.lineWidth = eraserSize;
+    feedbackCtx.lineCap = 'round';
+    feedbackCtx.lineJoin = 'round';
+  }
+
+  // --- 歷史記錄 ---
+  function saveDrawingState() {
+    if (drawingCanvasContainer.classList.contains('hidden')) return;
+    const imageData = ctx.getImageData(0, 0, drawingCanvas.width, drawingCanvas.height);
+    if (historyIndex < drawingHistory.length - 1) {
+      drawingHistory = drawingHistory.slice(0, historyIndex + 1);
+    }
+    drawingHistory.push(imageData);
+    if (drawingHistory.length > maxHistorySteps) drawingHistory.shift();
+    else historyIndex = drawingHistory.length - 1;
+  }
+
+  function undoDrawing() {
+    if (historyIndex <= 0) {
+        ctx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height);
+        historyIndex = -1;
+        return;
+    }
+    historyIndex--;
+    ctx.putImageData(drawingHistory[historyIndex], 0, 0);
+  }
+
+  // --- 修正：防止工具按鈕觸發畫布事件 ---
+  function preventCanvasEvents(e) {
+    e.stopPropagation();
+    e.preventDefault();
+    return false;
+  }
+
+  // --- 關閉滑桿彈窗的函數 ---
+  function closeSliderPopup() {
+    const sliderPopup = document.getElementById('sizeSliderPopup');
+    sliderPopup.classList.add('hidden');
+    drawingTools.style.paddingBottom = '10px'; // 恢復原有內邊距
+    drawingTools.style.borderRadius = '50px'; // 恢復圓角
+    document.removeEventListener('click', closeSliderOnClickOutside);
+  }
+
+  // --- 點擊外部關閉滑桿的函數 ---
+  function closeSliderOnClickOutside(e) {
+    const sizeToggleBtn = document.getElementById('sizeToggleBtn');
+    const sliderPopup = document.getElementById('sizeSliderPopup');
+    const slider = document.getElementById('brushSizeSlider');
+    
+    if (!sizeToggleBtn.contains(e.target) && 
+        !sliderPopup.contains(e.target) && 
+        e.target !== slider) {
+      closeSliderPopup();
+    }
+  }
+
+  // --- 初始化設定 ---
+  // 載入之前儲存的設定
+  loadDrawingSettings();
+
+  // --- 事件監聽 ---
+  toggleDrawingToolsBtn.addEventListener('click', () => {
+    const isHidden = drawingCanvasContainer.classList.contains('hidden');
+    if (isHidden) {
+        drawingCanvasContainer.classList.remove('hidden');
+        drawingTools.classList.remove('hidden');
+        
+        setTimeout(() => {
+            resizeCanvas();
+            isScrollMode = false; 
+            setDrawingContext();
+            updateUI();
+        }, 100);
+    } else {
+        closeDrawingTools();
+    }
+  });
+
+  // 修正：確保按鈕可以正確響應觸控
+  document.getElementById('scrollModeBtn').addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    isScrollMode = !isScrollMode;
+    updateUI();
+  });
+
+  // 畫筆按鈕
+  document.getElementById('redPenBtn').addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    isScrollMode = false;
+    currentTool = 'pen';
+    setDrawingContext();
+    updateUI();
+  });
+
+  // 熒光筆按鈕
+  document.getElementById('highlighterBtn').addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    isScrollMode = false;
+    currentTool = 'highlighter';
+    setDrawingContext();
+    updateUI();
+  });
+
+  // 橡皮擦按鈕
+  document.getElementById('eraserBtn').addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    isScrollMode = false;
+    currentTool = 'eraser';
+    setDrawingContext();
+    updateUI();
+  });
+
+  // --- 顏色選擇：改為固定五種顏色循環切換 ---
+  const colorBtn = document.getElementById('colorPreviewBtn');
+  colorBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    // 切換到下一個顏色
+    currentColorIndex = (currentColorIndex + 1) % fixedColors.length;
+    currentColor = fixedColors[currentColorIndex];
+    
+    // 更新按鈕顯示
+    colorBtn.style.backgroundColor = currentColor;
+    
+    // 更新繪圖上下文
+    setDrawingContext();
+    updateUI();
+  });
+
+  // 隱藏顏色輸入框（如果有）
+  const colorInput = document.getElementById('colorInputHtml');
+  if (colorInput) {
+    colorInput.style.display = 'none';
+  }
+
+  // --- 粗細調整滑桿顯示邏輯（加高工具列） ---
+  const sizeToggleBtn = document.getElementById('sizeToggleBtn');
+  const sliderPopup = document.getElementById('sizeSliderPopup');
+  const slider = document.getElementById('brushSizeSlider');
+  
+  sizeToggleBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    
+    const isOpening = sliderPopup.classList.contains('hidden');
+    
+    if (isOpening) {
+      // 顯示滑桿時，計算需要的額外高度
+      const sliderHeight = 60; // 滑桿彈出框的大致高度
+      const originalPadding = 10; // 工具列原有內邊距
+      
+      // 暫時加高工具列
+      drawingTools.style.transition = 'padding 0.3s ease, border-radius 0.3s ease';
+      drawingTools.style.paddingBottom = `${originalPadding + sliderHeight}px`;
+      drawingTools.style.borderRadius = '50px 50px 20px 20px'; // 調整底部圓角
+      
+      // 顯示滑桿
+      sliderPopup.classList.remove('hidden');
+      
+      // 設置滑桿值為當前工具的粗細或透明度
+      if (currentTool === 'pen') {
+        slider.value = penSize;
+      } else if (currentTool === 'highlighter') {
+        slider.value = highlighterAlpha * 100;
+      } else if (currentTool === 'eraser') {
+        slider.value = eraserSize;
+      }
+      
+      // 在 iPad 上，確保彈出框可見
+      setTimeout(() => {
+        slider.focus();
+      }, 100);
+      
+      // 添加點擊外部關閉的監聽器
+      setTimeout(() => {
+        document.addEventListener('click', closeSliderOnClickOutside);
+      }, 10);
+    } else {
+      // 隱藏滑桿時，恢復工具列高度
+      closeSliderPopup();
+    }
+  });
+
+  // 修改滑桿的 input 事件
+  slider.addEventListener('input', (e) => {
+    e.stopPropagation();
+    const val = parseInt(e.target.value);
+    if (currentTool === 'pen') {
+      penSize = val;
+    } else if (currentTool === 'highlighter') {
+      // 調整熒光筆的透明度（0 到 100 對應 0 到 1）
+      const alpha = Math.min(100, Math.max(0, val)) / 100;
+      updateHighlighterColors(alpha);
+    } else if (currentTool === 'eraser') {
+      eraserSize = val;
+    }
+    setDrawingContext();
+    updateUI();
+  });
+
+  // 修改滑桿的 touch 事件，防止冒泡
+  slider.addEventListener('touchstart', (e) => {
+    e.stopPropagation();
+  }, { passive: false });
+  
+  slider.addEventListener('touchmove', (e) => {
+    e.stopPropagation();
+  }, { passive: false });
+
+  document.getElementById('undoBtn').addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    undoDrawing();
+  });
+  
+  document.getElementById('clearCanvasBtn').addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (confirm('確定要清空所有批註嗎？')) {
+        ctx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height);
+        saveDrawingState();
+    }
+  });
+  
+  document.getElementById('exitDrawingBtn').addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    closeDrawingTools();
+  });
+
+  // 修正：防止工具列本身觸發畫布事件
+  drawingTools.addEventListener('touchstart', (e) => {
+    e.stopPropagation();
+  }, { passive: false });
+  
+  drawingTools.addEventListener('click', (e) => {
+    e.stopPropagation();
+  });
+
+  // 修改 document 的點擊事件監聽器
+  document.addEventListener('click', (e) => {
+    // 如果點擊的是工具列內部但不是滑桿相關元素，不要關閉滑桿
+    if (drawingTools.contains(e.target) && 
+        !sizeToggleBtn.contains(e.target) && 
+        !sliderPopup.contains(e.target) && 
+        e.target !== slider) {
+      return;
+    }
+    
+    // 如果滑桿可見且點擊的是外部，關閉滑桿
+    if (!sliderPopup.classList.contains('hidden') && 
+        !sizeToggleBtn.contains(e.target) && 
+        !sliderPopup.contains(e.target) && 
+        e.target !== slider) {
+      closeSliderPopup();
+    }
+  });
+
+  // --- 繪畫邏輯 ---
+  function startDrawing(e) {
+    if (isScrollMode) return;
+    
+    // 修正：如果是從工具按鈕開始的觸控，不應該開始繪畫
+    if (e.type === 'touchstart') {
+      const target = e.target;
+      if (target.closest('#drawingTools') || 
+          target.closest('.tool-btn') || 
+          target.closest('#sizeSliderPopup') ||
+          target === slider) {
+        return;
+      }
+    }
+    
+    isDrawing = true;
+    
+    const coords = getCoordinates(e);
+    startX = coords.x;
+    startY = coords.y;
+    
+    // 根據當前工具設置繪圖參數
+    setDrawingContext();
+    
+    // 如果是熒光筆，不需要畫起始點，直接開始拖拽
+    if (currentTool === 'pen') {
+      // 畫筆：畫起始圓點
+      ctx.beginPath();
+      ctx.arc(startX, startY, penSize / 2, 0, Math.PI * 2);
+      ctx.fill();
+    } else if (currentTool === 'eraser') {
+      // 橡皮擦：畫起始圓點
+      ctx.globalCompositeOperation = 'destination-out';
+      ctx.beginPath();
+      ctx.arc(startX, startY, eraserSize / 2, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.globalCompositeOperation = 'source-over';
+    }
+    // 熒光筆不需要起始點
+    
+    // 防止觸控設備的默認行為（如滾動）
+    if (e.type.includes('touch')) {
+      e.preventDefault();
+    }
+  }
+
+  function draw(e) {
+    if (!isDrawing || isScrollMode) return;
+    
+    // 修正：防止工具按鈕區域的觸控觸發繪畫
+    if (e.type.includes('touch')) {
+      const target = e.target;
+      if (target.closest('#drawingTools') || 
+          target.closest('#sizeSliderPopup')) {
+        return;
+      }
+      e.preventDefault();
+    }
+
+    const coords = getCoordinates(e);
+    const currentX = coords.x;
+    const currentY = coords.y;
+    
+    // 處理不同工具的繪製
+    if (currentTool === 'pen') {
+      // 畫筆：繪製線條
+      ctx.beginPath();
+      ctx.moveTo(startX, startY);
+      ctx.lineTo(currentX, currentY);
+      ctx.stroke();
+      startX = currentX;
+      startY = currentY;
+    } else if (currentTool === 'highlighter') {
+      // 熒光筆：在 feedbackCanvas 上顯示預覽長方形
+      // 清除之前的預覽
+      feedbackCtx.clearRect(0, 0, feedbackCanvas.width, feedbackCanvas.height);
+      
+      // 計算長方形的座標和尺寸（由拖拽自由控制）
+      const previewX = Math.min(startX, currentX);
+      const previewY = Math.min(startY, currentY);
+      const previewWidth = Math.abs(currentX - startX);
+      const previewHeight = Math.abs(currentY - startY);
+      
+      // 繪製預覽長方形
+      feedbackCtx.globalCompositeOperation = 'source-over';
+      feedbackCtx.fillStyle = highlighterColors[currentColorIndex];
+      feedbackCtx.fillRect(previewX, previewY, previewWidth, previewHeight);
+    } else if (currentTool === 'eraser') {
+      // 橡皮擦：清除內容並顯示反饋
+      ctx.globalCompositeOperation = 'destination-out';
+      ctx.beginPath();
+      ctx.moveTo(startX, startY);
+      ctx.lineTo(currentX, currentY);
+      ctx.stroke();
+      ctx.globalCompositeOperation = 'source-over';
+      
+      // 顯示橡皮擦軌跡反饋
+      feedbackCtx.beginPath();
+      feedbackCtx.moveTo(startX, startY);
+      feedbackCtx.lineTo(currentX, currentY);
+      feedbackCtx.stroke();
+      
+      startX = currentX;
+      startY = currentY;
+    }
+  }
+
+  function stopDrawing(e) {
+    if (!isDrawing) return;
+    isDrawing = false;
+    
+    // 根據工具進行最終處理
+    if (currentTool === 'highlighter') {
+      // 熒光筆：繪製最終長方形到主畫布
+      const coords = getCoordinates(e);
+      const endX = coords.x;
+      const endY = coords.y;
+      
+      // 計算長方形的座標和尺寸（由拖拽自由控制）
+      const x = Math.min(startX, endX);
+      const y = Math.min(startY, endY);
+      const width = Math.abs(endX - startX);
+      const height = Math.abs(endY - startY);
+      
+      // 確保有足夠的尺寸才繪製（避免繪製太小的長方形）
+      if (width > 5 && height > 5) {
+        // 繪製長方形到主畫布
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.fillStyle = highlighterColors[currentColorIndex];
+        ctx.fillRect(x, y, width, height);
+      }
+      
+      // 清除預覽
+      feedbackCtx.clearRect(0, 0, feedbackCanvas.width, feedbackCanvas.height);
+    } else if (currentTool === 'eraser') {
+      // 清除橡皮擦反饋
+      setTimeout(() => {
+        feedbackCtx.clearRect(0, 0, feedbackCanvas.width, feedbackCanvas.height);
+      }, 300);
+    }
+    
+    // 儲存繪圖狀態
+    saveDrawingState();
+  }
+
+  // 修正：為畫布添加正確的觸控事件監聽
+  drawingCanvas.addEventListener('mousedown', startDrawing);
+  drawingCanvas.addEventListener('mousemove', draw);
+  drawingCanvas.addEventListener('mouseup', stopDrawing);
+  drawingCanvas.addEventListener('mouseout', stopDrawing);
+  
+  // 修正：觸控事件處理，使用 { passive: false } 以便可以 preventDefault
+  drawingCanvas.addEventListener('touchstart', startDrawing, { passive: false });
+  drawingCanvas.addEventListener('touchmove', draw, { passive: false });
+  drawingCanvas.addEventListener('touchend', function(e) {
+    // 傳遞事件對象到 stopDrawing
+    stopDrawing(e);
+  });
+  drawingCanvas.addEventListener('touchcancel', function(e) {
+    // 傳遞事件對象到 stopDrawing
+    stopDrawing(e);
+  });
+
+  // 初始化工具列狀態
+  drawingCanvasContainer.classList.add('hidden');
+  drawingTools.classList.add('hidden');
+  
+  // 初始化顏色按鈕的背景色
+  colorBtn.style.backgroundColor = fixedColors[currentColorIndex];
+  
+  // 初始化熒光筆顏色
+  updateHighlighterColors(highlighterAlpha);
+  
+  // 初始化繪圖上下文
+  setDrawingContext();
+  
+  // 初始更新UI
+  updateUI();
+}
+
+// 監聽視窗大小改變，重新計算 Canvas 大小
+window.addEventListener('resize', () => {
+    const container = document.getElementById('drawingCanvasContainer');
+    if (container && !container.classList.contains('hidden')) {
+        // 這裡需要呼叫 initDrawingTools 內部的 resizeCanvas，
+        // 但為了簡單，建議在切換全屏或重新開啟工具時重置即可。
+        // 或者可以重新觸發一次 toggle。
+    }
+});
+
+function closeDrawingTools() {
+  const container = document.getElementById('drawingCanvasContainer');
+  const tools = document.getElementById('drawingTools');
+  if (container) container.classList.add('hidden');
+  if (tools) {
+    tools.classList.add('hidden');
+    // 重置工具列樣式
+    tools.style.paddingBottom = '';
+    tools.style.borderRadius = '';
+  }
+  
+  // 隱藏滑桿彈窗
+  const popup = document.getElementById('sizeSliderPopup');
+  if (popup) popup.classList.add('hidden');
+}
+
+
+  
+async function leaveHost() {
+  // 關閉全屏倒計時
+  if (fullscreenTimer) {
+    clearInterval(fullscreenTimer);
+    fullscreenTimer = null;
+    closeFullscreenCountdown();
+  }
+ 
+  if (roomRef) {
+    roomRef.off();
+    roomRef = null;
+  }
+  if (currentRoom) {
+    await database.ref('class_rooms/' + currentRoom).remove();
+  }
+ 
+  // 清除所有計時器
+  if (hostTimer) {
+    clearInterval(hostTimer);
+    hostTimer = null;
+  }
+  if (timer) {
+    clearInterval(timer);
+    timer = null;
+  }
+ 
+  sessionActive = false;
+  
+  // ★★★ 修訂處：先檢查元素是否存在，再執行 classList 操作 ★★★
+  const hostCountdownContainer = document.getElementById('hostCountdownContainer');
+  if (hostCountdownContainer) {
+    hostCountdownContainer.classList.add('hidden');
+  }
+
+  currentRoom = null;
+  currentUser = null;
+  isHost = false;
+  showMainMenu();
+}
+ 
+async function leaveStudent() {
+ // 關閉全屏倒計時
+  if (fullscreenTimer) {
+    clearInterval(fullscreenTimer);
+    fullscreenTimer = null;
+    closeFullscreenCountdown();
+  }
+ 
+if (roomRef) {
+roomRef.off();
+roomRef = null;
+}
+if (currentRoom && currentUser) {
+await database.ref('class_rooms/' + currentRoom + '/participants/' + currentUser).remove();
+}
+clearInterval(timer);
+timer = null;
+sessionActive = false;
+currentRoom = null;
+currentUser = null;
+isHost = false;
+hasSubmitted = false;
+showMainMenu();
+}
+// Modal Logic
+let currentEditingElement = null;
+const modal = document.getElementById('outline-editor-modal');
+const modalTextarea = document.getElementById('modal-textarea');
+const modalSaveBtn = document.getElementById('modal-save-btn');
+const modalCloseBtn = document.getElementById('modal-close-btn');
+function openModalEditor(element) {
+    currentEditingElement = element;
+    modalTextarea.value = element.value;
+    modal.style.display = 'flex';
+    modalTextarea.focus();
+}
+function closeModalEditor() {
+    modal.style.display = 'none';
+    currentEditingElement = null;
+}
+function saveAndCloseEditor() {
+    if (currentEditingElement) {
+        currentEditingElement.value = modalTextarea.value;
+    }
+    closeModalEditor();
+}
+document.body.addEventListener('click', function(event) {
+  const target = event.target;
+  if (target.tagName === 'TEXTAREA' && !target.classList.contains('no-modal-editor') && target.id !== 'modal-textarea' && target.id !== 'questionInput') {
+    closeDrawingTools(); // 關閉繪圖工具
+        // Exclude host's question input if desired, or let it open modal too
+        // Ensure studentAnswer is covered
+        if(!isHost || target.id === 'questionInput') { // Let host edit question too
+             // Actually, prompt says "Student clicks input", but good UX applies to all small textareas
+        }
+       
+        // Specifically for student section textareas
+        if(document.getElementById('studentSection').contains(target)) {
+             openModalEditor(target);
+        }
+    }
+});
+modalSaveBtn.addEventListener('click', saveAndCloseEditor);
+modalCloseBtn.addEventListener('click', closeModalEditor);
+// End Modal Logic
+window.addEventListener('beforeunload', () => {
+  clearInterval(timer);
+  timer = null;
+  if (currentRoom && currentUser) {
+    if (isHost) {
+      database.ref('class_rooms/' + currentRoom).remove();
+    } else {
+      database.ref('class_rooms/' + currentRoom + '/participants/' + currentUser).remove();
+    }
+  }
+});
+document.addEventListener('DOMContentLoaded', () => {
+  timer = null;
+  setupFullscreenAnswers();
+  initDrawingTools();
+  const studentAnswer = document.getElementById('studentAnswer');
+  if (studentAnswer) {
+    studentAnswer.addEventListener('input', function() {
+      this.style.height = 'auto';
+      this.style.height = this.scrollHeight + 'px';
+    });
+    studentAnswer.style.height = 'auto';
+    studentAnswer.style.height = studentAnswer.scrollHeight + 'px';
+  }
+  const urlParams = new URLSearchParams(window.location.search);
+  const roomCode = urlParams.get('room');
+  if (roomCode && roomCode.length === 6) {
+    document.getElementById('joinRoomCode').value = roomCode;
+    showJoinSection();
+  } else {
+    showMainMenu();
+  }
+});
+document.getElementById('fullscreenToggle').addEventListener('click', function() {
+  if (!currentRoom) return;
+  const roomRef = database.ref('class_rooms/' + currentRoom);
+  roomRef.once('value').then(snapshot => {
+    const roomData = snapshot.val();
+    if (roomData && roomData.answers) {
+      openFullscreenAnswers(roomData.answers, roomData.participants);
+    }
+  }).catch(error => {
+    console.error('獲取全屏數據失敗:', error);
+  });
+});
+</script>
+<footer class="copyright-footer">
+<p>Copyright © 2025 陳冠健. All rights reserved.</p>
+</footer>
+<!-- 替換全屏回答檢視的HTML部分 -->
+<div id="fullscreenAnswers" class="fixed inset-0 bg-paper z-50 hidden flex flex-col">
+  
+  <!-- 1. 頂部工具欄 -->
+  <div class="bg-paper border-b border-stone-gray border-opacity-20 p-4 flex justify-between items-center shadow-sm flex-shrink-0 z-50">
+    <h2 class="text-2xl font-bold text-charcoal">
+      <i class="fas fa-comments text-clay-brown mr-3"></i>
+      所有回答
+    </h2>
+    <div class="flex items-center gap-3">
+      <!-- 字體控制按鈕 -->
+      <div class="font-controls">
+        <button class="font-btn decrease-font" title="縮小字體">
+          <i class="fas fa-font"></i>
+        </button>
+        <button class="font-btn increase-font" title="放大字體">
+          <i class="fas fa-font"></i><i class="fas fa-plus" style="font-size: 0.6em; margin-left: -2px;"></i>
+        </button>
+        <!-- 繪圖工具開關 -->
+        <button id="toggleDrawingTools" class="font-btn" title="顯示/隱藏批註工具">
+          <i class="fas fa-pencil-alt"></i>
+        </button>
+        <!-- 關閉按鈕 -->
+        <button id="closeFullscreen" class="fullscreen-toggle-btn" title="關閉全屏">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. 繪圖功能覆蓋層結構 (固定定位) -->
+  <div id="drawingCanvasContainer" class="fixed inset-0 pointer-events-none z-40 hidden">
+      <!-- 主繪圖畫布 -->
+      <canvas id="drawingCanvas" class="absolute inset-0 w-full h-full"></canvas>
+      <!-- 橡皮擦軌跡反饋畫布 -->
+      <canvas id="feedbackCanvas" class="absolute inset-0 w-full h-full"></canvas>
+  </div>
+
+  <!-- 3. 頂部置中工具列 (固定定位) -->
+  <div id="drawingTools" class="hidden">
+      <!-- 畫筆按鈕 -->
+      <button id="redPenBtn" class="tool-btn active" title="畫筆">
+          <i class="fas fa-pen"></i>
+      </button>
+
+<!-- 新增：熒光筆按鈕 -->
+<button id="highlighterBtn" class="tool-btn" title="熒光筆">
+    <i class="fas fa-highlighter"></i>
+</button>
+
+      <!-- 顏色選擇按鈕 -->
+      <button id="colorPreviewBtn" class="tool-btn" title="更改顏色" style="background-color: rgba(255, 0, 0, 0.8);">
+      </button>
+      <input type="color" id="colorInputHtml" value="#ff0000">
+
+      <!-- 橡皮擦按鈕 -->
+      <button id="eraserBtn" class="tool-btn" title="橡皮擦">
+          <i class="fas fa-eraser"></i>
+      </button>
+
+     <!-- 粗細調整按鈕 (點擊彈出滑桿) -->
+    <div style="position: relative;">
+        <button id="sizeToggleBtn" class="tool-btn" title="調整粗細">
+            <div id="sizeIndicatorCircle" style="width: 5px; height: 5px; background-color: var(--charcoal); border-radius: 50%;"></div>
+        </button>
+        <!-- 彈出的滑桿容器 -->
+        <div id="sizeSliderPopup" class="slider-popup hidden">
+            <!-- 已移除「細/粗」文字，並將 value 預設為 1 -->
+            <input type="range" id="brushSizeSlider" min="1" max="50" value="2">
+        </div>
+    </div>
+
+      <!-- 復原按鈕 -->
+      <button id="undoBtn" class="tool-btn" title="復原">
+          <i class="fas fa-undo"></i>
+      </button>
+
+      <!-- 清空按鈕 -->
+      <button id="clearCanvasBtn" class="tool-btn" title="清空畫布">
+          <i class="fas fa-trash-alt"></i>
+      </button>
+
+    <!-- 在 drawingTools 內加入這個按鈕 -->
+<button id="scrollModeBtn" class="tool-btn" title="切換滾動/繪畫模式">
+    <i class="fas fa-hand-paper"></i>
+</button>
+
+      <!-- 退出按鈕 -->
+      <button id="exitDrawingBtn" class="tool-btn" title="退出繪畫模式" style="color: #a86b6b; border-color: rgba(168, 107, 107, 0.3);">
+          <i class="fas fa-times"></i>
+      </button>
+  </div>
+
+<!-- 4. 回答列表容器 -->
+<div id="fullscreenAnswersList" class="flex-1 overflow-y-auto p-6 bg-earth-beige relative z-30">
+    
+    <!-- 【關鍵修正】 -->
+    <!-- 1. 移除了 'h-full', 'bottom-0', 'right-0' -->
+    <!-- 2. 保留 'absolute', 'top-0', 'left-0', 'w-full' -->
+    <!-- 3. 高度將由 JS 動態設為 scrollHeight (內容總高度) -->
+    <div id="drawingCanvasContainer" class="absolute top-0 left-0 w-full z-40 hidden">
+        <canvas id="drawingCanvas" class="absolute top-0 left-0 w-full h-full"></canvas>
+        <canvas id="feedbackCanvas" class="absolute top-0 left-0 w-full h-full"></canvas>
+    </div>
+
+    <!-- 這裡會動態生成學生的回答卡片 -->
+</div>
+
+<script>
+document.getElementById('brushSize')?.addEventListener('click', function(e) {
+    e.stopPropagation();
+    const sizes = JSON.parse(this.dataset.sizes);
+    const current = parseInt(this.dataset.value);
+    const nextIndex = (sizes.indexOf(current) + 1) % sizes.length;
+    const newSize = sizes[nextIndex];
+    this.dataset.value = newSize;
+    this.textContent = newSize;
+
+    // --- 修正：更新大小並同步筆和橡皮擦 ---
+    if (isEraser) {
+        // 如果當前是橡皮擦模式，更新橡皮擦大小（與筆同步）
+        brushSize = newSize;
+        currentEraserSize = newSize; // 同步記錄橡皮擦大小
+    } else {
+        // 否則更新筆的大小
+        brushSize = newSize;
+        currentBrushSize = newSize; // 同步記錄筆大小
+    }
+
+    // 保存當前繪圖狀態到歷史 (可選，如果想在調整大小後也能復原)
+    // saveDrawingState(); // 如果需要此功能，請實現 saveDrawingState 函數
+});
+</script>
+    </div>
+  </div>
+ <!-- 4. 回答列表容器 -->
+<div id="fullscreenAnswersList" class="flex-1 overflow-y-auto p-6 bg-earth-beige relative z-30">
+    
+    <!-- 【關鍵修正】 -->
+    <!-- 1. 移除了 'fixed', 'inset-0', 'pointer-events-none' -->
+    <!-- 2. 加入了 'absolute', 'top-0', 'left-0' -->
+    <!-- 這樣它才會跟隨父元素滾動 -->
+    <div id="drawingCanvasContainer" class="absolute top-0 left-0 w-full z-40 hidden">
+        <canvas id="drawingCanvas" class="absolute top-0 left-0 w-full h-full"></canvas>
+        <canvas id="feedbackCanvas" class="absolute top-0 left-0 w-full h-full"></canvas>
+    </div>
+
+    <!-- 這裡會動態生成學生的回答卡片 -->
+</div>
+<!-- 替換全屏倒計時HTML -->
+<div id="fullscreenCountdown" class="hidden fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center">
+  <div class="w-full h-full flex flex-col justify-center items-center px-8">
+    <h2 class="text-4xl md:text-5xl font-bold text-gray-300 mb-6 md:mb-8 opacity-90">剩餘時間</h2>
+    <div id="fullscreenCountdownDisplay" class="font-bold text-yellow-300 leading-none text-center w-full"></div>
+  </div>
+  <button id="closeFullscreenCountdown" class="absolute top-4 right-4 md:top-6 md:right-6 w-12 h-12 md:w-14 md:h-14 rounded-full bg-black bg-opacity-30 backdrop-blur-sm flex items-center justify-center text-white text-xl md:text-2xl hover:bg-opacity-50 transition-all duration-300 z-10 border border-gray-700 hover:border-red-500">
+    <i class="fas fa-times"></i>
+  </button>
+</div>
+
+
+<!-- === 2. Firebase 初始化 (SansiData - 第二個 App) === -->
+<script>
+    // 1. 定義第二個 Firebase 設定 (更名為 sansiConfig 以避免衝突)
+    const sansiConfig = {
+        apiKey: "AIzaSyBgwrgn2m343mRJb0WjzUhteiospegXhvI",
+        authDomain: "sansidata.firebaseapp.com",
+        projectId: "sansidata",
+        storageBucket: "sansidata.firebasestorage.app",
+        messagingSenderId: "580288358575",
+        appId: "1:580288358575:web:35dcf4e79bcef530de4c5a",
+        databaseURL: "https://sansidata-default-rtdb.firebaseio.com"
+    };
+
+    // 2. 初始化第二個 App (給予名稱 'sansi')
+    let sansiApp;
+    // 檢查是否已經初始化過，避免重複報錯
+    try {
+        sansiApp = firebase.app("sansi");
+    } catch (e) {
+        sansiApp = firebase.initializeApp(sansiConfig, "sansi");
+    }
+    
+    // 3. 獲取獨立的 database 和 auth 實例
+    // 注意：這裡變數名稱改為 sansiDatabase 和 sansiAuth，避免覆蓋主功能的 database
+    var sansiDatabase = sansiApp.database();
+    var sansiAuth = sansiApp.auth();
+
+    // 4. 啟動監聽與同步邏輯 (持久化) - 使用 sansiAuth
+    document.addEventListener('DOMContentLoaded', function() {
+        if (sansiAuth) {
+            // 使用 persistence.LOCAL (注意 compat 版本的寫法)
+            sansiAuth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+            .then(() => {
+                sansiAuth.onAuthStateChanged(async (user) => {
+                    const s = JSON.parse(localStorage.getItem('studentProfile'));
+
+                    if (user) {
+                        console.log("[ZiZhen] 🟢 偵測到有效登入:", user.email);
+                        if (!s) {
+                            console.log("[ZiZhen] 正在同步雲端身份...");
+                            try {
+                                const emailKey = btoa(user.email);
+                                // 使用 sansiDatabase
+                                const snapshot = await sansiDatabase.ref('email_mapping/' + emailKey).once('value');
+                                const profile = snapshot.val();
+                                if (profile) {
+                                    localStorage.setItem('studentProfile', JSON.stringify(profile));
+                                }
+                            } catch (e) { console.error("同步失敗:", e); }
+                        }
+                    } else {
+                        console.log("[ZiZhen] ⚪ 未偵測到登入");
+                        // 移除自動清除邏輯，避免與主功能衝突，或視需求保留
+                    }
+                });
+            })
+            .catch((error) => console.error("[ZiZhen] 持久化設定失敗:", error));
+        }
+    });
+
+    // 5. Token Injector (針對 sansiAuth)
+    (function() {
+        const originalFetch = window.fetch; 
+        const TARGET_URL_PART = "script.google.com"; 
+
+        window.fetch = async function(url, options) {
+            if (typeof url === 'string' && url.includes(TARGET_URL_PART) && options && options.method === 'POST') {
+                const user = await new Promise((resolve) => {
+                    if (sansiAuth.currentUser) {
+                        resolve(sansiAuth.currentUser);
+                    } else {
+                        // 使用 sansiAuth 監聽
+                        const unsubscribe = sansiAuth.onAuthStateChanged(u => {
+                            unsubscribe();
+                            resolve(u);
+                        });
+                        setTimeout(() => resolve(null), 2000);
+                    }
+                });
+
+                if (user) {
+                    try {
+                        const token = await user.getIdToken(true);
+                        let bodyData = JSON.parse(options.body);
+                        bodyData.token = token; 
+                        options.body = JSON.stringify(bodyData);
+                    } catch (e) {
+                        console.error("[TokenInjector] Token 獲取失敗:", e);
+                    }
+                }
+            }
+            return originalFetch(url, options);
+        };
+    })();
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    let totalSeconds = 0;
+    let timerInterval = null;
+
+    function getDateParts() {
+        const now = new Date();
+        const y = String(now.getFullYear());
+        const m = String(now.getMonth() + 1).padStart(2, '0');
+        const d = String(now.getDate()).padStart(2, '0');
+        return { y, m, d };
+    }
+
+    function getIdentity() {
+        const rawProfile = localStorage.getItem('studentProfile');
+        let s = null;
+        try { if(rawProfile) s = JSON.parse(rawProfile); } catch (e) {}
+
+        if (s && s.grade && s.class) {
+            const safeName = s.name.replace(/[.#$/[\]]/g, '_'); 
+            return { type: 'student', id: s.uid || `stu_${s.grade}${s.class}_${safeName}`, grade: s.grade, class: s.class, name: s.name };
+        } else {
+            let guestID = localStorage.getItem('sansi_guest_uuid');
+            if (!guestID) {
+                guestID = 'guest_' + Math.random().toString(36).substr(2, 9);
+                localStorage.setItem('sansi_guest_uuid', guestID);
+            }
+            return { type: 'guest', id: guestID, grade: 'Guest', class: 'Visitor', name: 'Guest' };
+        }
+    }
+
+    // === 記錄訪問 ===
+    async function logVisitOnce() {
+        // 使用 sansiDatabase 判斷
+        if (typeof sansiDatabase === 'undefined' || !sansiDatabase) return;
+        
+        const { y, m, d } = getDateParts();
+        const identity = getIdentity();
+        const uid = identity.id;
+
+        const sessionKey = `sansi_visit_logged_${y}${m}${d}_${uid}`;
+        if (sessionStorage.getItem(sessionKey)) return; 
+
+        // 使用 sansiDatabase
+        const trackingRef = sansiDatabase.ref(`stats_tracking/${y}/${m}/${d}/unique_users/${uid}`);
+        
+        try {
+            const snap = await trackingRef.once('value');
+            const isFirstTimeToday = !snap.exists();
+
+            const updates = {};
+            const increment1 = firebase.database.ServerValue.increment(1);
+            
+            const globalPath = `stats_global/${y}/${m}/${d}`;
+            updates[`${globalPath}/visits`] = increment1;
+
+            const schoolPath = `stats_school/${y}/${m}/${d}`;
+
+            if (identity.type === 'student') {
+                const classKey = `${identity.grade}${identity.class}`;
+                const studentKey = identity.name; 
+
+                updates[`${schoolPath}/visits`] = increment1;
+                
+                const classPath = `stats_classes/${classKey}/${y}/${m}/${d}`;
+                updates[`${classPath}/visits`] = increment1;
+
+                const studentPath = `stats_students/${classKey}/${studentKey}/${y}/${m}/${d}`;
+                updates[`${studentPath}/visits`] = increment1;
+
+                if (isFirstTimeToday) {
+                    updates[`stats_tracking/${y}/${m}/${d}/unique_users/${uid}`] = true;
+                    updates[`${globalPath}/unique`] = increment1;
+                    updates[`${schoolPath}/unique`] = increment1;
+                    updates[`${classPath}/unique`] = increment1;
+                }
+            } else {
+                if (isFirstTimeToday) {
+                    updates[`stats_tracking/${y}/${m}/${d}/unique_users/${uid}`] = true;
+                    updates[`${globalPath}/unique`] = increment1;
+                }
+            }
+
+            // 使用 sansiDatabase 進行更新
+            await sansiDatabase.ref().update(updates);
+            sessionStorage.setItem(sessionKey, 'true');
+            console.log("📍 [Stats] 訪問計數已分流上傳");
+
+        } catch (e) {
+            console.error("Stats Error:", e);
+        }
+    }
+
+    // === 上傳時長 ===
+    function uploadOneMinute() {
+        // 使用 sansiDatabase 判斷
+        if (typeof sansiDatabase === 'undefined' || !sansiDatabase) return;
+        
+        logVisitOnce(); 
+
+        const { y, m, d } = getDateParts();
+        const identity = getIdentity();
+        
+        const studentKey = identity.name;
+        
+        const updates = {};
+        const increment60 = firebase.database.ServerValue.increment(60);
+
+        updates[`stats_global/${y}/${m}/${d}/duration`] = increment60;
+
+        if (identity.type === 'student') {
+            const classKey = `${identity.grade}${identity.class}`;
+            const pathSchool = `stats_school/${y}/${m}/${d}/duration`;
+            updates[pathSchool] = increment60;
+
+            const pathClass = `stats_classes/${classKey}/${y}/${m}/${d}/duration`;
+            updates[pathClass] = increment60;
+            
+            const pathStudent = `stats_students/${classKey}/${studentKey}/${y}/${m}/${d}/duration`;
+            updates[pathStudent] = increment60;
+        }
+
+        // 使用 sansiDatabase 進行更新
+        sansiDatabase.ref().update(updates)
+            .then(() => console.log("✅ [Stats] 時長上傳成功"))
+            .catch(e => console.error("❌ [Stats] 上傳失敗:", e));
+    }
+
+    function startTimer() {
+        if (timerInterval) return;
+        console.log("▶️ [Stats] 計時器啟動");
+        
+        timerInterval = setInterval(() => {
+            totalSeconds++;
+            if (totalSeconds === 30 || (totalSeconds > 30 && (totalSeconds - 30) % 60 === 0)) {
+                uploadOneMinute();
+            }
+        }, 1000);
+    }
+
+    function pauseTimer() {
+        if (timerInterval) {
+            clearInterval(timerInterval);
+            timerInterval = null;
+            console.log("⏸️ [Stats] 暫停計時");
+        }
+    }
+
+    setTimeout(() => {
+        logVisitOnce();
+        startTimer();
+    }, 3000);
+
+    document.addEventListener('visibilitychange', function() {
+        if (document.visibilityState === 'hidden') pauseTimer();
+        else startTimer();
+    });
+    
+    window.forceLogVisit = logVisitOnce;
+});
+</script>
+
+	
+
+<script>
+    // =======================================================
+    // === [新增] 在線狀態自動報到系統 (Presence System) ===
+    // =======================================================
+    function initPresenceSystem() {
+        setTimeout(() => {
+            // 使用 sansiDatabase 判斷
+            if (typeof sansiDatabase === 'undefined') return;
+
+            // 1. 監聽 sansiDatabase 的連線狀態
+            const connectedRef = sansiDatabase.ref('.info/connected');
+
+            connectedRef.on('value', (snap) => {
+                if (snap.val() === true) {
+                    
+                    const s = JSON.parse(localStorage.getItem('studentProfile'));
+                    let myUid = "";
+                    let userData = {};
+
+                    if (s && s.name) {
+                        // 使用 sansiAuth 獲取用戶
+                        const user = sansiAuth.currentUser;
+                        myUid = user ? user.uid : `stu_${s.grade}${s.class}_${s.name}`;
+                        
+                        userData = {
+                            name: s.name,
+                            grade: s.grade,
+                            class: s.class,
+                            timestamp: firebase.database.ServerValue.TIMESTAMP,
+                            device: /Mobile|Android/i.test(navigator.userAgent) ? 'Mobile' : 'Desktop'
+                        };
+                    } else {
+                        let guestId = localStorage.getItem('sansi_guest_uuid');
+                        if (!guestId) {
+                            guestId = 'guest_' + Math.random().toString(36).substr(2, 9);
+                            localStorage.setItem('sansi_guest_uuid', guestId);
+                        }
+                        myUid = guestId;
+
+                        userData = {
+                            name: "訪客",
+                            grade: "Guest",
+                            class: "Visitor",
+                            timestamp: firebase.database.ServerValue.TIMESTAMP
+                        };
+                    }
+
+                    // 寫入 sansiDatabase
+                    const myPresenceRef = sansiDatabase.ref(`online_users/${myUid}`);
+
+                    myPresenceRef.onDisconnect().remove().then(() => {
+                        myPresenceRef.set(userData);
+                    });
+                }
+            });
+        }, 2000); 
+    }
+
+    document.addEventListener('DOMContentLoaded', initPresenceSystem);
+</script>
+
+   
+</body>
+  </html>

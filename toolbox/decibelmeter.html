@@ -1,0 +1,1432 @@
+
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>分貝計</title>
+<style>
+:root {
+--bg-color: #2c3e50;
+--primary-text-color: #ecf0f1;
+--secondary-text-color: #bdc3c7;
+--display-bg-color: #34495e;
+--icon-color: #ecf0f1;
+--icon-hover-color: #95a5a6;
+--warning-color: #e74c3c;
+--modal-bg: #34495e;
+--accent-color: #3498db;
+--exceedance-bg: #2a2a3e;
+--exceedance-border: #4a4a6e;
+}
+
+* {
+box-sizing: border-box;
+}
+
+body {
+font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+background-color: var(--bg-color);
+color: var(--primary-text-color);
+margin: 0;
+padding: 15px;
+display: flex;
+justify-content: center;
+align-items: center;
+min-height: 100vh;
+transition: background-color 0.1s ease;
+}
+
+.decibel-meter {
+width: 100%;
+max-width: 600px;
+background-color: var(--display-bg-color);
+border-radius: 24px;
+padding: 40px;
+box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+text-align: center;
+}
+
+.display {
+margin-bottom: 40px;
+}
+
+.current-db-display {
+font-size: 8rem;
+font-weight: 200;
+line-height: 1;
+margin-bottom: 30px;
+}
+
+.current-db-display span {
+font-size: 2.5rem;
+font-weight: 400;
+margin-left: 8px;
+color: var(--secondary-text-color);
+}
+
+.info-display {
+display: grid;
+gap: 20px;
+margin-top: 30px;
+margin-bottom: 20px;
+}
+
+.info-display.with-exceedance {
+grid-template-columns: 70% 30%;
+}
+
+.info-display.without-exceedance {
+grid-template-columns: 100%;
+}
+
+.info-box {
+display: flex;
+flex-direction: column;
+padding: 25px;
+background-color: var(--bg-color);
+border-radius: 16px;
+transition: transform 0.2s ease, box-shadow 0.2s ease;
+position: relative;
+}
+
+.info-box:hover {
+transform: translateY(-2px);
+box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.info-box.avg-highlight {
+background: linear-gradient(135deg, var(--accent-color), #2980b9);
+transform: scale(1.05);
+box-shadow: 0 10px 25px rgba(52, 152, 219, 0.3);
+}
+
+.info-box.exceedance-counter {
+background-color: var(--exceedance-bg);
+border: 2px solid var(--exceedance-border);
+}
+
+.info-box.exceedance-counter:hover {
+background-color: #323248;
+}
+
+.info-box .value {
+font-size: 3rem;
+font-weight: 600;
+margin-bottom: 8px;
+}
+
+.info-box.avg-highlight .value {
+font-size: 3.5rem;
+font-weight: 700;
+color: #ffffff;
+text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.info-box .label {
+font-size: 1rem;
+color: var(--secondary-text-color);
+text-transform: uppercase;
+letter-spacing: 1px;
+font-weight: 500;
+}
+
+.info-box.avg-highlight .label {
+color: #e8f4fd;
+font-weight: 600;
+}
+
+.warning-value {
+position: absolute;
+bottom: 8px;
+right: 12px;
+font-size: 0.85rem;
+color: #ff6b6b ;
+opacity: 0.8; /* 調整透明度 */
+}
+
+.info-box.avg-highlight .warning-value {
+color: #e8f4fd;
+}
+
+.exceedance-indicators {
+display: flex;
+justify-content: center;
+gap: 8px;
+margin-top: 10px;
+margin-bottom: 8px;
+}
+
+.exceedance-dot {
+width: 12px;
+height: 12px;
+border-radius: 50%;
+background-color: var(--secondary-text-color);
+opacity: 0.3;
+transition: all 0.3s ease;
+}
+
+.exceedance-dot.exceeded {
+background-color: var(--warning-color);
+opacity: 1;
+box-shadow: 0 0 8px rgba(231, 76, 60, 0.5);
+}
+
+.timer-section {
+margin-top: 20px;
+}
+
+.timer-box {
+display: flex;
+flex-direction: column;
+padding: 25px;
+background-color: var(--bg-color);
+border-radius: 16px;
+transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.timer-box:hover {
+transform: translateY(-2px);
+box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.timer-box .value {
+font-size: 3rem;
+font-weight: 600;
+margin-bottom: 8px;
+}
+
+.timer-box .label {
+font-size: 1rem;
+color: var(--secondary-text-color);
+text-transform: uppercase;
+letter-spacing: 1px;
+font-weight: 500;
+}
+
+.controls {
+display: flex;
+justify-content: center;
+align-items: center;
+gap: 30px;
+margin-top: 20px;
+}
+
+.icon-btn {
+background: none;
+border: none;
+cursor: pointer;
+padding: 15px;
+color: var(--icon-color);
+transition: color 0.2s ease, transform 0.2s ease;
+border-radius: 50%;
+background-color: var(--bg-color);
+}
+
+.icon-btn:hover {
+color: var(--icon-hover-color);
+transform: scale(1.15);
+background-color: #1a252f;
+}
+
+.icon-btn:disabled {
+cursor: not-allowed;
+opacity: 0.5;
+transform: none;
+}
+
+.icon-btn svg {
+width: 48px;
+height: 48px;
+fill: currentColor;
+}
+
+#playPauseBtn .pause-icon { display: none; }
+#playPauseBtn.playing .play-icon { display: none; }
+#playPauseBtn.playing .pause-icon { display: block; }
+
+#playPauseBtn {
+background-color: var(--accent-color);
+color: white;
+}
+
+#playPauseBtn:hover {
+background-color: #2980b9;
+color: white;
+}
+
+/* Warning Flash */
+.warning-flash {
+animation: flash 0.5s infinite;
+}
+
+@keyframes flash {
+0%, 100% { background-color: var(--warning-color); }
+50% { background-color: var(--bg-color); }
+}
+
+/* Modal Styles */
+.modal {
+display: none;
+position: fixed;
+z-index: 1000;
+left: 0;
+top: 0;
+width: 100%;
+height: 100%;
+overflow: auto;
+background-color: rgba(0,0,0,0.7);
+align-items: center;
+justify-content: center;
+}
+
+.modal-content {
+background-color: var(--modal-bg);
+margin: auto;
+padding: 40px;
+border-radius: 20px;
+width: 90%;
+max-width: 500px;
+box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+max-height: 80vh;
+overflow-y: auto;
+}
+
+.modal-header {
+display: flex;
+justify-content: space-between;
+align-items: center;
+margin-bottom: 30px;
+}
+
+.modal-header h2 {
+margin: 0;
+font-weight: 500;
+font-size: 1.8rem;
+}
+
+.close-btn {
+color: var(--secondary-text-color);
+font-size: 32px;
+font-weight: bold;
+cursor: pointer;
+background: none;
+border: none;
+padding: 5px;
+border-radius: 50%;
+transition: color 0.2s ease, background-color 0.2s ease;
+}
+
+.close-btn:hover {
+color: var(--primary-text-color);
+background-color: var(--bg-color);
+}
+
+.form-group {
+margin-bottom: 25px;
+text-align: left;
+}
+
+.form-group label {
+display: block;
+margin-bottom: 12px;
+color: var(--secondary-text-color);
+font-size: 1.1rem;
+font-weight: 500;
+}
+
+.form-group input[type="number"] {
+width: 100%;
+padding: 16px;
+background-color: var(--bg-color);
+border: 2px solid var(--display-bg-color);
+border-radius: 12px;
+color: var(--primary-text-color);
+font-size: 1.2rem;
+transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-group input[type="checkbox"] {
+width: auto;
+margin-right: 10px;
+transform: scale(1.2);
+}
+
+.checkbox-group {
+display: flex;
+align-items: center;
+margin-top: 15px;
+}
+
+.checkbox-group label {
+margin-bottom: 0;
+margin-left: 10px;
+cursor: pointer;
+}
+
+.form-group input:focus {
+outline: none;
+border-color: var(--accent-color);
+box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.calibration-section {
+margin-top: 30px;
+padding-top: 25px;
+border-top: 1px solid var(--display-bg-color);
+}
+
+.calibration-title {
+font-size: 1.3rem;
+font-weight: 600;
+margin-bottom: 20px;
+color: var(--accent-color);
+}
+
+.calibration-buttons {
+display: flex;
+gap: 15px;
+margin-bottom: 20px;
+}
+
+.calibration-btn {
+padding: 12px 20px;
+background-color: var(--bg-color);
+border: 2px solid var(--accent-color);
+border-radius: 12px;
+color: var(--accent-color);
+font-size: 0.9rem;
+font-weight: 600;
+cursor: pointer;
+transition: all 0.2s;
+flex: 1;
+}
+
+.calibration-btn:hover:not(:disabled) {
+background-color: var(--accent-color);
+color: white;
+}
+
+.calibration-btn:disabled {
+border-color: var(--secondary-text-color);
+color: var(--secondary-text-color);
+cursor: not-allowed;
+opacity: 0.7;
+}
+
+
+.calibration-info {
+background-color: var(--bg-color);
+padding: 15px;
+border-radius: 12px;
+font-size: 0.9rem;
+color: var(--secondary-text-color);
+margin-bottom: 20px;
+line-height: 1.5;
+}
+
+#saveSettingsBtn {
+width: 100%;
+padding: 16px;
+background-color: var(--accent-color);
+border: none;
+border-radius: 12px;
+color: white;
+font-size: 1.2rem;
+font-weight: 600;
+cursor: pointer;
+transition: background-color 0.2s;
+}
+
+#saveSettingsBtn:hover {
+background-color: #2980b9;
+}
+
+/* 須留堂通知樣式 */
+.detention-notice {
+display: none;
+position: fixed;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+background: linear-gradient(135deg, rgba(231, 76, 60, 0.95), rgba(192, 57, 43, 0.95));
+z-index: 2000;
+justify-content: center;
+align-items: center;
+backdrop-filter: blur(10px);
+animation: noticeSlideIn 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.detention-content {
+background: rgba(255, 255, 255, 0.1);
+border: 3px solid rgba(255, 255, 255, 0.3);
+border-radius: 24px;
+padding: 60px 40px;
+text-align: center;
+backdrop-filter: blur(20px);
+box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+max-width: 420px;
+width: 90%;
+position: relative;
+overflow: hidden;
+}
+
+.detention-content::before {
+content: '';
+position: absolute;
+top: -50%;
+left: -50%;
+width: 200%;
+height: 200%;
+background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+transform: rotate(45deg);
+animation: shine 3s infinite;
+}
+
+.detention-icon {
+font-size: 4rem;
+margin-bottom: 20px;
+display: block;
+animation: pulse 2s infinite;
+}
+
+.detention-title {
+font-size: 2.5rem;
+font-weight: 700;
+color: #ffffff;
+margin-bottom: 15px;
+text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+letter-spacing: 2px;
+}
+
+.detention-message {
+font-size: 1.2rem;
+color: rgba(255, 255, 255, 0.9);
+margin-bottom: 30px;
+font-weight: 500;
+}
+
+.detention-dismiss {
+background: rgba(255, 255, 255, 0.2);
+border: 2px solid rgba(255, 255, 255, 0.4);
+color: #ffffff;
+padding: 12px 30px;
+border-radius: 50px;
+font-size: 1rem;
+font-weight: 600;
+cursor: pointer;
+transition: all 0.3s ease;
+backdrop-filter: blur(10px);
+}
+
+.detention-dismiss:hover {
+background: rgba(255, 255, 255, 0.3);
+border-color: rgba(255, 255, 255, 0.6);
+transform: translateY(-2px);
+box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+@keyframes noticeSlideIn {
+0% {
+opacity: 0;
+transform: scale(0.8) rotateY(20deg);
+}
+100% {
+opacity: 1;
+transform: scale(1) rotateY(0deg);
+}
+}
+
+@keyframes pulse {
+0%, 100% { transform: scale(1); }
+50% { transform: scale(1.1); }
+}
+
+@keyframes shine {
+0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+.decibel-meter {
+max-width: 100%;
+padding: 30px 25px;
+border-radius: 20px;
+}
+
+.current-db-display {
+font-size: 6rem;
+}
+
+.current-db-display span {
+font-size: 2rem;
+}
+
+.info-display.with-exceedance {
+grid-template-columns: 1fr;
+gap: 15px;
+}
+
+.info-box .value {
+font-size: 2.5rem;
+}
+
+.info-box.avg-highlight .value {
+font-size: 2.8rem;
+}
+
+.timer-box .value {
+font-size: 2.5rem;
+}
+
+.info-box .label,
+.timer-box .label {
+font-size: 0.9rem;
+}
+
+.icon-btn svg {
+width: 40px;
+height: 40px;
+}
+
+.controls {
+gap: 25px;
+}
+
+.modal-content {
+padding: 30px 25px;
+margin: 20px;
+}
+
+.calibration-buttons {
+flex-direction: column;
+}
+
+.detention-content {
+padding: 40px 30px;
+max-width: 350px;
+}
+
+.detention-title {
+font-size: 2rem;
+}
+
+.detention-icon {
+font-size: 3rem;
+}
+}
+
+@media (max-width: 480px) {
+body {
+padding: 10px;
+}
+
+.decibel-meter {
+padding: 25px 20px;
+}
+
+.current-db-display {
+font-size: 5rem;
+}
+
+.current-db-display span {
+font-size: 1.8rem;
+}
+
+.info-box,
+.timer-box {
+padding: 20px;
+}
+
+.info-box .value,
+.timer-box .value {
+font-size: 2.2rem;
+}
+
+.info-box.avg-highlight .value {
+font-size: 2.5rem;
+}
+
+.controls {
+gap: 20px;
+}
+
+.icon-btn {
+padding: 12px;
+}
+
+.icon-btn svg {
+width: 36px;
+height: 36px;
+}
+
+.modal-content {
+padding: 25px 20px;
+margin: 15px;
+}
+
+.modal-header h2 {
+font-size: 1.5rem;
+}
+
+.detention-content {
+padding: 30px 25px;
+}
+
+.detention-title {
+font-size: 1.8rem;
+}
+
+.detention-message {
+font-size: 1.1rem;
+}
+}
+
+@media (max-width: 360px) {
+.current-db-display {
+font-size: 4rem;
+}
+
+.current-db-display span {
+font-size: 1.5rem;
+}
+
+.info-box .value,
+.timer-box .value {
+font-size: 2rem;
+}
+
+.info-box.avg-highlight .value {
+font-size: 2.2rem;
+}
+
+.detention-content {
+padding: 25px 20px;
+}
+
+.detention-title {
+font-size: 1.6rem;
+}
+}
+
+/* Large screen optimizations */
+@media (min-width: 1200px) {
+.decibel-meter {
+max-width: 700px;
+padding: 50px;
+}
+
+.current-db-display {
+font-size: 10rem;
+}
+
+.current-db-display span {
+font-size: 3rem;
+}
+
+.info-box .value,
+.timer-box .value {
+font-size: 3.5rem;
+}
+
+.info-box.avg-highlight .value {
+font-size: 4rem;
+}
+
+.icon-btn svg {
+width: 56px;
+height: 56px;
+}
+
+.detention-content {
+max-width: 480px;
+padding: 70px 50px;
+}
+
+.detention-title {
+font-size: 3rem;
+}
+
+.detention-icon {
+font-size: 5rem;
+}
+}
+
+    .copyright-footer {
+position: fixed;
+bottom: 0;
+right: 0;
+padding: 5px 10px;
+background-color: #f1f1f1;
+}
+
+.copyright-footer p {
+margin: 0;
+font-size: 14px;
+    color: #000000;
+}
+
+@media (max-width: 600px) {
+.copyright-footer p {
+font-size: 12px;
+}
+}
+
+</style>
+</head>
+<body>
+
+<div class="decibel-meter">
+<div class="display">
+<div class="current-db-display">
+<span id="currentDbValue">--</span><span>dB</span>
+</div>
+<div class="info-display with-exceedance" id="infoDisplay">
+<div class="info-box avg-highlight">
+<span id="avgDbValue" class="value">--</span>
+<span class="label">平均分貝</span>
+<span class="warning-value" id="avgWarningValue">40dB</span>
+</div>
+<div class="info-box exceedance-counter" id="exceedanceBox">
+<span id="exceedanceValue" class="value">0</span>
+<span class="label">次數</span>
+<span class="warning-value" id="exceedanceWarningValue">47dB</span>
+<div class="exceedance-indicators" id="exceedanceIndicators">
+<div class="exceedance-dot"></div>
+<div class="exceedance-dot"></div>
+<div class="exceedance-dot"></div>
+</div>
+</div>
+</div>
+<div class="timer-section">
+<div class="timer-box">
+<span id="timerValue" class="value">15:00</span>
+<span class="label">剩餘時間</span>
+</div>
+</div>
+</div>
+
+<div class="controls">
+<button id="settingsBtn" class="icon-btn" title="設定">
+<svg viewBox="0 0 24 24"><path d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17-.59-1.69-.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"/></svg>
+</button>
+<button id="playPauseBtn" class="icon-btn" title="開始">
+<svg class="play-icon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+<svg class="pause-icon" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+</button>
+</div>
+</div>
+
+<!-- Settings Modal -->
+<div id="settingsModal" class="modal">
+<div class="modal-content">
+<div class="modal-header">
+<h2>設定</h2>
+<span class="close-btn">&times;</span>
+</div>
+<div class="form-group">
+<label for="durationInput">倒數時間 (分鐘)</label>
+<input type="number" id="durationInput" value="15" min="1">
+</div>
+<div class="form-group">
+<label for="thresholdInput">平均分貝警示值 (dB)</label>
+<input type="number" id="thresholdInput" value="40" min="0">
+</div>
+<div class="form-group">
+<label for="maxDbInput">單次最高分貝限制 (dB)</label>
+<input type="number" id="maxDbInput" value="47" min="0">
+</div>
+<div class="form-group">
+<label for="maxExceedanceInput">允許超過次數</label>
+<input type="number" id="maxExceedanceInput" value="3" min="1" max="10">
+</div>
+<div class="form-group">
+<div class="checkbox-group">
+<input type="checkbox" id="showExceedanceBox" checked>
+<label for="showExceedanceBox">啟用單次分貝值超標警示容器</label>
+</div>
+</div>
+
+<!-- 校準設定 (已修訂) -->
+<div class="calibration-section">
+    <div class="calibration-title">設備校準</div>
+    <div class="calibration-info" id="calibrationInfo">
+        為獲得更一致的讀數，建議您在安靜環境中進行一次性校準，這將為您的設備設定基準線以補償麥克風差異。
+    </div>
+    <div class="calibration-buttons">
+        <button type="button" class="calibration-btn" id="calibrateFromNoiseBtn">從環境噪音自動校準</button>
+    </div>
+    <div class="form-group" id="offsetGroup">
+        <label for="offsetInput">分貝偏移量 (dB)</label>
+        <input type="number" id="offsetInput" value="0" step="0.1" min="-50" max="50">
+        <small style="display: block; margin-top: 8px; color: var(--secondary-text-color); font-size: 0.9rem;">
+            正值增加測量值，負值減少。可透過自動校準設定或手動微調。
+        </small>
+    </div>
+</div>
+
+<button id="saveSettingsBtn">儲存</button>
+</div>
+</div>
+
+<!-- 須留堂通知 -->
+<div id="detentionNotice" class="detention-notice">
+<div class="detention-content">
+<div class="detention-icon">⚠️</div>
+<div class="detention-title">須留堂</div>
+<div class="detention-message" id="detentionMessage">超標次數已達限制</div>
+<button class="detention-dismiss" onclick="dismissDetentionNotice()">確認</button>
+</div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+const currentDbValueEl = document.getElementById('currentDbValue');
+const avgDbValueEl = document.getElementById('avgDbValue');
+const timerValueEl = document.getElementById('timerValue');
+const exceedanceValueEl = document.getElementById('exceedanceValue');
+const avgWarningValueEl = document.getElementById('avgWarningValue');
+const exceedanceWarningValueEl = document.getElementById('exceedanceWarningValue');
+const exceedanceIndicatorsEl = document.getElementById('exceedanceIndicators');
+const infoDisplayEl = document.getElementById('infoDisplay');
+const exceedanceBoxEl = document.getElementById('exceedanceBox');
+const detentionNoticeEl = document.getElementById('detentionNotice');
+const detentionMessageEl = document.getElementById('detentionMessage');
+
+const playPauseBtn = document.getElementById('playPauseBtn');
+const settingsBtn = document.getElementById('settingsBtn');
+const settingsModal = document.getElementById('settingsModal');
+const closeModalBtn = document.querySelector('.close-btn');
+const saveSettingsBtn = document.getElementById('saveSettingsBtn');
+
+const durationInput = document.getElementById('durationInput');
+const thresholdInput = document.getElementById('thresholdInput');
+const maxDbInput = document.getElementById('maxDbInput');
+const maxExceedanceInput = document.getElementById('maxExceedanceInput');
+const showExceedanceBox = document.getElementById('showExceedanceBox');
+const offsetInput = document.getElementById('offsetInput');
+
+// 新增的校準元素
+const calibrateFromNoiseBtn = document.getElementById('calibrateFromNoiseBtn');
+const calibrationInfo = document.getElementById('calibrationInfo');
+
+let audioContext;
+let analyser;
+let microphone;
+let javascriptNode;
+let micStream;
+
+let isRunning = false;
+let isPaused = false;
+let timerInterval;
+let secondsRemaining = 15 * 60; 
+let decibelThreshold = 40;
+let maxDecibelLimit = 47;
+let maxExceedanceCount = 3;
+let currentExceedanceCount = 0;
+let showExceedanceContainer = true;
+let detentionNoticeShown = false;
+
+let dbHistory = [];
+let sumOfDb = 0;
+
+let measurementStartTime = 0;
+let lastExceedanceTime = 0;
+
+// **核心變更：引入分貝偏移量**
+let decibelOffset = 0;
+
+const SMOOTHING_FACTOR = 0.2;
+const NOISE_GATE_THRESHOLD = 0.0001;
+const MIN_DB = 25;
+const MAX_DB = 120;
+
+let currentDb = MIN_DB;
+
+window.dismissDetentionNotice = function() {
+detentionNoticeEl.style.display = 'none';
+};
+
+playPauseBtn.addEventListener('click', toggleMeasurement);
+settingsBtn.addEventListener('click', () => settingsModal.style.display = 'flex');
+closeModalBtn.addEventListener('click', () => settingsModal.style.display = 'none');
+window.addEventListener('click', (event) => {
+if (event.target == settingsModal) {
+settingsModal.style.display = 'none';
+}
+});
+
+calibrateFromNoiseBtn.addEventListener('click', calibrateFromNoise);
+
+showExceedanceBox.addEventListener('change', (e) => {
+showExceedanceContainer = e.target.checked;
+updateLayoutDisplay();
+});
+
+maxExceedanceInput.addEventListener('input', () => {
+maxExceedanceCount = parseInt(maxExceedanceInput.value, 10) || 3;
+updateExceedanceIndicators();
+updateWarningValues();
+});
+
+thresholdInput.addEventListener('input', () => {
+    decibelThreshold = parseInt(thresholdInput.value, 10) || 40;
+    updateWarningValues();
+});
+maxDbInput.addEventListener('input', () => {
+    maxDecibelLimit = parseInt(maxDbInput.value, 10) || 47;
+    updateWarningValues();
+});
+
+saveSettingsBtn.addEventListener('click', () => {
+const durationInMinutes = parseInt(durationInput.value, 10) || 15;
+secondsRemaining = durationInMinutes * 60;
+decibelThreshold = parseInt(thresholdInput.value, 10) || 40;
+maxDecibelLimit = parseInt(maxDbInput.value, 10) || 47;
+maxExceedanceCount = parseInt(maxExceedanceInput.value, 10) || 3;
+showExceedanceContainer = showExceedanceBox.checked;
+// **核心變更：儲存偏移量**
+decibelOffset = parseFloat(offsetInput.value) || 0;
+
+saveSettings();
+
+updateTimerDisplay();
+updateWarningValues();
+updateExceedanceIndicators();
+updateLayoutDisplay();
+settingsModal.style.display = 'none';
+
+if (!isRunning) {
+resetValues();
+}
+});
+
+function saveSettings() {
+const settings = {
+// **核心變更：將偏移量加入儲存**
+decibelOffset,
+decibelThreshold,
+maxDecibelLimit,
+maxExceedanceCount,
+showExceedanceContainer,
+duration: parseInt(durationInput.value, 10) || 15
+};
+localStorage.setItem('decibelMeterSettings', JSON.stringify(settings));
+}
+
+function loadSettings() {
+const saved = localStorage.getItem('decibelMeterSettings');
+if (saved) {
+try {
+const settings = JSON.parse(saved);
+// **核心變更：載入已儲存的偏移量**
+decibelOffset = settings.decibelOffset || 0;
+decibelThreshold = settings.decibelThreshold || 40;
+maxDecibelLimit = settings.maxDecibelLimit || 47;
+maxExceedanceCount = settings.maxExceedanceCount || 3;
+showExceedanceContainer = settings.showExceedanceContainer !== false;
+
+    // **👇 這是修訂的核心部分 👇**
+
+            // 1. 從儲存的設定中讀取倒數時間（分鐘），若無則預設為 15
+            const savedDuration = settings.duration || 15;
+            
+            // 2. 【關鍵】更新控制主頁面倒數計時的 `secondsRemaining` 變數
+            secondsRemaining = savedDuration * 60;
+            
+            // 3. 更新設定彈窗中的輸入框，確保兩者同步
+            durationInput.value = savedDuration;
+
+            // **👆 修訂核心部分結束 👆**
+
+offsetInput.value = decibelOffset;
+thresholdInput.value = decibelThreshold;
+maxDbInput.value = maxDecibelLimit;
+maxExceedanceInput.value = maxExceedanceCount;
+showExceedanceBox.checked = showExceedanceContainer;
+durationInput.value = settings.duration || 15;
+
+updateWarningValues();
+updateExceedanceIndicators();
+updateLayoutDisplay();
+} catch (e) {
+console.warn('無法載入保存的設定:', e);
+}
+}
+}
+
+function updateWarningValues() {
+avgWarningValueEl.textContent = `${decibelThreshold}dB`;
+exceedanceWarningValueEl.textContent = `${maxDecibelLimit}dB × ${maxExceedanceCount}次`;
+}
+
+function updateExceedanceIndicators() {
+exceedanceIndicatorsEl.innerHTML = '';
+for (let i = 0; i < maxExceedanceCount; i++) {
+const dot = document.createElement('div');
+dot.className = 'exceedance-dot';
+if (i < currentExceedanceCount) {
+dot.classList.add('exceeded');
+}
+exceedanceIndicatorsEl.appendChild(dot);
+}
+}
+
+function updateLayoutDisplay() {
+if (showExceedanceContainer) {
+infoDisplayEl.className = 'info-display with-exceedance';
+exceedanceBoxEl.style.display = 'flex';
+} else {
+infoDisplayEl.className = 'info-display without-exceedance';
+exceedanceBoxEl.style.display = 'none';
+}
+}
+
+function toggleMeasurement() {
+if (!isRunning) {
+startMeasurement();
+} else {
+pauseMeasurement();
+}
+}
+
+async function startMeasurement() {
+if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+alert('您的瀏覽器不支援麥克風存取！');
+return;
+}
+
+try {
+micStream = await navigator.mediaDevices.getUserMedia({ 
+audio: {
+echoCancellation: false,
+noiseSuppression: false,
+autoGainControl: false
+} 
+});
+
+await setupAudioNodes(micStream);
+
+isRunning = true;
+isPaused = false;
+playPauseBtn.classList.add('playing');
+playPauseBtn.title = '暫停';
+settingsBtn.disabled = true;
+
+resetValues();
+measurementStartTime = Date.now();
+startTimer();
+} catch (err) {
+alert('無法存取您的麥克風。請檢查權限設定。');
+console.error('Error accessing microphone:', err);
+}
+}
+
+function pauseMeasurement() {
+isPaused = !isPaused;
+if (isPaused) {
+playPauseBtn.classList.remove('playing');
+playPauseBtn.title = '繼續';
+clearInterval(timerInterval);
+if (javascriptNode) javascriptNode.disconnect();
+} else {
+playPauseBtn.classList.add('playing');
+playPauseBtn.title = '暫停';
+startTimer();
+if (javascriptNode && audioContext) javascriptNode.connect(audioContext.destination);
+}
+}
+
+function stopMeasurement() {
+isRunning = false;
+isPaused = false;
+playPauseBtn.classList.remove('playing');
+playPauseBtn.title = '開始';
+settingsBtn.disabled = false;
+
+clearInterval(timerInterval);
+document.body.classList.remove('warning-flash');
+
+if (micStream) {
+micStream.getTracks().forEach(track => track.stop());
+}
+if (microphone) microphone.disconnect();
+if (analyser) analyser.disconnect();
+if (javascriptNode) javascriptNode.disconnect();
+if(audioContext && audioContext.state !== 'closed') {
+    audioContext.close().catch(console.error);
+}
+
+let shouldShowDetention = false;
+let detentionReason = '';
+
+if (currentExceedanceCount >= maxExceedanceCount) {
+shouldShowDetention = true;
+detentionReason = `超標次數已達限制（${currentExceedanceCount}次）`;
+}
+
+if (dbHistory.length > 0) {
+const avgDb = sumOfDb / dbHistory.length;
+if (avgDb > decibelThreshold) {
+shouldShowDetention = true;
+if (detentionReason) {
+detentionReason += `，且平均分貝超標（${Math.round(avgDb)}dB）`;
+} else {
+detentionReason = `平均分貝超標（${Math.round(avgDb)}dB）`;
+}
+}
+}
+
+if (shouldShowDetention && !detentionNoticeShown) {
+detentionMessageEl.textContent = detentionReason;
+detentionNoticeEl.style.display = 'flex';
+detentionNoticeShown = true;
+}
+}
+
+async function setupAudioNodes(stream) {
+audioContext = new (window.AudioContext || window.webkitAudioContext)();
+analyser = audioContext.createAnalyser();
+microphone = audioContext.createMediaStreamSource(stream);
+javascriptNode = audioContext.createScriptProcessor(2048, 1, 1);
+
+analyser.smoothingTimeConstant = 0.8;
+analyser.fftSize = 2048;
+
+microphone.connect(analyser);
+analyser.connect(javascriptNode);
+javascriptNode.connect(audioContext.destination);
+
+javascriptNode.onaudioprocess = () => {
+if(isPaused) return;
+processAudioData();
+};
+
+if (audioContext.state === 'suspended') {
+await audioContext.resume();
+}
+}
+
+function processAudioData() {
+    const bufferLength = analyser.fftSize;
+    const dataArray = new Float32Array(bufferLength);
+    analyser.getFloatTimeDomainData(dataArray);
+
+    let sumOfSquares = 0.0;
+    for (let i = 0; i < bufferLength; i++) {
+        sumOfSquares += dataArray[i] * dataArray[i];
+    }
+    const rms = Math.sqrt(sumOfSquares / bufferLength);
+
+    if (rms < NOISE_GATE_THRESHOLD) {
+        currentDb = Math.max(MIN_DB, currentDb * 0.98);
+    } else {
+        // 標準公式將 RMS 轉換為分貝 (以 1 Pa = 94 dB SPL 為參考)
+        let rawDb = 20 * Math.log10(rms) + 94;
+        
+        // **核心變更：應用使用者設定的校準偏移量**
+        rawDb += decibelOffset;
+
+        // 限制數值的上下限
+        rawDb = Math.max(MIN_DB, Math.min(MAX_DB, rawDb));
+        
+        // 平滑化處理，讓數值顯示更穩定
+        currentDb = SMOOTHING_FACTOR * rawDb + (1 - SMOOTHING_FACTOR) * currentDb;
+    }
+
+    updateDbDisplay(currentDb);
+
+    if (currentDb > maxDecibelLimit && showExceedanceContainer) {
+        const currentTime = Date.now();
+        const elapsedTime = currentTime - measurementStartTime;
+
+        if (elapsedTime > 5000) {
+            if (currentTime - lastExceedanceTime > 5000) {
+                currentExceedanceCount++;
+                lastExceedanceTime = currentTime;
+                exceedanceValueEl.textContent = currentExceedanceCount;
+                updateExceedanceIndicators();
+
+                if (currentExceedanceCount >= maxExceedanceCount && !detentionNoticeShown) {
+                    detentionNoticeShown = true;
+                    detentionMessageEl.textContent = '超標次數已達限制';
+                    detentionNoticeEl.style.display = 'flex';
+                }
+            }
+        }
+    }
+
+    dbHistory.push(currentDb);
+    sumOfDb += currentDb;
+
+    const avgDb = sumOfDb / dbHistory.length;
+    updateAvgDbDisplay(avgDb);
+    checkThreshold(avgDb);
+}
+
+// **新增：從環境噪音校準的功能**
+async function calibrateFromNoise() {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        alert('您的瀏覽器不支援麥克風存取，無法進行校準！');
+        return;
+    }
+
+    const originalBtnText = calibrateFromNoiseBtn.textContent;
+    const originalInfoText = calibrationInfo.textContent;
+
+    calibrateFromNoiseBtn.disabled = true;
+    calibrateFromNoiseBtn.textContent = '校準中...';
+    calibrationInfo.textContent = '正在測量環境噪音，請保持絕對安靜 5 秒鐘...';
+
+    let tempStream;
+    let tempAudioContext;
+    let readings = [];
+    const CALIBRATION_DURATION = 5000; // 5 seconds
+    const TARGET_QUIET_DB = 35.0; // 假設一個安靜的房間是 35 dB
+
+    try {
+        tempStream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } });
+        tempAudioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const tempAnalyser = tempAudioContext.createAnalyser();
+        const tempMicrophone = tempAudioContext.createMediaStreamSource(tempStream);
+        
+        tempAnalyser.fftSize = 2048;
+        tempMicrophone.connect(tempAnalyser);
+
+        const bufferLength = tempAnalyser.fftSize;
+        const dataArray = new Float32Array(bufferLength);
+        
+        const collectData = () => {
+            tempAnalyser.getFloatTimeDomainData(dataArray);
+            let sumOfSquares = 0.0;
+            for (let i = 0; i < bufferLength; i++) {
+                sumOfSquares += dataArray[i] * dataArray[i];
+            }
+            const rms = Math.sqrt(sumOfSquares / bufferLength);
+
+            if (rms > NOISE_GATE_THRESHOLD) { // 只收集有意義的讀數
+                const rawDb = 20 * Math.log10(rms) + 94; // 不含偏移量的基礎計算
+                readings.push(rawDb);
+            }
+        };
+        
+        const collectionInterval = setInterval(collectData, 100);
+
+        setTimeout(() => {
+            clearInterval(collectionInterval);
+            tempStream.getTracks().forEach(track => track.stop());
+            if (tempAudioContext.state !== 'closed') tempAudioContext.close();
+            
+            if (readings.length < 10) { // 檢查是否收集到足夠的數據
+                calibrationInfo.textContent = '校準失敗：無法測得足夠數據。請確保麥克風權限已開啟，並再試一次。';
+                calibrateFromNoiseBtn.disabled = false;
+                calibrateFromNoiseBtn.textContent = originalBtnText;
+                return;
+            }
+
+            // 排序並移除極端值（頭尾各20%），以提高準確性
+            readings.sort((a, b) => a - b);
+            const trimCount = Math.floor(readings.length * 0.2);
+            const trimmedReadings = readings.slice(trimCount, -trimCount);
+            const sum = trimmedReadings.reduce((acc, val) => acc + val, 0);
+            const averageRawDb = sum / trimmedReadings.length;
+
+            const newOffset = TARGET_QUIET_DB - averageRawDb;
+            offsetInput.value = newOffset.toFixed(1);
+
+            calibrationInfo.textContent = `校準完成！建議的偏移量為 ${newOffset.toFixed(1)} dB。請點擊「儲存」以套用。`;
+            calibrateFromNoiseBtn.disabled = false;
+            calibrateFromNoiseBtn.textContent = originalBtnText;
+
+            setTimeout(() => {
+                calibrationInfo.textContent = originalInfoText;
+            }, 8000); // 8秒後恢復原始提示文字
+
+        }, CALIBRATION_DURATION);
+
+    } catch (err) {
+        console.error('Calibration error:', err);
+        calibrationInfo.textContent = '校準失敗：無法存取麥克風。請檢查您的權限設定。';
+        calibrateFromNoiseBtn.disabled = false;
+        calibrateFromNoiseBtn.textContent = originalBtnText;
+        if (tempStream) tempStream.getTracks().forEach(track => track.stop());
+        if (tempAudioContext && tempAudioContext.state !== 'closed') tempAudioContext.close();
+    }
+}
+
+
+function startTimer() {
+timerInterval = setInterval(() => {
+if (secondsRemaining > 0) {
+secondsRemaining--;
+updateTimerDisplay();
+} else {
+stopMeasurement();
+alert('時間到！');
+}
+}, 1000);
+}
+
+function resetValues() {
+dbHistory = [];
+sumOfDb = 0;
+currentDb = MIN_DB;
+currentExceedanceCount = 0;
+measurementStartTime = 0;
+lastExceedanceTime = 0;
+detentionNoticeShown = false;
+
+const durationInMinutes = parseInt(durationInput.value, 10) || 15;
+secondsRemaining = durationInMinutes * 60;
+
+updateTimerDisplay();
+currentDbValueEl.textContent = '--';
+avgDbValueEl.textContent = '--';
+exceedanceValueEl.textContent = '0';
+updateExceedanceIndicators();
+document.body.classList.remove('warning-flash');
+detentionNoticeEl.style.display = 'none';
+}
+
+function updateTimerDisplay() {
+const minutes = Math.floor(secondsRemaining / 60).toString().padStart(2, '0');
+const seconds = (secondsRemaining % 60).toString().padStart(2, '0');
+timerValueEl.textContent = `${minutes}:${seconds}`;
+}
+
+function updateDbDisplay(db) {
+const displayValue = Math.round(db);
+currentDbValueEl.textContent = displayValue;
+}
+
+function updateAvgDbDisplay(avg) {
+if (dbHistory.length > 0) {
+avgDbValueEl.textContent = Math.round(avg);
+}
+}
+
+function checkThreshold(value) {
+if (value > decibelThreshold) {
+document.body.classList.add('warning-flash');
+} else {
+document.body.classList.remove('warning-flash');
+}
+}
+
+// 初始化
+loadSettings();
+updateTimerDisplay();
+updateWarningValues();
+updateExceedanceIndicators();
+updateLayoutDisplay();
+});
+</script>
+
+    <footer class="copyright-footer">
+<p>Copyright © 2025 陳冠健. All rights reserved.</p>
+</footer>
+
+</body>
+</html>

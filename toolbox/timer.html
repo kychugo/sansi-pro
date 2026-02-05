@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sound Monitor</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+        #mainContainer {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 40px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 2;
+        }
+        #countdownDisplay {
+            font-size: 100px;
+            font-weight: bold;
+            color: white;
+            text-shadow: 2px 2px 4px black;
+            margin-bottom: 20px;
+        }
+        #startButton {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: #4CAF50;
+            border: none;
+            cursor: pointer;
+            transition: transform 0.2s;
+            position: relative;
+        }
+        #startButton:hover {
+            transform: scale(1.1);
+        }
+        #startButton svg {
+            width: 30px;
+            height: 30px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        @media (max-width: 600px) {
+            #mainContainer {
+                padding: 40px;
+                min-width: 200px;
+            }
+            #countdownDisplay {
+                font-size: 20vw;
+            }
+            #startButton {
+                width: 15vw;
+                height: 15vw;
+                min-width: 60px;
+                min-height: 60px;
+            }
+            #startButton svg {
+                width: 7.5vw;
+                height: 7.5vw;
+                min-width: 30px;
+                min-height: 30px;
+            }
+        }
+        @media (min-width: 601px) and (max-width: 1024px) {
+            #countdownDisplay {
+                font-size: 400px;
+            }
+            #startButton {
+                width: 250px;
+                height: 250px;
+            }
+            #startButton svg {
+                width: 150px;
+                height: 150px;
+            }
+        }
+        @media (min-width: 1025px) {
+            #countdownDisplay {
+                font-size: 500px;
+            }
+            #startButton {
+                width: 300px;
+                height: 300px;
+            }
+            #startButton svg {
+                width: 200px;
+                height: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="background"></canvas>
+    <div id="mainContainer">
+        <div id="countdownDisplay">5</div>
+        <button id="startButton">
+            <svg width="30" height="30" viewBox="0 0 100 100">
+                <polygon points="20,10 80,50 20,90" fill="white"/>
+            </svg>
+        </button>
+    </div>
+    <audio id="alertSound" src="https://taira-komori.jpn.org/sound_os2/arms01/destruction1.mp3" preload="auto"></audio>
+    <script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex));
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+    </script>
+    <script>
+        const canvas = document.getElementById('background');
+        const ctx = canvas.getContext('2d');
+        const startButton = document.getElementById('startButton');
+        const countdownDisplay = document.getElementById('countdownDisplay');
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            if (!isFlashing) {
+                drawScene();
+            }
+        });
+
+        let countdown = 5;
+        let countdownInterval = null;
+        let isFlashing = false;
+        let flashStartTime = null;
+        let flashAnimationId = null;
+        let audioContext;
+        let analyser;
+        let microphone;
+
+        const backgroundImage = new Image();
+        backgroundImage.src = 'https://i.ibb.co/HLY5RCcR/image.png';
+        backgroundImage.onload = function() {
+            drawScene();
+        };
+
+        function drawScene() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const imgAspect = backgroundImage.width / backgroundImage.height;
+            const canvasAspect = canvas.width / canvas.height;
+            let drawWidth, drawHeight, offsetX, offsetY;
+            if (imgAspect > canvasAspect) {
+                drawWidth = canvas.width;
+                drawHeight = canvas.width / imgAspect;
+                offsetX = 0;
+                offsetY = (canvas.height - drawHeight) / 2;
+            } else {
+                drawHeight = canvas.height;
+                drawWidth = canvas.height * imgAspect;
+                offsetX = (canvas.width - drawWidth) / 2;
+                offsetY = 0;
+            }
+            ctx.drawImage(backgroundImage, offsetX, offsetY, drawWidth, drawHeight);
+        }
+
+        function updateCountdownDisplay() {
+            countdownDisplay.textContent = countdown;
+        }
+
+        async function initAudio() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                audioContext = new AudioContext();
+                microphone = audioContext.createMediaStreamSource(stream);
+                analyser = audioContext.createAnalyser();
+                microphone.connect(analyser);
+                analyser.fftSize = 512;
+            } catch (err) {
+                console.error('Error accessing microphone:', err);
+                alert('無法訪問麥克風，聲音檢測功能將不可用。');
+            }
+        }
+
+        function resetCountdown() {
+            countdown = 5;
+            updateCountdownDisplay();
+        }
+
+        function checkSound() {
+            if (!analyser || !countdownInterval) return;
+            const dataArray = new Uint8Array(analyser.fftSize);
+            analyser.getByteTimeDomainData(dataArray);
+            let sum = 0;
+            for (let i = 0; i < dataArray.length; i++) {
+                const val = (dataArray[i] - 128) / 128;
+                sum += val * val;
+            }
+            const rms = Math.sqrt(sum / dataArray.length);
+            if (rms > 0.05) {
+                resetCountdown();
+            }
+            requestAnimationFrame(checkSound);
+        }
+
+        function flashScreen(timestamp) {
+            if (!flashStartTime) flashStartTime = timestamp;
+            const elapsed = timestamp - flashStartTime;
+            const alpha = 0.25 * (1 + Math.sin(elapsed / 500));
+            drawScene();
+            ctx.fillStyle = `rgba(255, 0, 0, ${alpha})`;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            if (isFlashing) {
+                flashAnimationId = requestAnimationFrame(flashScreen);
+            }
+        }
+
+        function triggerAlert() {
+            console.log('Triggering alert');
+            const alertSound = document.getElementById('alertSound');
+            if (alertSound) {
+                alertSound.play().catch(error => console.error('Error playing sound:', error));
+            } else {
+                console.error('Alert sound element not found');
+            }
+            isFlashing = true;
+            flashStartTime = null;
+            flashAnimationId = requestAnimationFrame(flashScreen);
+        }
+
+        async function startCountdown() {
+            console.log('Start button clicked');
+            if (!audioContext) {
+                await initAudio();
+            }
+            if (isFlashing) {
+                isFlashing = false;
+                if (flashAnimationId) {
+                    cancelAnimationFrame(flashAnimationId);
+                    flashAnimationId = null;
+                }
+                flashStartTime = null;
+                drawScene();
+            }
+            if (countdownInterval) {
+                clearInterval(countdownInterval);
+                countdownInterval = null;
+            }
+            countdown = 5;
+            updateCountdownDisplay();
+            countdownInterval = setInterval(() => {
+                countdown--;
+                updateCountdownDisplay();
+                if (countdown <= 0) {
+                    clearInterval(countdownInterval);
+                    countdownInterval = null;
+                    triggerAlert();
+                }
+            }, 1000);
+            requestAnimationFrame(checkSound);
+        }
+
+        startButton.addEventListener('click', startCountdown);
+
+        drawScene();
+        updateCountdownDisplay();
+    </script>
+</body>
+</html>

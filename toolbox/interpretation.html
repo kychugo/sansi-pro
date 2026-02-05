@@ -1,0 +1,2562 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>思維訓練工具</title>
+<style>
+/* --- 侘寂風設計語言 V6 --- */
+:root {
+--wabi-bg: #f4f1ea;
+--wabi-text-primary: #3c3a37;
+--wabi-text-secondary: #8a857e;
+--wabi-surface: #ffffff;
+--wabi-border: #e4e1db;
+--wabi-interactive: #edeae4;
+--wabi-interactive-hover: #e0dcd4;
+--font-serif: "Noto Serif TC", "Source Han Serif TC", serif;
+--font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+/* --- 基礎佈局 --- */
+*, *::before, *::after { box-sizing: border-box; }
+html { height: 100%; }
+body {
+font-family: var(--font-serif);
+background-color: var(--wabi-bg);
+color: var(--wabi-text-primary);
+display: flex;
+justify-content: center;
+align-items: flex-start;
+min-height: 100%;
+margin: 0;
+padding: 2rem 1rem;
+-webkit-font-smoothing: antialiased;
+}
+/* --- 主容器 --- */
+.container {
+position: relative;
+width: 100%;
+max-width: 620px;
+min-height: 500px;
+padding: 2.5rem 3rem;
+background-color: var(--wabi-surface);
+border: 1px solid var(--wabi-border);
+border-radius: 8px;
+opacity: 0;
+animation: fadeIn 0.5s ease-out forwards;
+}
+@keyframes fadeIn { to { opacity: 1; } }
+/* --- 主範疇選擇器 --- */
+.tool-selector {
+display: flex;
+justify-content: center;
+margin-bottom: 2.5rem;
+border-bottom: 1px solid var(--wabi-border);
+position: relative;
+}
+.tool-button {
+background: none;
+border: none;
+padding: 1rem 1.5rem;
+font-family: var(--font-serif);
+font-size: 1.1rem;
+font-weight: 600;
+color: var(--wabi-text-secondary);
+cursor: pointer;
+position: relative;
+transition: color 0.3s ease;
+white-space: nowrap;
+}
+.tool-button:hover {
+color: var(--wabi-text-primary);
+}
+.tool-button.active {
+color: var(--wabi-text-primary);
+}
+.tool-button-underline {
+position: absolute;
+bottom: -1px;
+height: 2px;
+background-color: var(--wabi-text-primary);
+transition: left 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), width 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+/* --- 模式切換 SVG 按鈕 --- */
+#mode-toggle-button {
+position: absolute;
+top: 1rem;
+right: 1rem;
+background: none;
+border: none;
+padding: 0.5rem;
+cursor: pointer;
+border-radius: 50%;
+display: flex;
+align-items: center;
+justify-content: center;
+transition: background-color 0.2s, opacity 0.3s, visibility 0.3s;
+}
+#mode-toggle-button:hover {
+background-color: var(--wabi-bg);
+}
+#mode-toggle-button.hidden {
+opacity: 0;
+visibility: hidden;
+pointer-events: none;
+}
+#mode-toggle-button svg {
+width: 22px;
+height: 22px;
+stroke: var(--wabi-text-secondary);
+stroke-width: 1.5;
+stroke-linecap: round;
+stroke-linejoin: round;
+fill: none;
+}
+/* --- 題型選擇器 --- */
+.type-selector {
+display: flex;
+justify-content: center;
+gap: 0.75rem;
+margin-bottom: 2rem;
+}
+.type-button {
+background-color: transparent;
+color: var(--wabi-text-secondary);
+border: 1px solid var(--wabi-border);
+padding: 0.5rem 1.25rem;
+font-size: 0.85rem;
+font-family: var(--font-sans);
+font-weight: 600;
+border-radius: 20px;
+cursor: pointer;
+transition: all 0.2s ease-in-out;
+}
+.type-button:hover {
+background-color: var(--wabi-bg);
+color: var(--wabi-text-primary);
+}
+.type-button.active {
+background-color: var(--wabi-text-primary);
+color: var(--wabi-surface);
+border-color: var(--wabi-text-primary);
+}
+/* --- 核心元素 --- */
+#question-wrapper {
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 0.75rem;
+margin-bottom: 2rem;
+margin-top: 1.5rem;
+width: 100%;
+margin-left: auto;
+margin-right: auto;
+}
+#question-container {
+min-height: 50px;
+font-size: 1.35rem;
+font-weight: 600;
+line-height: 1.6;
+transition: opacity 0.4s ease-in-out;
+padding: 0.5rem;
+border-radius: 4px;
+flex-grow: 1;
+text-align: center;
+}
+/* 歸納題樣式 */
+.induction-statements {
+    list-style: none;
+    padding: 0;
+    margin: 1rem auto 0;
+    font-size: 1.1rem;
+    line-height: 1.8;
+    text-align: left;
+    counter-reset: statement-counter;
+}
+.induction-statements li {
+    counter-increment: statement-counter;
+    margin-bottom: 1.25rem;
+    padding-left: 2.75rem;
+    position: relative;
+}
+.induction-statements li:last-child {
+    margin-bottom: 0;
+}
+.induction-statements li::before {
+    content: counter(statement-counter);
+    position: absolute;
+    left: 0;
+    top: 2px;
+    width: 1.75rem;
+    height: 1.75rem;
+    line-height: 1.75rem;
+    text-align: center;
+    border-radius: 6px;
+    background-color: var(--wabi-interactive);
+    color: var(--wabi-text-secondary);
+    font-family: var(--font-sans);
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+/* 概括題樣式 */
+.generalization-passage {
+font-size: 1rem;
+line-height: 1.8;
+text-align: left;
+background-color: #faf9f7;
+padding: 1.5rem;
+border-radius: 6px;
+margin-bottom: 1.5rem;
+border: 1px solid var(--wabi-border);
+}
+.generalization-poor-summary {
+text-align: left;
+font-size: 0.95rem;
+padding: 1rem;
+background-color: var(--wabi-bg);
+border-radius: 6px;
+margin-bottom: 1.5rem;
+}
+.generalization-poor-summary strong {
+font-family: var(--font-sans);
+font-weight: 700;
+color: var(--wabi-text-secondary);
+margin-right: 0.5rem;
+}
+/* 用詞題樣式 (修訂後) */
+.vocabulary-description {
+font-size: 1rem;
+line-height: 1.8;
+text-align: left;
+background-color: #faf9f7;
+padding: 1.5rem;
+border-radius: 6px;
+border: 1px solid var(--wabi-border);
+}
+.vocabulary-fill-in-blank-container {
+margin-top: 1.5rem;
+font-size: 1rem;
+text-align: left;
+color: var(--wabi-text-primary);
+font-family: var(--font-serif);
+padding: 1rem;
+background-color: #faf9f7;
+border-radius: 6px;
+border: 1px solid var(--wabi-border);
+}
+.vocabulary-fill-in-blank {
+display: inline-block;
+white-space: nowrap;
+border-bottom: 2px solid var(--wabi-text-primary);
+min-width: 120px;
+text-align: center;
+}
+#question-container[contenteditable="true"] {
+outline: 2px solid transparent;
+background-color: #faf9f7;
+border: 1px solid var(--wabi-border);
+text-align: left;
+margin-top: 0;
+margin-bottom: 0;
+}
+#question-container[contenteditable="true"]:focus {
+border-color: #b8b3a9;
+box-shadow: 0 0 0 4px rgba(184, 179, 169, 0.15);
+}
+#question-container[contenteditable="true"]:empty:before {
+content: '在此輸入您的問題...';
+color: var(--wabi-text-secondary);
+pointer-events: none;
+}
+#refresh-question-button {
+background: none;
+border: none;
+padding: 0.5rem;
+cursor: pointer;
+border-radius: 50%;
+display: flex;
+align-items: center;
+justify-content: center;
+transition: background-color 0.2s, transform 0.3s;
+flex-shrink: 0;
+}
+#refresh-question-button:hover { background-color: var(--wabi-bg); }
+#refresh-question-button:active { transform: rotate(180deg); }
+#refresh-question-button svg {
+width: 20px;
+height: 20px;
+stroke: var(--wabi-text-secondary);
+stroke-width: 2;
+stroke-linecap: round;
+stroke-linejoin: round;
+fill: none;
+}
+#answer-container { text-align: center; }
+#answer-textarea {
+text-align: left;
+width: 100%;
+min-height: 120px;
+padding: 1rem;
+border: 1px solid var(--wabi-border);
+border-radius: 6px;
+background-color: #faf9f7;
+color: var(--wabi-text-primary);
+font-size: 1rem;
+font-family: var(--font-serif);
+line-height: 1.7;
+resize: vertical;
+margin-bottom: 1.5rem;
+transition: border-color 0.3s, box-shadow 0.3s;
+}
+#answer-textarea::placeholder { color: var(--wabi-text-secondary); }
+#answer-textarea:focus {
+outline: none;
+border-color: #b8b3a9;
+box-shadow: 0 0 0 4px rgba(184, 179, 169, 0.15);
+}
+.wabi-button {
+background-color: var(--wabi-interactive);
+color: var(--wabi-text-primary);
+border: 1px solid var(--wabi-border);
+padding: 0.75rem 2rem;
+font-size: 0.9rem;
+font-family: var(--font-sans);
+font-weight: 600;
+letter-spacing: 0.5px;
+border-radius: 6px;
+cursor: pointer;
+transition: background-color 0.2s, transform 0.1s ease-out;
+}
+.wabi-button:hover { background-color: var(--wabi-interactive-hover); }
+.wabi-button:active { transform: scale(0.98); }
+.wabi-button:disabled { opacity: 0.7; cursor: not-allowed; }
+/* --- 反饋區塊 --- */
+#feedback-container {
+margin-top: 2.5rem;
+text-align: left;
+opacity: 0;
+transform: translateY(10px);
+transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+}
+#feedback-container.visible { opacity: 1; transform: translateY(0); }
+.feedback-section { margin-bottom: 2rem; }
+.feedback-heading {
+font-family: var(--font-sans);
+font-size: 0.8rem;
+font-weight: 700;
+letter-spacing: 1px;
+color: var(--wabi-text-secondary);
+text-transform: uppercase;
+margin-bottom: 0.75rem;
+padding-bottom: 0.5rem;
+border-bottom: 1px solid var(--wabi-border);
+}
+.feedback-content {
+font-size: 1rem;
+line-height: 1.8;
+white-space: pre-wrap;
+}
+.feedback-example-steps {
+list-style: none;
+padding-left: 0;
+counter-reset: step-counter;
+}
+.feedback-example-steps li {
+counter-increment: step-counter;
+margin-bottom: 1rem;
+padding-left: 2.5rem;
+position: relative;
+line-height: 1.7;
+}
+.feedback-example-steps li::before {
+content: counter(step-counter);
+position: absolute;
+left: 0;
+top: 0;
+width: 1.5rem;
+height: 1.5rem;
+line-height: 1.5rem;
+text-align: center;
+border-radius: 50%;
+background-color: var(--wabi-bg);
+color: var(--wabi-text-secondary);
+font-family: var(--font-sans);
+font-size: 0.8rem;
+font-weight: 700;
+}
+.score-display-wrapper {
+display: flex;
+justify-content: center;
+align-items: center;
+padding: 1rem 0;
+}
+.feedback-score-circle {
+width: 120px;
+height: 120px;
+border-radius: 50%;
+background-color: var(--wabi-bg);
+border: 1px solid var(--wabi-border);
+display: flex;
+justify-content: center;
+align-items: center;
+font-family: var(--font-sans);
+font-size: 3rem;
+font-weight: 300;
+color: var(--wabi-text-primary);
+}
+/* --- 加載動畫 --- */
+.loader {
+height: 3px;
+width: 100px;
+background: linear-gradient(90deg, transparent, var(--wabi-text-secondary), transparent);
+background-size: 150% 100%;
+animation: loading-bar 1.8s ease-in-out infinite;
+margin: 2rem auto;
+border-radius: 3px;
+display: none;
+}
+@keyframes loading-bar {
+0% { background-position: 150% 0; }
+100% { background-position: -150% 0; }
+}
+/* --- 可見性控制 --- */
+.hidden { display: none !important; }
+/* --- 響應式設計 --- */
+@media (max-width: 640px) {
+    body { padding: 1rem 0.5rem; }
+    .container { padding: 2rem 1.5rem; }
+    .tool-button { padding: 0.8rem 1rem; font-size: 1rem; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+    <div class="tool-selector">
+        <button class="tool-button active" data-tool="induction">歸納</button>
+        <button class="tool-button" data-tool="generalization">概括</button>
+        <button class="tool-button" data-tool="elucidation">闡釋</button>
+        <button class="tool-button" data-tool="vocabulary">用詞</button>
+        <div class="tool-button-underline"></div>
+    </div>
+    <button id="mode-toggle-button" title="切換 AI 擬題 / 自訂題目">
+        <svg viewBox="0 0 24 24">
+            <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4"></path>
+            <path d="M13.5 6.5l4 4"></path>
+        </svg>
+    </button>
+    <div id="tool-content">
+        <!-- 內容會由 JS 動態填入 -->
+    </div>
+    <div id="question-type-selector-wrapper">
+        <div id="question-type-selector" class="type-selector">
+            <button class="type-button active" data-type="life">生活</button>
+            <button class="type-button" data-type="philosophy">哲學</button>
+        </div>
+    </div>
+    <div id="question-wrapper">
+        <div id="question-container" contenteditable="false"></div>
+        <button id="refresh-question-button" title="重新生成題目">
+            <svg viewBox="0 0 24 24">
+                <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4"></path>
+                <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4"></path>
+            </svg>
+        </button>
+    </div>
+    <div class="loader" id="question-loader"></div>
+    <div id="answer-container" class="hidden">
+        <textarea id="answer-textarea" placeholder="..."></textarea>
+        <button id="submit-button" class="wabi-button">提交</button>
+    </div>
+    <div class="loader" id="feedback-loader"></div>
+    <div id="feedback-container"></div>
+    <div id="next-question-wrapper" class="hidden" style="text-align: center;">
+        <button id="next-question-button" class="wabi-button">下一題</button>
+    </div>
+    <div id="new-custom-question-wrapper" class="hidden" style="text-align: center;">
+        <button id="new-custom-question-button" class="wabi-button">自訂新題目</button>
+    </div>
+</div>
+
+
+
+    <script>
+
+        // ===============================================================
+// === [神思通用組件] 權限攔截器 & 莫蘭迪提示窗 (含登入連結) ===
+// ===============================================================
+(function() {
+    // 防止重複注入
+    if (window.SansiInterceptorLoaded) return;
+    window.SansiInterceptorLoaded = true;
+
+    // --- 1. 自動注入莫蘭迪 CSS ---
+    const style = document.createElement('style');
+    style.textContent = `
+        /* 莫蘭迪遮罩 */
+        .sansi-limit-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(253, 252, 248, 0.88); /* 米白高模糊 */
+            backdrop-filter: blur(6px);
+            z-index: 9999999; /* 最高層級 */
+            display: none; justify-content: center; align-items: center;
+            opacity: 0; transition: opacity 0.3s ease;
+        }
+        .sansi-limit-show { opacity: 1; }
+
+        /* 視窗卡片 */
+        .sansi-limit-card {
+            background: #fdfcf8;
+            border: 1px solid #e0ddd7;
+            border-radius: 16px;
+            padding: 30px 25px;
+            width: 90%; max-width: 380px;
+            box-shadow: 0 15px 40px rgba(141, 110, 99, 0.15);
+            text-align: center;
+            transform: translateY(20px);
+            transition: transform 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+            font-family: 'Noto Serif TC', serif;
+        }
+        .sansi-limit-show .sansi-limit-card { transform: translateY(0); }
+
+        /* 圖示與文字 */
+        .sansi-limit-icon { font-size: 3rem; color: #d69a92; margin-bottom: 15px; } /* 豆沙紅 */
+        .sansi-limit-title { color: #5d4037; font-size: 1.4rem; font-weight: bold; margin: 0 0 10px 0; }
+        .sansi-limit-desc { color: #888; font-size: 1rem; line-height: 1.6; margin-bottom: 25px; text-align: justify; }
+
+        /* 按鈕群組 */
+        .sansi-btn-group { display: flex; gap: 12px; margin-top: 20px; }
+
+        .sansi-limit-btn {
+            border: none; padding: 10px 0; border-radius: 50px;
+            font-size: 0.95rem; font-weight: bold; cursor: pointer;
+            transition: all 0.2s; font-family: 'Noto Serif TC', serif;
+            flex: 1; display: flex; align-items: center; justify-content: center; gap: 5px;
+            text-decoration: none;
+        }
+
+        /* 主按鈕 (前往登入) - 莫蘭迪綠 */
+        .btn-primary { 
+            background: #8fa398; color: white; 
+            box-shadow: 0 4px 12px rgba(143, 163, 152, 0.4);
+        }
+        .btn-primary:hover { background-color: #7d9186; transform: translateY(-2px); }
+
+        /* 次按鈕 (關閉) - 淺灰 */
+        .btn-secondary { 
+            background: #f0f0f0; color: #777; 
+        }
+        .btn-secondary:hover { background-color: #e5e5e5; }
+    `;
+    document.head.appendChild(style);
+
+    // --- 2. 自動注入 HTML (彈出視窗) ---
+    const modalHTML = `
+        <div id="sansiLimitModal" class="sansi-limit-overlay">
+            <div class="sansi-limit-card">
+                <div class="sansi-limit-icon">
+                    <i class="fas fa-user-lock"></i>
+                </div>
+                <div class="sansi-limit-title">需要登入</div>
+                <div class="sansi-limit-desc">
+                    訪客每日體驗額度已耗盡。<br>
+                    請前往「神思」主頁登入學校帳號，即可解鎖無限使用權限。
+                </div>
+                <div class="sansi-btn-group">
+                    <button class="sansi-limit-btn btn-secondary" onclick="closeSansiLimitModal()">
+                        稍後
+                    </button>
+                    <!-- 點擊直接跳轉至神思主頁 -->
+                    <button class="sansi-limit-btn btn-primary" onclick="window.location.href='https://kenchan20141.github.io/AIChinese/'">
+                        <i class="fas fa-sign-in-alt"></i> 前往登入
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    const div = document.createElement('div');
+    div.innerHTML = modalHTML;
+    document.body.appendChild(div);
+
+    // --- 3. 定義關閉視窗與清理函式 ---
+    window.closeSansiLimitModal = function() {
+        const modal = document.getElementById('sansiLimitModal');
+        if (modal) {
+            modal.classList.remove('sansi-limit-show');
+            setTimeout(() => { modal.style.display = 'none'; }, 300);
+            
+            // 自動嘗試關閉各種工具的 Loading 狀態，防止畫面卡死
+            if (typeof hideProgress === 'function') hideProgress(); // 題孳
+            if (typeof hideLoading === 'function') hideLoading();   // 翻水/寫作
+            
+            // 如果按鈕被禁用，嘗試解鎖 (針對通用按鈕 class)
+            const disabledBtns = document.querySelectorAll('button:disabled');
+            disabledBtns.forEach(btn => btn.disabled = false);
+        }
+    };
+
+    // --- 4. 攔截器核心邏輯 ---
+    const originalFetch = window.fetch;
+    
+    window.fetch = async function(url, options) {
+        // 僅攔截 AI 請求
+        if (typeof url === 'string' && url.includes('pollinations.ai')) {
+            
+            // A. 即時檢查登入狀態 (每次請求都會重新讀取，防止登出後仍能使用)
+            const s = localStorage.getItem('studentProfile');
+            
+            if (s) {
+                // 已登入：放行
+                return originalFetch(url, options);
+            }
+
+            // B. 未登入：檢查額度
+            const today = new Date().toLocaleDateString('zh-HK');
+            const toolName = document.title || "UnknownTool"; 
+            const storageKey = `sansi_guest_usage_${toolName}_${today}`;
+            
+            let currentCount = parseInt(localStorage.getItem(storageKey) || "0");
+
+            // C. 超過額度 -> 阻擋並彈窗
+            if (currentCount >= 1) {
+                // 顯示視窗
+                const modal = document.getElementById('sansiLimitModal');
+                modal.style.display = 'flex';
+                // 強制重繪以觸發過渡動畫
+                void modal.offsetWidth; 
+                modal.classList.add('sansi-limit-show');
+
+                // 回傳錯誤以中斷原本程式的執行
+                return Promise.reject(new Error("Guest Limit Exceeded"));
+            }
+
+            // D. 未超過 -> 記錄並放行
+            localStorage.setItem(storageKey, currentCount + 1);
+            console.log(`[訪客] ${toolName} 使用第 ${currentCount + 1} 次`);
+        }
+
+        return originalFetch(url, options);
+    };
+    
+    console.log("✅ 神思通用權限鎖 (含登入連結) 已啟動");
+})();
+</script>
+
+
+
+
+
+
+    
+<script>
+// --- 修訂後的歸納題範例資料 (200題，完全不重複主題，無科學內容) ---
+const INDUCTION_EXAMPLES = [
+    {
+        "theme": "文學比喻",
+        "statements": ["文學作品將時間比作流水", "詩詞把思念喻為潮水", "散文以白雲形容自在"],
+        "commonality": "用具體事物比喻抽象概念的文學手法"
+    },
+    {
+        "theme": "處世態度",
+        "statements": ["理性的人遇難題先冷靜", "成熟的人被批評先反思", "智慧的人逢紛爭先傾聽"],
+        "commonality": "面對困境時的理性處理方式"
+    },
+    {
+        "theme": "友情表現",
+        "statements": ["真朋友會記得對方生日", "好朋友在失意時主動陪伴", "知己會分享秘密不外傳"],
+        "commonality": "體現深厚友誼的具體行為"
+    },
+    {
+        "theme": "傳統技藝",
+        "statements": ["剪紙技藝講究對稱圖案", "刺繡技藝注重針腳細密", "陶藝技藝講求拉坯均勻"],
+        "commonality": "傳統手工藝的技術要點"
+    },
+    {
+        "theme": "人生階段",
+        "statements": ["童年階段愛問為什麼", "青年階段熱衷探索世界", "老年階段喜歡回憶往事"],
+        "commonality": "不同年齡階段的典型特徵"
+    },
+    {
+        "theme": "性格表現",
+        "statements": ["可靠的人約會從不遲到", "守信的人借東西一定歸還", "負責的人承諾的事必做到"],
+        "commonality": "體現可靠性的行為特徵"
+    },
+    {
+        "theme": "自然現象感悟",
+        "statements": ["敏感的人見落葉感嘆時光", "哲思的人看星空思考渺小", "樂觀的人遇彩虹聯想希望"],
+        "commonality": "透過自然景象引發的人生思考"
+    },
+    {
+        "theme": "讀書習慣",
+        "statements": ["認真的讀者邊讀邊畫重點", "細心的讀者看完寫短評", "好學的讀者遇生字立刻查"],
+        "commonality": "加深閱讀理解的方法"
+    },
+    {
+        "theme": "情感克制",
+        "statements": ["理智的人與人生氣時先深呼吸", "堅強的人傷心時不隨便發脾氣", "謙虛的人得意時保持低調"],
+        "commonality": "管理強烈情緒的自我約束"
+    },
+    {
+        "theme": "歷史記憶",
+        "statements": ["老照片能喚起集體回憶", "舊街道承載著城市故事", "古建築見證著時代變遷"],
+        "commonality": "承載集體記憶的實體載體"
+    },
+    {
+        "theme": "學習態度",
+        "statements": ["好學的人不懂就主動請教", "踏實的人錯了願意重新來", "上進的人會了仍想精益求精"],
+        "commonality": "促進成長的學習心態"
+    },
+    {
+        "theme": "親情表達",
+        "statements": ["父母會默默準備孩子愛吃的菜", "家人會記得提醒彼此添衣服", "長輩會給熟睡的晚輩蓋好被單"],
+        "commonality": "含蓄體現關懷的親情行為"
+    },
+    {
+        "theme": "文化符號",
+        "statements": ["東方文化中龍象徵權威", "東亞文化中蓮花代表潔淨", "中國文化中松竹梅喻堅貞"],
+        "commonality": "特定文化中的意象寓意"
+    },
+    {
+        "theme": "失敗面對",
+        "statements": ["堅強的人從錯誤中找原因", "執著的人不斷嘗試不放棄", "明智的人向他人請教改進"],
+        "commonality": "積極面對失敗的態度"
+    },
+    {
+        "theme": "語言藝術",
+        "statements": ["有修養的人婉轉表達不同意見", "幽默的人用笑話化解尷尬", "智慧的人適時沉默代替爭辯"],
+        "commonality": "體現溝通智慧的表達方式"
+    },
+    {
+        "theme": "生活智慧",
+        "statements": ["節儉的人將剩菜分裝冷藏", "細心的人購物列清單避免浪費", "聰明的人用陽光曬乾小件衣物"],
+        "commonality": "實用節約的日常小技巧"
+    },
+    {
+        "theme": "愛情表現",
+        "statements": ["真心相愛的人記得對方的小習慣", "成熟的伴侶尊重彼此的興趣", "恩愛的夫妻共同面對困難"],
+        "commonality": "體現細膩關懷的愛情行為"
+    },
+    {
+        "theme": "哲學思考",
+        "statements": ["哲學家思考人為什麼活著", "思辨者質疑習以為常的道理", "思想家探究快樂的本質"],
+        "commonality": "對生命根本問題的思考"
+    },
+    {
+        "theme": "記憶方法",
+        "statements": ["學生將數字編成口訣幫記憶", "學者用圖像聯想記單字", "研究者按邏輯分類記知識"],
+        "commonality": "提升記憶效率的技巧"
+    },
+    {
+        "theme": "社會禮貌",
+        "statements": ["有禮貌的人開門時留意後面的人", "尊重他人的人說話時看著對方眼睛", "有修養的人不隨意打斷別人講話"],
+        "commonality": "體現尊重的社會互動細節"
+    },
+    {
+        "theme": "藝術表達",
+        "statements": ["畫家通過色彩表達情緒", "音樂家用旋律傳達感受", "舞蹈家用肢體展現故事"],
+        "commonality": "透過藝術形式表達內在體驗"
+    },
+    {
+        "theme": "決策方式",
+        "statements": ["理性的人列優缺點分析做決定", "謹慎的人聽取不同意見再決策", "長遠的人考慮長遠影響才行動"],
+        "commonality": "理性做出選擇的思考過程"
+    },
+    {
+        "theme": "鄉土文化",
+        "statements": ["地方戲曲有獨特唱腔", "鄉間說書有獨特表演方式", "傳統市集有獨特交易習慣"],
+        "commonality": "地域特色的文化表現"
+    },
+    {
+        "theme": "自我認識",
+        "statements": ["清醒的人知道自己的優點", "誠實的人承認自己的不足", "了解自己的人清楚自己的興趣"],
+        "commonality": "了解自我的表現"
+    },
+    {
+        "theme": "時間感受",
+        "statements": ["人在快樂時覺得時間飛逝", "人在等待時感到時間緩慢", "人在專注時忘記時間存在"],
+        "commonality": "主觀感受影響對時間的知覺"
+    },
+    {
+        "theme": "助人方式",
+        "statements": ["體貼的人默默幫忙不張揚", "尊重他人的人助人時顧及對方自尊", "聰明的人授人以漁而非授人以魚"],
+        "commonality": "體現體貼的助人原則"
+    },
+    {
+        "theme": "詩詞意境",
+        "statements": ["「明月松間照」營造清靜意境", "「大漠孤煙直」呈現雄闊意境", "「小橋流水人家」傳達溫馨意境"],
+        "commonality": "詩句營造的獨特畫面與氛圍"
+    },
+    {
+        "theme": "面對批評",
+        "statements": ["成熟的人先聽完批評再回應", "理智的人區分有意見與人身攻擊", "進步的人擇善而從改正不足"],
+        "commonality": "理性處理批評的態度"
+    },
+    {
+        "theme": "飲食文化",
+        "statements": ["北方人的飲食以麵食為主", "南方人的飲食以米飯為常", "沿海居民的飲食多海鮮"],
+        "commonality": "地域環境影響的飲食習慣"
+    },
+    {
+        "theme": "夢想實踐",
+        "statements": ["有規劃的人將大目標拆成小步驟", "堅持的人每天為夢想做一件事", "執著的人遇到困難不輕易放棄"],
+        "commonality": "實現理想的具體行動方式"
+    },
+    {
+        "theme": "性格優點",
+        "statements": ["樂觀的人凡事往好處想", "寬容的人對人寬容體諒", "負責的人做事有始有終"],
+        "commonality": "積極正向的性格特質"
+    },
+    {
+        "theme": "自然啟示",
+        "statements": ["竹子彎而不折的韌性啟示人堅持", "小草破土而出的堅強啟示人不屈", "大海包容萬物的胸懷啟示人寬容"],
+        "commonality": "從自然現象領悟的人生道理"
+    },
+    {
+        "theme": "寫作技巧",
+        "statements": ["小說家用對話展現人物性格", "散文家用細節描寫氛圍", "詩人借景物襯托心情"],
+        "commonality": "增強文章感染力的寫作方法"
+    },
+    {
+        "theme": "友情維繫",
+        "statements": ["真友情能讓久未聯絡的人仍暢談", "深友誼能讓距離再遠也互相關心", "鐵友情能讓有困難時義不容辭"],
+        "commonality": "跨越時空的友誼特質"
+    },
+    {
+        "theme": "傳統智慧",
+        "statements": ["「早睡早起身體好」體現養生智慧", "「種瓜得瓜」傳達因果智慧", "「三思而後行」展現處世智慧"],
+        "commonality": "流傳久遠的生活智慧語錄"
+    },
+    {
+        "theme": "人生選擇",
+        "statements": ["追夢的人擇業考慮興趣而非待遇", "重情的人交友看重品格而非背景", "正直的人處世堅持原則而非利益"],
+        "commonality": "基於內在價值的選擇標準"
+    },
+    {
+        "theme": "情緒察覺",
+        "statements": ["敏感的人感到緊張時會心跳加速", "感性的人覺得委屈時會眼眶發熱", "開朗的人心生喜悅時會嘴角上揚"],
+        "commonality": "情緒透過生理反應呈現"
+    },
+    {
+        "theme": "歷史故事啟示",
+        "statements": ["項羽自刎的故事啟示勿剛愎自用", "諸葛亮空城計的故事展現智慧", "岳飛精忠報國的故事傳達忠誠"],
+        "commonality": "從歷史事件領悟的道理"
+    },
+    {
+        "theme": "學習習慣",
+        "statements": ["勤奮的學生每天固定時間讀書", "聰明的學者定期複習鞏固記憶", "實用主義者將知識應用於實際"],
+        "commonality": "有效學習的良好習慣"
+    },
+    {
+        "theme": "家庭互動",
+        "statements": ["和睦家庭在晚餐時分享當天趣事", "溫馨家庭在睡前聽父母講故事", "和樂家庭一起做家務分工合作"],
+        "commonality": "增進家庭感情的互動方式"
+    },
+    {
+        "theme": "文化習俗",
+        "statements": ["傳統禮節中見長輩要問候致意", "飲食禮俗中宴會上長者先動筷", "倫理習俗中過年時給長輩拜年"],
+        "commonality": "體現長幼有序的傳統禮節"
+    },
+    {
+        "theme": "面對壓力",
+        "statements": ["釋壓的人透過運動釋放緊張情緒", "傾訴的人與朋友傾訴減輕負擔", "沉靜的人寫日記整理紛亂思緒"],
+        "commonality": "有效緩解壓力的方法"
+    },
+    {
+        "theme": "語言特色",
+        "statements": ["閩南語有親切的口語表達", "普通話有標準的語音表達", "粵語有獨特的韻律特點"],
+        "commonality": "不同方言的語言特質"
+    },
+    {
+        "theme": "生活態度",
+        "statements": ["簡單主義者過簡單生活減少慾望", "認真的人認真對待每件小事", "感恩的人感恩珍惜所擁有的"],
+        "commonality": "帶來幸福感的生活哲學"
+    },
+    {
+        "theme": "愛情維繫",
+        "statements": ["恩愛夫妻記得重要的紀念日", "成熟伴侶包容對方的小缺點", "成長型戀人共同成長一起進步"],
+        "commonality": "維持長久感情的經營方式"
+    },
+    {
+        "theme": "哲學觀點",
+        "statements": ["莊子主張逍遙自在的人生觀", "孔子提倡仁愛待人的處世觀", "蘇格拉底強調追問精神的求知觀"],
+        "commonality": "不同哲學家的核心思想"
+    },
+    {
+        "theme": "記憶特點",
+        "statements": ["人的童年記憶多與情感相關", "人的驚險事件記憶特別深刻", "人們經常回想的事情不易忘記"],
+        "commonality": "記憶形成與留存的特徵"
+    },
+    {
+        "theme": "社交技巧",
+        "statements": ["善交際的人記住別人的名字", "會讚美的人適時給予讚美", "好聽眾在傾聽時給予回應"],
+        "commonality": "促進良好人際關係的技巧"
+    },
+    {
+        "theme": "藝術欣賞",
+        "statements": ["欣賞繪畫要關注色彩與構圖", "欣賞音樂要感受節奏與情感", "欣賞戲劇要留意台詞與表演"],
+        "commonality": "不同藝術形式的欣賞角度"
+    },
+    {
+        "theme": "決策考量",
+        "statements": ["自覺的人考慮自己的真實需求", "體貼的人顧及他人的感受", "長遠的人權衡短期與長期影響"],
+        "commonality": "做出合適決策的思考維度"
+    },
+    {
+        "theme": "地方文化",
+        "statements": ["北京有獨特的胡同生活文化", "上海有獨特的弄堂風情文化", "成都有獨特的茶館休閒文化"],
+        "commonality": "城市獨特的生活文化樣貌"
+    },
+    {
+        "theme": "自我成長",
+        "statements": ["反思的人從錯誤中學習教訓", "勇敢的人接受挑戰突破舒適區", "謙遜的人向優秀的人學習優點"],
+        "commonality": "促進個人成長的途徑"
+    },
+    {
+        "theme": "時間運用",
+        "statements": ["高效的人利用碎片時間學知識", "有規劃的人重要事情優先處理", "自律的人設定時限提高效率"],
+        "commonality": "有效利用時間的方法"
+    },
+    {
+        "theme": "助人原則",
+        "statements": ["明智的人幫忙不超越自身能力", "尊重他人的人助人時尊重對方自主權", "無私的人不圖回報真心付出"],
+        "commonality": "健康助人行為的基本原則"
+    },
+    {
+        "theme": "詩詞意象",
+        "statements": ["古典詩詞中柳樹象徵離別", "傳統詩文中明月代表思念", "中國詩歌中梅花喻示堅貞"],
+        "commonality": "古典詩詞中常見的意象寓意"
+    },
+    {
+        "theme": "面對誤解",
+        "statements": ["冷靜的人被誤解時冷靜解釋不激動", "堅定的人用行動證明而非言語辯解", "有耐心的人相信時間會證明真相"],
+        "commonality": "處理被誤解的理性方式"
+    },
+    {
+        "theme": "飲食習慣",
+        "statements": ["南方人的早餐愛喝粥", "北方人的早餐常吃饅頭", "西方人的早餐多是麵包牛奶"],
+        "commonality": "不同地域的早餐特色"
+    },
+    {
+        "theme": "理想追求",
+        "statements": ["執著的人為夢想堅持不懈", "堅定的人面對質疑仍不放棄", "上進的人不斷學習充實自己"],
+        "commonality": "追求理想的積極態度"
+    },
+    {
+        "theme": "性格弱點",
+        "statements": ["衝動的人容易衝動做決定", "敏感的人太在意他人眼光", "怯懦的人遇到困難容易退縮"],
+        "commonality": "可能阻礙成長的性格特質"
+    },
+    {
+        "theme": "自然現象借喻",
+        "statements": ["人們用暴風雨比喻人生挫折", "人們以陽光形容希望", "人們拿黑夜象徵困境"],
+        "commonality": "以自然現象比喻人生境遇"
+    },
+    {
+        "theme": "寫作風格",
+        "statements": ["魯迅的作品有犀利批判風格", "朱自清的散文有溫柔細膩風格", "金庸的武俠小說有江湖豪情風格"],
+        "commonality": "不同作家的獨特文風"
+    },
+    {
+        "theme": "友情考驗",
+        "statements": ["真友情在利益面前不動搖", "深友誼在困境之中不捨棄", "鐵友情在流言蜚語不懷疑"],
+        "commonality": "真正友誼經得起的考驗"
+    },
+    {
+        "theme": "傳統技藝傳承",
+        "statements": ["老手藝師傅通過帶徒弟傳承技藝", "家族技藝通過代代相傳延續", "學校通過開設傳統技藝課傳授技藝"],
+        "commonality": "傳統技藝的傳承方式"
+    },
+    {
+        "theme": "人生體悟",
+        "statements": ["經歷失去的人才懂珍惜", "吃過苦的人才知甘甜", "走過彎路的人才明白方向"],
+        "commonality": "透過經歷獲得的人生領悟"
+    },
+    {
+        "theme": "情緒管理",
+        "statements": ["理智的人憤怒時先冷靜十分鐘", "放鬆的人焦慮時做深呼吸放鬆", "轉移注意力的人悲傷時轉移注意力"],
+        "commonality": "有效調節負面情緒的方法"
+    },
+    {
+        "theme": "歷史建築",
+        "statements": ["長城具有軍事防禦功能", "故宮體現皇權象徵意義", "寺廟承載宗教信仰功能"],
+        "commonality": "歷史建築承載的文化意義"
+    },
+    {
+        "theme": "學習方法",
+        "statements": ["理解型學習者將知識講給別人聽加深理解", "視覺型學習者用圖表整理知識體系", "實踐型學習者透過實踐鞏固所學"],
+        "commonality": "提升學習效果的科學方法"
+    },
+    {
+        "theme": "親情互動",
+        "statements": ["父母耐心教導嬰兒走路說話", "子女體貼照顧年老雙親", "兄弟姐妹互相扶持成長"],
+        "commonality": "親情中相互關懷的表現"
+    },
+    {
+        "theme": "文化符號",
+        "statements": ["紅色在東方文化中代表喜慶", "白色在西方文化中象徵純潔", "黑色在多數文化中與莊嚴相聯繫"],
+        "commonality": "顏色在不同文化中的象徵意義"
+    },
+    {
+        "theme": "面對成功",
+        "statements": ["謙虛的人保持謙虛不驕傲", "進取的人總結經驗再進步", "感恩的人感謝幫助過的人"],
+        "commonality": "面對成功的正確態度"
+    },
+    {
+        "theme": "語言幽默",
+        "statements": ["幽默的人用誇張手法逗笑", "機智的人以雙關語制造趣味", "諷刺作家借諷刺達到幽默效果"],
+        "commonality": "語言表達中的幽默技巧"
+    },
+    {
+        "theme": "生活態度",
+        "statements": ["友善的人與人為善處處結緣", "樂觀的人樂觀面對困難挑戰", "知足的人知足常樂不貪不妒"],
+        "commonality": "帶來快樂的處世態度"
+    },
+    {
+        "theme": "愛情表現",
+        "statements": ["深情的伴侶無言的陪伴勝過千言萬語", "尊重對方的戀人尊重彼此的個人空間", "細心的愛人在細節中體現關懷"],
+        "commonality": "深層愛意的含蓄表達"
+    },
+    {
+        "theme": "哲學命題",
+        "statements": ["哲學探討存在與虛無的辯證關係", "思想界研究自由與約束的關係", "倫理學分析快樂與痛苦的轉換"],
+        "commonality": "哲學探討的基本命題"
+    },
+    {
+        "theme": "記憶規律",
+        "statements": ["人的記憶中剛學的知識容易遺忘", "有意義的內容人們記得更牢", "反復複習能幫助人們延長記憶"],
+        "commonality": "記憶形成與保持的規律"
+    },
+    {
+        "theme": "社交禮儀",
+        "statements": ["國際社交中握手時要注視對方眼睛", "交談時應保持適當距離", "介紹他人時先將年輕人介紹給長者"],
+        "commonality": "國際通用的社交禮儀細則"
+    },
+    {
+        "theme": "藝術創作",
+        "statements": ["畫家從生活中尋找靈感", "音樂家透過旋律表達情感", "作家以文字構建虛擬世界"],
+        "commonality": "藝術創作的來源與表達"
+    },
+    {
+        "theme": "決策困境",
+        "statements": ["理想主義者面臨理想與現實的矛盾", "領導者面臨個人與集體的利益權衡", "決策者面臨短期與長期的選擇困難"],
+        "commonality": "常見的決策困境類型"
+    },
+    {
+        "theme": "民俗文化",
+        "statements": ["民間故事傳遞傳統道德觀", "傳統歌謠記錄百姓生活", "習俗禁忌體現社會價值觀"],
+        "commonality": "民俗文化的社會功能"
+    },
+    {
+        "theme": "自我超越",
+        "statements": ["勇敢的人挑戰曾經不敢做的事", "堅強的人克服多年的心理障礙", "堅持的人達到曾經認為不可能的目標"],
+        "commonality": "突破自我限制的表現"
+    },
+    {
+        "theme": "時間知覺",
+        "statements": ["人在快樂時光總是感覺短暫", "人在無聊時光顯得特別漫長", "人在專注時會完全忘記時間"],
+        "commonality": "心理狀態對時間知覺的影響"
+    },
+    {
+        "theme": "助人藝術",
+        "statements": ["體貼的人在對方需要時及時出現", "聰明的人用對方接受的方式幫忙", "謙遜的人幫忙後不炫耀自己的恩情"],
+        "commonality": "讓人舒服的助人方式"
+    },
+    {
+        "theme": "詩詞風格",
+        "statements": ["唐詩呈現恢宏氣象的藝術風格", "宋詞具有婉約深情的藝術風格", "元曲展現通俗生動的藝術風格"],
+        "commonality": "不同時期詩歌的藝術風格"
+    },
+    {
+        "theme": "面對批評",
+        "statements": ["理智的人區分有意見和人身攻擊", "進步的人從批評中找進步空間", "負責的人不為自己的錯誤找借口"],
+        "commonality": "面對批評的成熟態度"
+    },
+    {
+        "theme": "飲食文化",
+        "statements": ["中國人有共餐的飲食文化", "西方人有分餐的飲食習慣", "日本人有獨特的進食禮儀"],
+        "commonality": "不同文化的飲食行為模式"
+    },
+    {
+        "theme": "夢想特質",
+        "statements": ["理想能給人前進的動力", "夢想讓生活充滿希望", "目標驅使人不斷超越自己"],
+        "commonality": "理想與夢想的積極作用"
+    },
+    {
+        "theme": "性格形成",
+        "statements": ["家庭環境影響個人的價值觀", "學校教育塑造個人的行為習慣", "社會經歷改變個人的處世態度"],
+        "commonality": "影響性格形成的因素"
+    },
+    {
+        "theme": "自然啟示",
+        "statements": ["滴水穿石啟示我們堅持的精神", "萬物生長展現適應環境的能力", "四季輪迴體現自然循環的智慧"],
+        "commonality": "從自然現象獲得的啟示"
+    },
+    {
+        "theme": "寫作要素",
+        "statements": ["優秀小說需要生動的人物形象", "精彩故事需要緊張的情節發展", "深刻作品需要有深刻的主題思想"],
+        "commonality": "優秀文學作品的基本要素"
+    },
+    {
+        "theme": "友情類型",
+        "statements": ["兒時玩伴是一起成長的友情", "戰友是互相扶持的特殊友情", "知己是精神契合的深度友情"],
+        "commonality": "不同類型的友誼特質"
+    },
+    {
+        "theme": "傳統節氣",
+        "statements": ["立春標誌著萬物復甦的開始", "夏至意味著白晝最長的一天", "立秋提醒人們天氣即將轉涼"],
+        "commonality": "節氣反映的自然變化規律"
+    },
+    {
+        "theme": "人生階段任務",
+        "statements": ["青年時期的主要任務是努力學習充實自己", "中年時期肩負家庭與社會的雙重責任", "老年時期的重要任務是傳承經驗關懷後輩"],
+        "commonality": "人生不同階段的主要任務"
+    },
+    {
+        "theme": "情緒表達",
+        "statements": ["開朗的人高興時與人分享喜悅", "真性情的人悲傷時向人訴說痛苦", "真誠的人憤怒時適當表達不壓抑"],
+        "commonality": "健康的情緒表達方式"
+    },
+    {
+        "theme": "歷史教訓",
+        "statements": ["歷史告訴我們驕傲自滿會導致失敗", "歷史上聽取諫言能成就偉大事業", "過去的經驗證明團結協作能克服困難"],
+        "commonality": "從歷史事件中汲取的教訓"
+    },
+    {
+        "theme": "學習動力",
+        "statements": ["好奇心驅使學者探索知識", "對未來的嚮往推動年輕人學習", "對改變現狀的渴望激勵人們充實自己"],
+        "commonality": "驅動學習的內在動力"
+    },
+    {
+        "theme": "家庭角色",
+        "statements": ["父母是孩子的第一任老師", "子女是家庭的希望與未來", "長輩負責傳授經驗與智慧"],
+        "commonality": "家庭成員的角色意義"
+    },
+    {
+        "theme": "文化交流",
+        "statements": ["不同國家通過互相學習技術促進發展", "文化間借鑒藝術形式豐富自身", "語言之間吸收外來詞豐富表達"],
+        "commonality": "文化交流的積極意義"
+    },
+    {
+        "theme": "面對挫折",
+        "statements": ["樂觀的人把失敗當成學習機會", "智慧的人從困境中找到新方向", "堅強的人保持希望不放棄努力"],
+        "commonality": "面對挫折的積極心態"
+    },
+    {
+        "theme": "語言演變",
+        "statements": ["古漢語隨時間逐漸變為現代漢語", "方言受普通話影響發生變化", "語言通過吸收外來詞豐富自身"],
+        "commonality": "語言隨社會變化的演變特徵"
+    },
+    {
+        "theme": "生活哲學",
+        "statements": ["簡單生活能減少不必要的煩惱", "活在當下能幫人珍惜眼前一切", "與人為善能收穫人間溫暖"],
+        "commonality": "引領幸福生活的哲學理念"
+    },
+    {
+        "theme": "愛情階段",
+        "statements": ["愛情初識階段充滿好奇與悸動", "相處階段需要磨合與理解", "長久關係階段重在依賴與珍惜"],
+        "commonality": "愛情關係的階段性特徵"
+    },
+    {
+        "theme": "哲學方法",
+        "statements": ["哲學家透過懷疑尋求真理", "思想家使用辯證思維看待問題", "批判者以批判精神檢視常識"],
+        "commonality": "哲學探究的基本方法"
+    },
+    {
+        "theme": "記憶策略",
+        "statements": ["記憶高手將新知識與已知聯繫", "學習者創造生動形象幫助記憶", "智者按邏輯結構組織信息方便記憶"],
+        "commonality": "增強記憶效果的策略"
+    },
+    {
+        "theme": "社交原則",
+        "statements": ["成熟的人尊重他人的不同觀點", "守信的人靠信用獲得他人信任", "體貼的人保持適當距離不越界"],
+        "commonality": "健康社交關係的基本原則"
+    },
+    {
+        "theme": "藝術功能",
+        "statements": ["音樂能撫慰人們受傷的心靈", "繪畫展現人們對美的感受", "戲劇反映真實的社會現實"],
+        "commonality": "藝術在社會生活中的功能"
+    },
+    {
+        "theme": "決策依據",
+        "statements": ["理性決策基於事實而非情緒", "周全決策考慮多種可能性", "正確決策符合自己的價值觀"],
+        "commonality": "做出明智決策的依據"
+    },
+    {
+        "theme": "民族文化",
+        "statements": ["藏族有獨特的鍋莊舞文化", "蒙古族有傳統的那達慕大會", "傣族有熱鬧的潑水節慶典"],
+        "commonality": "少數民族的文化特色活動"
+    },
+    {
+        "theme": "自我提升",
+        "statements": ["好學的人每天閱讀充實知識", "反思的人不斷總結經驗教訓", "謙遜的人學習他人的優點長處"],
+        "commonality": "持續自我提升的方法"
+    },
+    {
+        "theme": "時間管理",
+        "statements": ["高效能人士區分事情的輕重緩急", "自律的人避免拖延提高效率", "平衡的人留出休息時間保持生活平衡"],
+        "commonality": "科學管理時間的原則"
+    },
+    {
+        "theme": "助人意義",
+        "statements": ["幫助他人能給自己帶來快樂", "互助行為能增強社會凝聚力", "無私付出能讓生命更有意義"],
+        "commonality": "助人行為的深層意義"
+    },
+    {
+        "theme": "詩詞功能",
+        "statements": ["詩詞能表達難以言說的情感", "詩歌記錄獨特的人生體驗", "古典詩文傳達深刻的人生智慧"],
+        "commonality": "詩詞在人類生活中的功能"
+    },
+    {
+        "theme": "面對差異",
+        "statements": ["包容的人尊重不同的生活方式", "開放的人欣賞多元的文化特色", "理解的人體會他人的不同觀點"],
+        "commonality": "面對多樣性的包容態度"
+    },
+    {
+        "theme": "飲食變遷",
+        "statements": ["人們的飲食從粗糧為主到精細糧食", "食材來源從自產自銷到全球採購", "飲食追求從溫飽為主到講究營養"],
+        "commonality": "飲食習慣隨社會發展的變化"
+    },
+    {
+        "theme": "理想特質",
+        "statements": ["偉大理想能指引人生方向", "堅定信念能激發無限潛能", "崇高目標能承受現實考驗"],
+        "commonality": "偉大理想具備的特質"
+    },
+    {
+        "theme": "性格互補",
+        "statements": ["謹慎者與果斷者合作能互補", "樂觀者與現實者搭配效果好", "細心者與宏觀者互補效率高"],
+        "commonality": "不同性格的互補效應"
+    },
+    {
+        "theme": "自然與人生",
+        "statements": ["人們常以四季循環比喻人生變化", "人們用河流起伏形容生命歷程", "人們拿樹木成長比喻人生需要風雨洗禮"],
+        "commonality": "以自然現象比喻人生歷程"
+    },
+    {
+        "theme": "寫作目的",
+        "statements": ["日記用來記錄真實的生活經歷", "評論用來表達獨特的思想觀點", "小說用來創造美好的藝術體驗"],
+        "commonality": "寫作行為的不同目的"
+    },
+    {
+        "theme": "友情價值",
+        "statements": ["友情在困難時給予支持幫助", "朋友在迷茫時提供意見建議", "知己在快樂時分享喜悅歡樂"],
+        "commonality": "友情在人生中的重要價值"
+    },
+    {
+        "theme": "傳統醫學",
+        "statements": ["中醫講究陰陽平衡的整體觀", "針灸通過經絡調理身體機能", "草藥治療注重整體調養的理念"],
+        "commonality": "傳統醫學的整體觀念"
+    },
+    {
+        "theme": "人生智慧",
+        "statements": ["智者學會選擇更要學會放棄", "達人懂得堅持也要懂得變通", "賢者追求成功更要享受過程"],
+        "commonality": "經歷沉澱的人生智慧"
+    },
+    {
+        "theme": "情緒價值",
+        "statements": ["積極情緒能提高人們的工作效率", "穩定情緒能促進人際關係和諧", "適度情緒表達有益個體身心健康"],
+        "commonality": "情緒對個體的積極意義"
+    },
+    {
+        "theme": "歷史人物",
+        "statements": ["諸葛亮體現了智慧與忠誠的品質", "岳飛展現了強烈的愛國精神", "花木蘭表現了勇敢與孝順的美德"],
+        "commonality": "歷史人物體現的優秀品質"
+    },
+    {
+        "theme": "學習環境",
+        "statements": ["安靜的空間利於學習者專注", "適當的壓力激發學生的動力", "良好的師友關係促進學員成長"],
+        "commonality": "有利於學習的環境因素"
+    },
+    {
+        "theme": "家庭價值",
+        "statements": ["家庭是提供情感支持的避風港", "家庭是傳承價值觀的重要場所", "家庭是培養社會能力的第一個環境"],
+        "commonality": "家庭在個體成長中的價值"
+    },
+    {
+        "theme": "文化保護",
+        "statements": ["語言學家記錄即將失傳的方言", "修復師修復古老的建築遺跡", "傳承人傳承面臨失傳的手工技藝"],
+        "commonality": "保護文化遺產的具體行動"
+    },
+    {
+        "theme": "面對變化",
+        "statements": ["靈活的人主動適應環境變化", "機會主義者在變化中尋找新機會", "堅定的人保持核心價值不隨波逐流"],
+        "commonality": "面對變化的積極態度"
+    },
+    {
+        "theme": "語言功能",
+        "statements": ["語言幫助人們傳遞信息交流思想", "話語能表達情感建立人際聯繫", "文字用來記錄知識傳承文化"],
+        "commonality": "語言在人類社會中的功能"
+    },
+    {
+        "theme": "生活藝術",
+        "statements": ["懂生活的人用心準備一頓飯", "有品味的人認真佈置居住空間", "會體驗的人放慢腳步感受生活細節"],
+        "commonality": "將日常生活藝術化的態度"
+    },
+    {
+        "theme": "愛情價值",
+        "statements": ["愛情給人勇氣面對困難挑戰", "真情讓人體驗深刻的情感連結", "好的愛情促進彼此成為更好的人"],
+        "commonality": "愛情對個體成長的積極意義"
+    },
+    {
+        "theme": "哲學價值",
+        "statements": ["哲學幫助人们思考人生意義", "思想提供認識世界的多種方法", "思辨培養批判思維能力"],
+        "commonality": "哲學對個體的意義"
+    },
+    {
+        "theme": "記憶意義",
+        "statements": ["個體記憶構成個人的身份認同", "集體記憶塑造社會文化傳統", "珍貴記憶給人帶來溫暖力量"],
+        "commonality": "記憶對個體與社會的意義"
+    },
+    {
+        "theme": "社交意義",
+        "statements": ["社交滿足人們的情感需求獲得支持", "交往幫助人們交換信息拓展視野", "合作讓人們互助實現共同目標"],
+        "commonality": "社會交往的重要意義"
+    },
+    {
+        "theme": "藝術教育",
+        "statements": ["藝術教育培養人們的審美能力", "藝術學習激發個人的創造性思維", "藝術體驗增強人們的情感體驗能力"],
+        "commonality": "藝術教育對個體發展的意義"
+    },
+    {
+        "theme": "決策意義",
+        "statements": ["人生決策決定個人的人生方向與道路", "重要選擇反映個人的價值選擇", "關鍵決定影響未來的發展可能性"],
+        "commonality": "決策行為的深層意義"
+    },
+    {
+        "theme": "文化多樣性",
+        "statements": ["不同民族有獨特的傳統服飾", "各種宗教有不同的信仰儀式", "世界上有多樣的語言表達方式"],
+        "commonality": "人類文化多樣性的表現"
+    },
+    {
+        "theme": "自我實現",
+        "statements": ["有天賦的人發揮自己的獨特天賦", "有理想的人從事有意義的事業", "有擔當的人為社會做出積極貢獻"],
+        "commonality": "自我實現的不同表現"
+    },
+    {
+        "theme": "時間意義",
+        "statements": ["時間是寶貴的不可再生資源", "時間能治癒傷痛帶來改變", "時間見證個體成長與人類歷史"],
+        "commonality": "時間對個體與社會的意義"
+    },
+    {
+        "theme": "助人快樂",
+        "statements": ["助人者因看到他人改變而感到欣慰", "付出者因被需要而獲得價值感", "善良的人因建立溫暖連結而快樂"],
+        "commonality": "助人行為帶來的快樂來源"
+    },
+    {
+        "theme": "詩詞影響",
+        "statements": ["優美詩詞激發人們對美的追求", "經典詩文提供情感慰藉與共鳴", "傳統詩歌傳承文化精神與智慧"],
+        "commonality": "詩詞對個體與社會的影響"
+    },
+    {
+        "theme": "面對批評意義",
+        "statements": ["接受批評幫助人们認識自身盲點", "正視批評提供自我改進的機會", "善待批評促進個人成長與完善"],
+        "commonality": "接受批評的積極意義"
+    },
+    {
+        "theme": "飲食意義",
+        "statements": ["飲食是維持生命的基本需求", "聚餐是促進人際交往的重要場合", "傳統食物是傳承文化的重要載體"],
+        "commonality": "飲食在行為中的多重意義"
+    },
+    {
+        "theme": "理想意義",
+        "statements": ["理想給予人生明確的方向與目標", "信念激發人們面對困難的勇氣", "追求賦予生命更深層的意義"],
+        "commonality": "理想對個體的重要意義"
+    },
+    {
+        "theme": "性格意義",
+        "statements": ["良好性格影響人際關係的建立", "堅強性格決定面對困難的態度", "獨特個性塑造個人的獨特魅力"],
+        "commonality": "性格對人生的重要影響"
+    },
+    {
+        "theme": "自然意義",
+        "statements": ["自然提供人類生存的物質基礎", "大自然給予人們心靈慰藉與啟示", "生態系統維持地球的生態平衡"],
+        "commonality": "自然對人類的多重意義"
+    },
+    {
+        "theme": "寫作意義",
+        "statements": ["寫作幫助人们梳理思緒認識自我", "文章與他人建立思想交流", "文字記錄時代與社會變遷"],
+        "commonality": "寫作行為的深層意義"
+    },
+    {
+        "theme": "友情意義",
+        "statements": ["真友情提供情感支持與慰藉", "好朋友促進個人的成長與改變", "深厚友誼豐富人的生命體驗"],
+        "commonality": "友情對人生的重要意義"
+    },
+    {
+        "theme": "傳統意義",
+        "statements": ["傳統是連接過去與現在的橋樑", "文化傳統提供文化認同的基礎", "古老智慧給予面對未來的指引"],
+        "commonality": "傳統文化的現實意義"
+    },
+    {
+        "theme": "人生意義探索",
+        "statements": ["創造者透過創造實現自我價值", "關係型人通過人際連結體驗意義", "覺悟者經由覺悟獲得精神超越"],
+        "commonality": "探索人生意義的不同途徑"
+    },
+    {
+        "theme": "情緒意義",
+        "statements": ["情緒提醒我們內在的真實需求", "情感幫助理解自己與他人狀態", "情緒驅動我們採取合適的行動"],
+        "commonality": "情緒對個體的重要意義"
+    },
+    {
+        "theme": "歷史意義",
+        "statements": ["歷史幫助人们理解現在的由來", "過去經驗提供未來發展的借鑒", "集體記憶塑造民族認同"],
+        "commonality": "歷史對當代社會的意義"
+    },
+    {
+        "theme": "學習意義",
+        "statements": ["學習獲得知識改變個人命運", "求知開闊視野幫助認識世界", "教育實現個人潛能與全面成長"],
+        "commonality": "學習行為的深層意義"
+    },
+    {
+        "theme": "家庭意義",
+        "statements": ["家庭提供個體成長的安全環境", "親人傳承價值觀與文化傳統", "家人給予無條件的愛與支持"],
+        "commonality": "家庭對個體的深層意義"
+    },
+    {
+        "theme": "文化意義",
+        "statements": ["文化提供個體認同與歸屬感", "傳統塑造人們的思維方式與行為習慣", "文明促進群體協作與社會發展"],
+        "commonality": "文化對個體與社會的意義"
+    },
+    {
+        "theme": "面對挫折意義",
+        "statements": ["挫折磨練人的意志增強能力", "困難提供重新認識自己的機會", "失敗積累經驗避免重複錯誤"],
+        "commonality": "挫折對個體成長的積極意義"
+    },
+    {
+        "theme": "語言意義",
+        "statements": ["語言是人類思維的重要工具", "文字是文化傳承的關鍵載體", "話語是人際溝通的主要橋樑"],
+        "commonality": "語言對人類文明的意義"
+    },
+    {
+        "theme": "生活意義",
+        "statements": ["有心人在平凡中發現美好", "創造者通過創造實現價值", "關懷者與他人建立有意義的連結"],
+        "commonality": "尋找生活意義的不同方式"
+    },
+    {
+        "theme": "愛情意義",
+        "statements": ["愛情讓人超越自我關懷他人", "真情使人經歷深刻的情感體驗", "好的關係幫助彼此成長創造美好"],
+        "commonality": "愛情對生命的深層意義"
+    },
+    {
+        "theme": "哲學意義",
+        "statements": ["哲學幫助突破常見的思維局限", "思想提供面對困惑的思考框架", "思辨促進對生命本質的理解"],
+        "commonality": "哲學思考的現實意義"
+    },
+    {
+        "theme": "記憶價值",
+        "statements": ["個人記憶是身份認同的基礎", "學習記憶是知識積累的前提", "情感記憶是成長的珍貴見證"],
+        "commonality": "記憶對個體的重要價值"
+    },
+    {
+        "theme": "社交價值",
+        "statements": ["社交獲得情感支持與認可", "人際交往拓展機會與資源", "社會連結實現個人與社會的融合"],
+        "commonality": "社會交往的重要價值"
+    },
+    {
+        "theme": "藝術價值",
+        "statements": ["藝術提供超越現實的審美體驗", "創作表達難以言傳的情感", "藝術作品推動社會思想的進步"],
+        "commonality": "藝術對人類的獨特價值"
+    },
+    {
+        "theme": "決策價值",
+        "statements": ["關鍵決策塑造個人的人生軌跡", "重要選擇體現個人的自主性與責任", "明智決定決定機會的把握與錯過"],
+        "commonality": "決策行為的重要價值"
+    },
+    {
+        "theme": "文化價值",
+        "statements": ["文化多樣性帶來社會創新與活力", "傳統提供社會穩定與認同基礎", "文化交流促進族群理解與合作"],
+        "commonality": "文化多樣性的重要價值"
+    },
+    {
+        "theme": "自我超越價值",
+        "statements": ["自我超越幫助突破限制實現潛能", "不斷突破獲得更深層的自我認識", "超越自我體驗更高層次的滿足感"],
+        "commonality": "自我超越的心理價值"
+    },
+    {
+        "theme": "時間價值",
+        "statements": ["時間是實現目標的必要資源", "歲月是檢驗真偽的客觀標準", "時光是生命存在的基本維度"],
+        "commonality": "時間的本質價值"
+    },
+    {
+        "theme": "助人價值",
+        "statements": ["助人行為增強社會凝聚力", "無私付出實現個人的社會價值", "善意幫助促進人與人之間的信任"],
+        "commonality": "助人行為的社會價值"
+    },
+    {
+        "theme": "詩詞價值",
+        "statements": ["經典詩詞保存民族的情感記憶", "優美詩文提供審美教育的重要資源", "千古絕句實現跨越時空的思想交流"],
+        "commonality": "古典詩詞的文化價值"
+    },
+    {
+        "theme": "面對差異價值",
+        "statements": ["尊重差異促進社會創新與進步", "接納不同增強個人的理解與包容能力", "欣賞多樣豐富人類的整體體驗"],
+        "commonality": "尊重差異的社會價值"
+    },
+    {
+        "theme": "飲食價值",
+        "statements": ["飲食是維繫生命的物質基礎", "傳統美食是傳承文化的重要載體", "餐桌是促進社交的關鍵場合"],
+        "commonality": "飲食的多重社會文化價值"
+    },
+    {
+        "theme": "理想價值",
+        "statements": ["崇高理想推動個人和社會進步", "堅定信念提供面對困難的精神力量", "偉大追求賦予生命意義與方向"],
+        "commonality": "理想的社會與個人價值"
+    },
+    {
+        "theme": "性格價值",
+        "statements": ["優良性格決定人際關係的質量", "堅強個性影響職業發展的方向", "獨特品格塑造個人的生命體驗"],
+        "commonality": "性格對人生的深層價值"
+    },
+    {
+        "theme": "自然價值",
+        "statements": ["自然生態是生態系統穩定的基礎", "自然資源是人類物質需求的來源", "自然景觀是精神啟示與審美體驗的源泉"],
+        "commonality": "自然對人類的整體價值"
+    },
+    {
+        "theme": "寫作價值",
+        "statements": ["寫作是思維整理與自我認識的工具", "文字是文化傳承與知識積累的途徑", "文章是跨時空交流的重要橋樑"],
+        "commonality": "寫作的多元價值"
+    },
+    {
+        "theme": "友情價值",
+        "statements": ["真友情是情感支持的重要來源", "好朋友是個人成長的積極影響者", "深厚友誼是生命體驗的豐富者"],
+        "commonality": "友情的深層心理價值"
+    },
+    {
+        "theme": "傳統價值",
+        "statements": ["傳統文化是文化認同的基礎", "古老智慧是應對當代問題的來源", "歷史傳統是連接過去與未來的紐帶"],
+        "commonality": "傳統文化的現代價值"
+    },
+    {
+        "theme": "人生智慧價值",
+        "statements": ["人生智慧減少人生挫折與錯誤", "生活智慧提高決策質量與效率", "處世智慧增強面對困境的適應力"],
+        "commonality": "人生智慧的實際價值"
+    },
+    {
+        "theme": "情緒管理價值",
+        "statements": ["情緒管理提高人際關係質量", "情緒調節增強心理適應能力", "情感平衡促進身心健康與幸福"],
+        "commonality": "情緒管理的個體價值"
+    },
+    {
+        "theme": "歷史學習價值",
+        "statements": ["學習歷史理解現實問題的來源", "研究過去避免重複歷史的錯誤", "借鑒前人的智慧與寶貴經驗"],
+        "commonality": "學習歷史的現實價值"
+    },
+    {
+        "theme": "學習方法價值",
+        "statements": ["科學方法提高知識獲取效率", "有效學習增強知識應用能力", "良好習慣培養終身學習的能力"],
+        "commonality": "科學學習方法的價值"
+    },
+    {
+        "theme": "家庭關係價值",
+        "statements": ["和諧家庭提供情感安全的基礎", "良好親情是培養社會能力的搖籃", "健康家庭是傳承文化價值的首要場所"],
+        "commonality": "健康家庭關係的社會價值"
+    },
+    {
+        "theme": "文化交流價值",
+        "statements": ["文化交流促進不同群體的理解", "文明互動激發文化創新與發展", "跨文化溝通推動人類文明共同進步"],
+        "commonality": "文化交流的全球價值"
+    },
+    {
+        "theme": "面對變化價值",
+        "statements": ["積極適應保持個人的適應能力", "靈活應對抓住新的發展機會", "主動改變促進個體成長與成熟"],
+        "commonality": "積極面對變化的個體價值"
+    }
+];
+
+
+// --- 修訂後的用詞題詞庫 (500 個雙字詞語) ---
+const VOCABULARY_WORDS = [
+    "開朗", "憂鬱", "溫柔", "堅強", "冷靜", "熱情", "謙虛", "驕傲", "誠實", "虛偽",
+    "勇敢", "膽怯", "樂觀", "悲觀", "細心", "粗心", "勤奮", "懶惰", "耐心", "急躁",
+    "友善", "冷漠", "幽默", "嚴肅", "大方", "小氣", "忠誠", "背叛", "正直", "奸詐",
+    "活潑", "文靜", "自信", "自卑", "寬容", "記仇", "感恩", "忘恩", "自律", "放縱",
+    "好奇", "無聊", "浪漫", "務實", "浪漫", "現實", "創新", "守舊", "獨立", "依賴",
+    "穩重", "輕浮", "機智", "愚笨", "慷慨", "吝嗇", "體貼", "自私", "樂觀", "消極",
+    "積極", "被動", "果斷", "猶豫", "專注", "分心", "誠懇", "敷衍", "可靠", "善變",
+    "堅定", "動搖", "純真", "世故", "單純", "複雜", "熱心", "冷淡", "真誠", "做作",
+    "瀟灑", "拘謹", "豪爽", "扭捏", "灑脫", "拘束", "率真", "圓滑", "耿直", "狡猾",
+    "憨厚", "精明", "老實", "油滑", "樸實", "浮誇", "踏實", "虛浮", "認真", "敷衍",
+    "負責", "推託", "盡責", "怠惰", "敬業", "敷衍", "投入", "敷衍", "熱忱", "冷淡",
+    "敬業", "怠工", "專業", "業餘", "熟練", "生疏", "精湛", "粗糙", "流暢", "卡頓",
+    "清晰", "模糊", "明確", "含糊", "準確", "錯誤", "正確", "偏差", "合理", "荒謬",
+    "恰當", "失當", "得體", "失禮", "優雅", "粗俗", "高雅", "低俗", "典雅", "庸俗",
+    "精緻", "粗糙", "細膩", "粗糙", "華麗", "樸素", "簡約", "繁複", "時尚", "過時",
+    "流行", "落伍", "經典", "俗氣", "獨特", "普通", "特別", "平凡", "罕見", "常見",
+    "稀有", "普遍", "珍貴", "廉價", "昂貴", "便宜", "實惠", "昂貴", "經濟", "浪費",
+    "節省", "奢侈", "簡樸", "奢華", "樸素", "華麗", "簡潔", "冗長", "簡明", "囉嗦",
+    "直接", "委婉", "坦率", "含蓄", "直白", "隱晦", "明確", "模糊", "清楚", "混亂",
+    "有序", "雜亂", "整齊", "凌亂", "乾淨", "骯髒", "整潔", "髒亂", "清爽", "悶熱",
+    "涼爽", "炎熱", "寒冷", "溫暖", "舒適", "不適", "愉快", "痛苦", "快樂", "悲傷",
+    "喜悅", "哀傷", "興奮", "沮喪", "激動", "平靜", "平和", "焦躁", "安詳", "煩躁",
+    "放鬆", "緊張", "自在", "拘束", "輕鬆", "沉重", "自由", "束縛", "解放", "壓抑",
+    "開心", "難過", "滿足", "遺憾", "幸福", "不幸", "幸運", "倒霉", "順利", "挫折",
+    "成功", "失敗", "勝利", "敗北", "進步", "退步", "提升", "下降", "改善", "惡化",
+    "增強", "減弱", "擴大", "縮小", "增加", "減少", "上升", "下降", "提高", "降低",
+    "加強", "削弱", "促進", "阻礙", "推動", "阻擋", "加速", "減速", "啟動", "停止",
+    "開始", "結束", "完成", "中斷", "持續", "間斷", "延續", "終止", "延長", "縮短",
+    "擴展", "收縮", "延伸", "縮回", "展開", "收起", "打開", "關閉", "開啟", "關上",
+    "啟用", "停用", "激活", "休眠", "喚醒", "沉睡", "甦醒", "昏迷", "清醒", "迷糊",
+    "明白", "困惑", "理解", "誤解", "領悟", "茫然", "洞察", "盲目", "敏銳", "遲鈍",
+    "靈敏", "麻木", "敏捷", "遲緩", "迅速", "緩慢", "快速", "慢速", "即時", "延遲",
+    "立刻", "稍後", "馬上", "等待", "立即", "拖延", "趕快", "悠閒", "匆忙", "從容",
+    "急促", "緩和", "緊急", "平常", "特殊", "一般", "例外", "正常", "異常", "標準",
+    "非標", "典型", "非典", "普遍", "個別", "共同", "獨特", "相似", "不同", "相同",
+    "相異", "一致", "分歧", "統一", "分散", "集中", "整合", "分裂", "結合", "分離",
+    "連接", "斷開", "連結", "切斷", "串聯", "孤立", "聯合", "分開", "合作", "競爭",
+    "協作", "對抗", "互助", "對立", "支援", "反對", "贊成", "否決", "同意", "拒絕",
+    "接受", "排斥", "歡迎", "驅逐", "接納", "拒絕", "包容", "排擠", "融合", "隔離",
+    "交流", "封閉", "溝通", "隔閡", "互動", "疏離", "接觸", "遠離", "靠近", "離開",
+    "接近", "遠離", "抵達", "出發", "到達", "啟程", "抵達", "返回", "回來", "回去",
+    "歸來", "離去", "離開", "告別", "再見", "重逢", "相遇", "錯過", "邂逅", "重遇",
+    "分開", "團聚", "分散", "聚集", "集合", "解散", "匯聚", "分流", "集中", "分散",
+    "統一", "多元", "單一", "多樣", "豐富", "貧乏", "充實", "空虛", "飽滿", "乾癟",
+    "豐盛", "匱乏", "充足", "短缺", "充裕", "缺乏", "富足", "貧窮", "富裕", "窮困",
+    "富有", "貧困", "豐裕", "匱乏", "飽足", "飢餓", "滿足", "渴望", "期待", "失望",
+    "希望", "絕望", "憧憬", "幻滅", "夢想", "現實", "理想", "實際", "願望", "要求",
+    "需求", "欲望", "慾望", "渴求", "貪婪", "知足", "滿足", "不滿", "抱怨", "感謝",
+    "感激", "怨恨", "憤怒", "平靜", "安寧", "喧鬧", "寂靜", "安靜", "吵鬧", "嘈雜",
+    "寧靜", "混亂", "秩序", "規則", "紀律", "自由", "約束", "限制", "解放", "束縛",
+    "控制", "失控", "掌握", "失去", "擁有", "喪失", "得到", "失去", "獲得", "放棄",
+    "取得", "捨棄", "爭取", "放棄", "追求", "逃避", "面對", "迴避", "正視", "忽視",
+    "關注", "忽略", "重視", "輕視", "看重", "看輕", "尊重", "鄙視", "敬重", "蔑視",
+    "崇拜", "厭惡", "喜愛", "討厭", "喜歡", "憎恨", "愛慕", "嫌棄", "欣賞", "鄙夷",
+    "讚美", "批評", "稱讚", "指責", "表揚", "譴責", "鼓勵", "打擊", "支持", "打壓",
+    "肯定", "否定", "認可", "駁斥", "承認", "否認", "接受", "拒絕", "同意", "反對",
+    "贊同", "異議", "附和", "反駁", "認同", "質疑", "相信", "懷疑", "信任", "猜疑",
+    "信賴", "提防", "依賴", "獨立", "依靠", "自主", "自立", "依附", "獨立", "依賴"
+];
+// ===============================================================
+// === [API 配置] 改為 Google Apps Script 後端 ===
+// ===============================================================
+
+// 您的 GAS 部署網址
+const CLOUDFLARE_WORKER_URL = "https://script.google.com/macros/s/AKfycbzaAnSXaaCohL8b92B7bRzhMk3cMr7hhoQc1icKSr_Oy1JLFUPV32jbouJIKfEIgUepeA/exec";
+
+// --- 核心 API 調用函數 (修訂版) ---
+async function getApiResponse(prompt, temperature, seed = null) {
+    try {
+        const body = {
+            model: "gemini", // 後端預設模型，也可在此更改
+            messages: [
+                { role: "system", content: "You are a helpful assistant that always responds in Traditional Chinese." },
+                { role: "user", content: prompt }
+            ],
+            temperature: temperature,
+            // 隨機種子 (如果您的 GAS 後端支援 seed 參數)
+            seed: seed 
+        };
+
+        // 發送請求 (Token 會由下方的攔截器自動注入，此處無需處理)
+        const response = await fetch(CLOUDFLARE_WORKER_URL, {
+            method: 'POST',
+            // Google Apps Script Web App 接收 POST 時通常使用 text/plain 以避免 CORS 預檢問題，
+            // 但您的攔截器是針對 JSON 處理。建議此處保持與攔截器相容的 Content-Type。
+            // 這裡不顯式設定 Content-Type，讓瀏覽器或攔截器處理，或者設定為 text/plain
+            body: JSON.stringify(body)
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+
+            // === [Log Provider Info] 顯示後端調度資訊 ===
+            if (data._provider_log) {
+                console.log(
+                    `%c[Backend] Provider: ${data._provider_log}`, 
+                    'background: #2b2d42; color: #8d99ae; padding: 4px 8px; border-radius: 4px; font-weight: bold; border: 1px solid #edf2f4;'
+                );
+            }
+            if (data.trace) {
+                console.warn("[Backend Trace]", data.trace);
+            }
+
+            // 處理錯誤回傳
+            if (data.error) {
+                console.error("Backend Error:", data.error);
+                return "抱歉，伺服器發生錯誤，請檢查權限或稍後再試。";
+            }
+
+            // 回傳內容 (相容 OpenAI 格式)
+            if (data.choices?.[0]?.message?.content) {
+                return data.choices[0].message.content.trim();
+            } else {
+                throw new Error('Invalid API response format');
+            }
+        } else {
+            throw new Error(`HTTP Error: ${response.status}`);
+        }
+    } catch (error) {
+        console.error("API Call Failed:", error);
+        return "抱歉，目前無法連接服務，請檢查網絡或登入狀態。";
+    }
+}
+// --- DOM 元素獲取 ---
+const ui = {
+    container: document.querySelector('.container'),
+    toolSelector: document.querySelector('.tool-selector'),
+    toolButtons: document.querySelectorAll('.tool-button'),
+    toolUnderline: document.querySelector('.tool-button-underline'),
+    questionContainer: document.getElementById('question-container'),
+    answerContainer: document.getElementById('answer-container'),
+    answerTextarea: document.getElementById('answer-textarea'),
+    submitButton: document.getElementById('submit-button'),
+    feedbackContainer: document.getElementById('feedback-container'),
+    nextQuestionWrapper: document.getElementById('next-question-wrapper'),
+    nextQuestionButton: document.getElementById('next-question-button'),
+    questionLoader: document.getElementById('question-loader'),
+    feedbackLoader: document.getElementById('feedback-loader'),
+    modeToggleButton: document.getElementById('mode-toggle-button'),
+    questionTypeSelectorWrapper: document.getElementById('question-type-selector-wrapper'),
+    questionTypeSelector: document.getElementById('question-type-selector'),
+    typeButtons: document.querySelectorAll('.type-button'),
+    refreshQuestionButton: document.getElementById('refresh-question-button'),
+    newCustomQuestionWrapper: document.getElementById('new-custom-question-wrapper'),
+    newCustomQuestionButton: document.getElementById('new-custom-question-button'),
+};
+// --- 狀態管理 ---
+let currentTool = 'induction'; // 'induction', 'generalization', 'elucidation', 'vocabulary'
+let isCustomMode = false;
+let currentQuestionData = {};
+const usedQuestions = {
+    elucidation_life: new Set(),
+    elucidation_philosophy: new Set(),
+    induction: new Set(),
+    generalization: new Set(),
+    vocabulary: new Set()
+};
+// --- 本地儲存管理 ---
+function getStorageKey() {
+    if (currentTool === 'elucidation') {
+        const type = document.querySelector('.type-button.active').dataset.type;
+        return `usedQuestions_${currentTool}_${type}`;
+    }
+    return `usedQuestions_${currentTool}`;
+}
+function saveUsedQuestions() {
+    try {
+        const key = getStorageKey();
+        const questionSet = usedQuestions[key.replace('usedQuestions_', '')];
+        if (questionSet) {
+            localStorage.setItem(key, JSON.stringify([...questionSet]));
+        }
+    } catch (e) {
+        console.error("無法儲存問題至 localStorage:", e);
+    }
+}
+function loadUsedQuestions() {
+    try {
+        const key = getStorageKey();
+        const storedQuestions = localStorage.getItem(key);
+        const questionSetKey = key.replace('usedQuestions_', '');
+        if (storedQuestions) {
+            usedQuestions[questionSetKey] = new Set(JSON.parse(storedQuestions));
+        } else {
+            usedQuestions[questionSetKey] = new Set();
+        }
+    } catch (e) {
+        console.error("無法從 localStorage 讀取問題:", e);
+    }
+}
+
+// --- UI 控制 ---
+const UIManager = {
+    showLoader: (loader) => { loader.style.display = 'block'; },
+    hideLoader: (loader) => { loader.style.display = 'none'; },
+    resetUI: () => {
+        ui.answerTextarea.value = '';
+        ui.questionContainer.style.opacity = 0;
+        ui.questionContainer.innerHTML = '';
+        ui.answerContainer.classList.add('hidden');
+        ui.feedbackContainer.classList.remove('visible');
+        ui.feedbackContainer.innerHTML = '';
+        ui.nextQuestionWrapper.classList.add('hidden');
+        ui.newCustomQuestionWrapper.classList.add('hidden');
+        ui.submitButton.disabled = false;
+        ui.answerTextarea.disabled = false;
+        ui.questionContainer.removeAttribute('contenteditable');
+        currentQuestionData = {};
+    },
+    updateToolUI: () => {
+        const toolConfig = {
+            elucidation: { submit: '提交闡釋', placeholder: '先用一句話直接回應題目，再逐步闡釋。' },
+            induction: { submit: '提交歸納', placeholder: '請歸納以上陳述的共通點。' },
+            generalization: { submit: '提交修訂', placeholder: '請修訂以上表現差劣的示例。' },
+            vocabulary: { submit: '提交用詞', placeholder: '請用一個最適切的詞語形容以上描述。' }
+        };
+        ui.submitButton.textContent = toolConfig[currentTool].submit;
+        ui.answerTextarea.placeholder = toolConfig[currentTool].placeholder;
+        ui.modeToggleButton.classList.toggle('hidden', currentTool !== 'elucidation');
+        ui.questionTypeSelectorWrapper.classList.toggle('hidden', currentTool !== 'elucidation');
+        const activeButton = document.querySelector(`.tool-button[data-tool="${currentTool}"]`);
+        if (activeButton) {
+            ui.toolUnderline.style.width = `${activeButton.offsetWidth}px`;
+            ui.toolUnderline.style.left = `${activeButton.offsetLeft}px`;
+        }
+    }
+};
+// --- 主工具切換邏輯 ---
+function switchTool(newTool) {
+    if (newTool === currentTool && !isCustomMode) return;
+    currentTool = newTool;
+    isCustomMode = false;
+    ui.toolButtons.forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.tool === newTool);
+    });
+    UIManager.updateToolUI();
+    getNewQuestion();
+}
+// --- 題目生成邏輯 (路由) ---
+function getNewQuestion(isRefresh = false) {
+    UIManager.resetUI();
+    UIManager.showLoader(ui.questionLoader);
+    ui.refreshQuestionButton.classList.remove('hidden');
+    const questionFetchers = {
+        elucidation: getElucidationQuestion,
+        induction: getInductionQuestion,
+        generalization: getGeneralizationQuestion,
+        vocabulary: getVocabularyQuestion,
+    };
+    if (questionFetchers[currentTool]) {
+        questionFetchers[currentTool](isRefresh);
+    }
+}
+// --- 闡釋 (Elucidation) ---
+async function getElucidationQuestion(isRefresh = false) {
+    const type = document.querySelector('.type-button.active').dataset.type;
+    loadUsedQuestions();
+    const currentUsedSet = usedQuestions[`elucidation_${type}`];
+    let basePrompt, examplePrompt;
+    if (type === 'life') {
+        basePrompt = "請用繁體中文為我生成一個簡短、個人化、關於日常偏好或經驗的闡釋思維訓練問題。";
+        examplePrompt = "例如：「你為什麼喜歡雨天？」、「你為什麼不喜歡吃苦瓜？」、「你為什麼偏愛獨自旅行？」。";
+    } else {
+        basePrompt = "請用繁體中文為我生成一個簡短、生活化、但又能引發思考的問題。";
+        examplePrompt = "例如：「為什麼整理房間能讓心情變好？」、「為什麼我們會在意陌生人的看法？」、「為什麼我們會對舊物品產生感情？」。";
+    }
+    let prompt = `${basePrompt}問題必須以「為什麼」或「如何」開頭。問題長度必須嚴格限制在 15 個字以內。${examplePrompt}請只輸出問題本身，不要有任何多餘文字或引號。`;
+    if (currentUsedSet.size > 0) {
+        const questionsToAvoid = [...currentUsedSet].join('\n- ');
+        prompt += `\n請務必生成一個全新的問題。為了避免重複，絕對不要生成以下列表中的任何一個問題：\n- ${questionsToAvoid}`;
+    }
+    if (isRefresh) prompt += `\n(這是一個刷新請求，請確保問題是新的)`;
+    // 生成唯一 seed
+    const seed = Date.now();
+    const newQuestion = await getApiResponse(prompt, 0.95, seed);
+    if (!newQuestion.startsWith("抱歉")) {
+        currentUsedSet.add(newQuestion);
+        saveUsedQuestions();
+    }
+    UIManager.hideLoader(ui.questionLoader);
+    ui.questionContainer.textContent = newQuestion;
+    ui.questionContainer.style.opacity = 1;
+    ui.answerContainer.classList.remove('hidden');
+}
+// --- 歸納 (Induction) ---
+async function getInductionQuestion(isRefresh = false) {
+    loadUsedQuestions();
+    const currentUsedSet = usedQuestions.induction;
+    // 從本地範例中隨機選擇一個作為參考（但實際直接使用本地題庫）
+    const availableExamples = INDUCTION_EXAMPLES.filter(ex => !currentUsedSet.has(ex.commonality));
+    let selectedExample;
+    if (availableExamples.length > 0) {
+        selectedExample = availableExamples[Math.floor(Math.random() * availableExamples.length)];
+    } else {
+        // 若全部用過，重置
+        currentUsedSet.clear();
+        selectedExample = INDUCTION_EXAMPLES[Math.floor(Math.random() * INDUCTION_EXAMPLES.length)];
+    }
+    currentQuestionData = selectedExample;
+    currentUsedSet.add(selectedExample.commonality);
+    saveUsedQuestions();
+    let statementsHtml = '<ul class="induction-statements">';
+    selectedExample.statements.forEach(stmt => { statementsHtml += `<li>${stmt}</li>`; });
+    statementsHtml += '</ul>';
+    ui.questionContainer.innerHTML = statementsHtml;
+    UIManager.hideLoader(ui.questionLoader);
+    ui.questionContainer.style.opacity = 1;
+    ui.answerContainer.classList.remove('hidden');
+}
+// --- 概括 (Generalization) ---
+async function getGeneralizationQuestion(isRefresh = false) {
+    loadUsedQuestions();
+    const currentUsedSet = usedQuestions.generalization;
+    let prompt = `請用繁體中文生成一個「概括」思維訓練題目。你的輸出必須是一個 JSON 物件，格式如下：
+{
+  "passage": "一段約150字的敘事或議論片段，題材要多元化，表達的感情或哲理都要多變，不可以經常都關於思念，用詞不要過於文學。",
+  "poor_summary": "一個對該片段的、空泛且欠缺具體元素的差劣概括。",
+  "ideal_summary": "範例不得多於40字，開首必須運用「記述」、「描寫」、「刻劃」、「舉出」、「透過」、「指出」、「說明」、「引用」、「論證」等概括的動詞字眼。一段精準、優秀的大要概括，只抽取最關鍵的信息要點，減去修飾，不能超出五十字，範例如「記述作者在清明節時帶媽媽回鄉，媽媽在火車上嚷著要回家，抒發了對母親患病的憐惜之情」，格式和內容都必須參照這個範例，但不一定具有所抒發的感情。"
+}
+- "passage" 必須具文學性。
+- "poor_summary" 必須明顯地比 "ideal_summary" 差。
+- 題目內容必須多元化。
+- 請直接輸出 JSON 物件，絕對不要有任何其他文字或代碼標記。`;
+     if (currentUsedSet.size > 0) {
+        const summariesToAvoid = [...currentUsedSet].join('", "');
+        prompt += `\n為了避免重複，請確保生成的 "ideal_summary" 不要是以下任何一個：["${summariesToAvoid}"]`;
+    }
+    if (isRefresh) prompt += `\n(這是一個刷新請求，請確保內容是全新的)`;
+    const seed = Date.now() + Math.floor(Math.random() * 10000);
+    const response = await getApiResponse(prompt, 0.8, seed);
+    try {
+        const data = JSON.parse(response);
+        if (data.passage && data.poor_summary && data.ideal_summary) {
+            currentQuestionData = data;
+            currentUsedSet.add(data.ideal_summary);
+            saveUsedQuestions();
+            ui.questionContainer.innerHTML = `
+                <div class="generalization-passage">${data.passage}</div>
+                <div class="generalization-poor-summary"><strong>差劣示例：</strong>${data.poor_summary}</div>
+            `;
+        } else { throw new Error('Invalid JSON structure'); }
+    } catch (e) {
+        console.error("Failed to parse generalization question:", e);
+        ui.questionContainer.textContent = "題目生成失敗，請重試。";
+    }
+    UIManager.hideLoader(ui.questionLoader);
+    ui.questionContainer.style.opacity = 1;
+    ui.answerContainer.classList.remove('hidden');
+}
+// --- 用詞 (Vocabulary) (修訂後) ---
+async function getVocabularyQuestion(isRefresh = false) {
+    loadUsedQuestions();
+    const currentUsedSet = usedQuestions.vocabulary;
+    // 從本地詞庫中隨機選擇一個詞語作為答案
+    const availableWords = VOCABULARY_WORDS.filter(word => !currentUsedSet.has(word));
+    let selectedWord;
+    if (availableWords.length > 0) {
+        selectedWord = availableWords[Math.floor(Math.random() * availableWords.length)];
+    } else {
+        // 如果所有詞都用過了，重置
+        currentUsedSet.clear();
+        selectedWord = VOCABULARY_WORDS[Math.floor(Math.random() * VOCABULARY_WORDS.length)];
+    }
+    let prompt = `請用繁體中文生成一個「用詞」思維訓練題目。你的輸出必須是一個 JSON 物件，格式如下：
+{
+  "description": "一段約 60字的描述，要與科學、機械、工程及農業無關，這段描述指向一個特定的中文詞語（名詞、動詞或形容詞），但描述中絕對不能出現答案詞語本身或其同義詞。",
+  "fill_in_sentence": "一句包含 '_________' 作為填充位置的句子，這句話能應用到答案詞語，不要超過18字。",
+  "answer": "一個最能精準概括以上描述的雙字中文詞語。"
+}
+- "description" 必須是客觀的場景或行為描述。
+- "fill_in_sentence" 必須自然地將答案詞語置入語境中，並使用 '_________' 作為填充底線。
+- "answer" 必須是一個常見但具體的詞語。
+- 重要：題目內容必須多元化，涵蓋不同情景與概念，可用但避免過於集中在心理、性格、感情等抽象主題。
+- 請直接輸出 JSON 物件，絕對不要有任何其他文字或代碼標記。
+請使用以下詞語作為答案來生成題目：
+"${selectedWord}"`;
+    if (isRefresh) prompt += `\n(這是一個刷新請求，請確保內容是全新的)`;
+    const seed = Date.now() + Math.floor(Math.random() * 10000);
+    const response = await getApiResponse(prompt, 0.9, seed);
+    try {
+        const data = JSON.parse(response);
+        if (data.description && data.fill_in_sentence && data.answer) {
+            currentQuestionData = data;
+            currentUsedSet.add(data.answer);
+            saveUsedQuestions();
+            // 用底線替換答案，確保不顯示答案
+            const sentenceWithBlank = data.fill_in_sentence.replace(/_{5,}|X{5,}/, '_________');
+            ui.questionContainer.innerHTML = `
+                <div class="vocabulary-description">${data.description}</div>
+                <div class="vocabulary-fill-in-blank-container">
+                    ${sentenceWithBlank}
+                </div>
+            `;
+        } else { throw new Error('Invalid JSON structure'); }
+    } catch (e) {
+        console.error("Failed to parse vocabulary question:", e);
+        ui.questionContainer.textContent = "題目生成失敗，請重試。";
+    }
+    UIManager.hideLoader(ui.questionLoader);
+    ui.questionContainer.style.opacity = 1;
+    ui.answerContainer.classList.remove('hidden');
+}
+// --- 提交與回饋 (路由) ---
+async function getFeedback() {
+    const userAnswer = ui.answerTextarea.value.trim();
+    if (!userAnswer) {
+        alert("請先輸入您的答案。");
+        return;
+    }
+    ui.submitButton.disabled = true;
+    ui.answerTextarea.disabled = true;
+    UIManager.showLoader(ui.feedbackLoader);
+    let prompt = "";
+    const feedbackPrompts = {
+        elucidation: () => {
+            const currentQuestion = ui.questionContainer.textContent.trim();
+            return `作為一個嚴格但友善的思維闡釋教練，請用繁體中文針對以下回答提供回饋和評分。
+### 問題:
+「${currentQuestion}」
+### 用戶回答:
+「${userAnswer}」
+### 你的任務:
+你的輸出必須嚴格遵守以下三部分的格式，絕對不能偏離。
+1. **分數 (Score)**: 在最開頭，必須使用 "[SCORE: X]" 的格式給出一個 0 到 100 之間的分數。X 代表數字。評分標準：回答是否直接、核心原因是否清晰、後續解釋的邏輯鏈是否緊密。若要得70分或以上，在邏輯鏈中必須最少有多於一個的步驟。
+2. **評語 (Critique)**: 在分數換行後，用一兩句簡潔的話，直接點出回答中的核心問題。語氣要像朋友給建議一樣。絕對不能包含 "評語" 這個詞。
+3. **分隔符與範例 (Separator & Example)**: 在評語結束後，立刻換行並輸出 "---" (三個減號)，然後再換行提供一個邏輯嚴謹的闡釋範例。範例的每一步驟只佔一行，且必須是層層遞進的因果關係。請不要用「大腦」等字眼，不要從過於科學的角度推論。`;
+        },
+        induction: () => {
+            const statements = currentQuestionData.statements.join('、');
+            return `作為一個友善的思維歸納教練，請用繁體中文評改以下回答。
+### 任務: 歸納以下陳述的共通點：
+"${statements}"
+### 理想答案方向: 
+"${currentQuestionData.ideal_summary}"
+### 用戶的歸納: 
+"${userAnswer}"
+### 你的評改:
+你的輸出必須嚴格遵守以下三部分的格式：
+1. **分數**: 在最開頭，必須使用 "[SCORE: X]" 的格式給出一個 0 到 100 之間的分數。X 代表數字。假如用詞已算精準，則可打滿分，不要吹毛求疵。
+2. **評語**: 在分數換行後，直接用一兩句簡潔的話點評。絕對不要包含「評語」這個詞或任何標題。
+3. **分隔符與範例**: 在評語後換行輸出 "---"，然後提供一個精準的歸納範例。`;
+        },
+        generalization: () => {
+            return `作為一個友善的文學分析教練，請用繁體中文評改以下概括修訂。
+### 原始段落:
+"${currentQuestionData.passage}"
+### 一個差劣的概括:
+"${currentQuestionData.poor_summary}"
+### 理想的修訂方向:
+"${currentQuestionData.ideal_summary}"
+### 用戶的修訂:
+"${userAnswer}"
+### 你的評改:
+你的輸出必須嚴格遵守以下三部分的格式：
+1. **分數**: 在最開頭，必須使用 "[SCORE: X]" 的格式給出一個 0 到 100 之間的分數。X 代表數字。假如用戶的修訂已算精準，加入了具體細節，則可打滿分，不要吹毛求疵。
+2. **評語**: 在分數換行後，直接用一兩句簡潔的話點評。絕對不要包含「評語」這個詞或任何標題。
+3. **分隔符與範例**: 在評語後換行輸出 "---"，然後提供一個優秀的修訂範例。`;
+        },
+        vocabulary: () => {
+            return `作為一個友善的詞彙教練，請用繁體中文評改以下回答。
+### 任務: 請用一個最適切的詞語形容以下描述。
+### 描述:
+"${currentQuestionData.description}"
+### 理想答案: 
+"${currentQuestionData.answer}"
+### 用戶的答案: 
+"${userAnswer}"
+### 你的評改:
+你的輸出必須嚴格遵守以下三部分的格式：
+1. **分數**: 在最開頭，必須使用 "[SCORE: X]" 的格式給出一個 0 到 100 之間的分數。X 代表數字。如果用戶答案與理想答案意思相近或完全正確，請給予 90-100 分。如果方向正確但不夠精準，給予 60-80 分。如果方向錯誤，給予低分。
+2. **評語**: 在分數換行後，直接用一兩句簡潔的話點評用戶的答案，解釋為什麼它貼切或不夠貼切。絕對不要包含「評語」這個詞或任何標題。
+3. **分隔符與範例**: 在評語後換行輸出 "---"，然後提供理想答案，並可選擇性地附上一句簡短的解釋。例如：「${currentQuestionData.answer}：這個詞精準地捕捉了...的精髓。」`;
+        }
+    };
+    prompt = feedbackPrompts[currentTool]();
+    const feedbackText = await getApiResponse(prompt, 0.5);
+    renderFeedback(feedbackText);
+}
+function renderFeedback(feedbackText) {
+    UIManager.hideLoader(ui.feedbackLoader);
+    const scoreMatch = feedbackText.match(/\[SCORE:\s*(\d+)\s*\]/);
+    const score = scoreMatch ? scoreMatch[1] : null;
+    const feedbackWithoutScore = feedbackText.replace(/\[SCORE:\s*(\d+)\s*\]\n?/, '').trim();
+    const parts = feedbackWithoutScore.split('---');
+    const critique = parts[0]?.trim();
+    const exampleRaw = parts[1]?.trim();
+    let finalHtml = '';
+    if (score) {
+        finalHtml += `
+            <div class="feedback-section">
+                <h2 class="feedback-heading">分數</h2>
+                <div class="score-display-wrapper">
+                    <div class="feedback-score-circle"><span>${score}</span></div>
+                </div>
+            </div>`;
+    }
+    if (critique) {
+        finalHtml += `
+            <div class="feedback-section">
+                <h2 class="feedback-heading">評語</h2>
+                <p class="feedback-content">${critique}</p>
+            </div>`;
+    }
+    if (exampleRaw) {
+        let exampleHtml;
+        if (currentTool === 'elucidation') {
+            const exampleSteps = exampleRaw.split('\n').map(step => step.trim()).filter(step => step);
+            exampleHtml = '<ol class="feedback-example-steps">';
+            exampleSteps.forEach(step => {
+                const cleanStep = step.replace(/^\d+\.\s*/, '');
+                exampleHtml += `<li>${cleanStep}</li>`;
+            });
+            exampleHtml += '</ol>';
+        } else {
+            exampleHtml = `<p class="feedback-content">${exampleRaw}</p>`;
+        }
+        finalHtml += `
+            <div class="feedback-section">
+                <h2 class="feedback-heading">範例</h2>
+                ${exampleHtml}
+            </div>`;
+    }
+    if (finalHtml.trim() === '') {
+        ui.feedbackContainer.innerHTML = `<div class="feedback-section"><p class="feedback-content">抱歉，回饋解析失敗，請稍後再試。</p></div>`;
+    } else {
+        ui.feedbackContainer.innerHTML = finalHtml;
+    }
+    ui.feedbackContainer.classList.add('visible');
+    if (isCustomMode) {
+        ui.newCustomQuestionWrapper.classList.remove('hidden');
+    } else {
+        ui.nextQuestionWrapper.classList.remove('hidden');
+    }
+}
+// --- 闡釋: 自訂模式相關 ---
+function toggleInputMode() {
+    isCustomMode = !isCustomMode;
+    UIManager.resetUI();
+    if (isCustomMode) {
+        ui.questionTypeSelectorWrapper.classList.add('hidden');
+        ui.refreshQuestionButton.classList.add('hidden');
+        ui.questionContainer.setAttribute('contenteditable', 'true');
+        ui.questionContainer.textContent = ''; 
+        ui.questionContainer.style.opacity = 1;
+        ui.answerContainer.classList.remove('hidden');
+        ui.questionContainer.focus();
+    } else {
+        currentTool = 'elucidation';
+        ui.toolButtons.forEach(btn => btn.classList.remove('active'));
+        document.querySelector('.tool-button[data-tool="elucidation"]').classList.add('active');
+        UIManager.updateToolUI();
+        getNewQuestion();
+    }
+}
+function startNewCustomQuestion() {
+    UIManager.resetUI();
+    ui.questionContainer.setAttribute('contenteditable', 'true');
+    ui.questionContainer.style.opacity = 1;
+    ui.answerContainer.classList.remove('hidden');
+    ui.questionContainer.focus();
+}
+// --- 事件監聽 ---
+ui.submitButton.addEventListener('click', getFeedback);
+
+ui.nextQuestionButton.addEventListener('click', () => getNewQuestion(false));
+
+// 替換這一行 ↓
+// ui.refreshQuestionButton.addEventListener('click', () => getNewQuestion(true));
+// 改為以下防連點版本 ↓
+let isRefreshing = false;
+ui.refreshQuestionButton.addEventListener('click', () => {
+    if (isRefreshing) return;
+    isRefreshing = true;
+    getNewQuestion(true);
+    setTimeout(() => { isRefreshing = false; }, 2000); // 2秒冷卻
+});
+
+ui.modeToggleButton.addEventListener('click', toggleInputMode);
+ui.newCustomQuestionButton.addEventListener('click', startNewCustomQuestion);
+ui.toolButtons.forEach(button => {
+    button.addEventListener('click', () => {
+        switchTool(button.dataset.tool);
+    });
+});
+ui.typeButtons.forEach(button => {
+    button.addEventListener('click', () => {
+        if (!button.classList.contains('active')) {
+            ui.typeButtons.forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+            getNewQuestion(false);
+        }
+    });
+});
+// --- 頁面首次加載 ---
+document.addEventListener('DOMContentLoaded', () => {
+    const defaultTool = 'induction';
+    currentTool = defaultTool;
+    document.querySelector(`.tool-button[data-tool="${defaultTool}"]`).classList.add('active');
+    UIManager.updateToolUI();
+});
+</script>
+
+
+<!-- === 1. Firebase SDK 引入 === -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+
+<!-- === 2. Firebase 初始化、持久化與 Token 注入器 === -->
+<script>
+    // 1. 定義 Firebase 設定
+    const firebaseConfig = {
+        apiKey: "AIzaSyBgwrgn2m343mRJb0WjzUhteiospegXhvI",
+        authDomain: "sansidata.firebaseapp.com",
+        projectId: "sansidata",
+        storageBucket: "sansidata.firebasestorage.app",
+        messagingSenderId: "580288358575",
+        appId: "1:580288358575:web:35dcf4e79bcef530de4c5a",
+        databaseURL: "https://sansidata-default-rtdb.firebaseio.com"
+    };
+
+    // 2. 初始化 Firebase
+    if (typeof firebase !== 'undefined' && !firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
+    
+    var database = firebase.database();
+    var auth = firebase.auth();
+
+    // 3. 啟動監聽與同步邏輯 (持久化)
+    document.addEventListener('DOMContentLoaded', function() {
+        if (auth) {
+            auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+            .then(() => {
+                auth.onAuthStateChanged(async (user) => {
+                    const s = JSON.parse(localStorage.getItem('studentProfile'));
+
+                    if (user) {
+                        console.log("%c[ZiZhen] 🟢 偵測到有效登入: " + user.email, "color: green; font-weight: bold;");
+                        if (!s) {
+                            console.log("[ZiZhen] 正在同步雲端身份...");
+                            try {
+                                const emailKey = btoa(user.email);
+                                const snapshot = await database.ref('email_mapping/' + emailKey).once('value');
+                                const profile = snapshot.val();
+                                if (profile) {
+                                    localStorage.setItem('studentProfile', JSON.stringify(profile));
+                                    // window.location.reload(); // 可選：若需要刷新 UI 可取消註解
+                                }
+                            } catch (e) { console.error("同步失敗:", e); }
+                        }
+                    } else {
+                        console.log("%c[ZiZhen] ⚪ 未偵測到登入", "color: gray;");
+                        if (s) {
+                            console.warn("[ZiZhen] ⚠️ 發現失效的身份資料，執行安全清除...");
+                            localStorage.removeItem('studentProfile');
+                        }
+                    }
+                });
+            })
+            .catch((error) => console.error("[ZiZhen] 持久化設定失敗:", error));
+        }
+    });
+
+    // 4. [核心] 全域請求攔截器 (Auto Token Injector)
+    (function() {
+        // 防止與嚴格鎖衝突，這裡針對後端 API 進行二次攔截
+        const originalFetch = window.fetch; 
+        const TARGET_URL_PART = "script.google.com"; // 攔截發往 GAS 的請求
+
+        window.fetch = async function(url, options) {
+            // 檢查是否為發往後端的 POST 請求
+            if (typeof url === 'string' && url.includes(TARGET_URL_PART) && options && options.method === 'POST') {
+                
+                console.log("[TokenInjector] 偵測到後端請求，準備注入 Token...");
+
+                const user = await new Promise((resolve) => {
+                    if (firebase.auth().currentUser) {
+                        resolve(firebase.auth().currentUser);
+                    } else {
+                        const unsubscribe = firebase.auth().onAuthStateChanged(u => {
+                            unsubscribe();
+                            resolve(u);
+                        });
+                        // 設定 2 秒超時，避免無限等待
+                        setTimeout(() => resolve(null), 2000);
+                    }
+                });
+
+                if (user) {
+                    try {
+                        const token = await user.getIdToken(true);
+                        // GAS 接收的 body 必須是 JSON 格式
+                        let bodyData = {};
+                        try {
+                             bodyData = JSON.parse(options.body);
+                        } catch(e) {
+                            console.warn("[TokenInjector] Body 非 JSON，嘗試強制封裝");
+                            bodyData = { originalBody: options.body };
+                        }
+                        
+                        bodyData.token = token; // ★ 強制注入 Token
+                        options.body = JSON.stringify(bodyData);
+                        console.log("[TokenInjector] Token 注入成功！");
+                    } catch (e) {
+                        console.error("[TokenInjector] Token 獲取失敗:", e);
+                    }
+                } else {
+                    console.warn("[TokenInjector] 用戶未登入，無法注入 Token (後端可能會拒絕請求)");
+                    // 這裡不需阻擋，因為 GAS 後端會回傳 Unauthorized 錯誤，前端 UI 會顯示錯誤訊息
+                }
+            }
+            return originalFetch(url, options);
+        };
+    })();
+</script>
+
+
+<!-- === [還原版] 神思大數據收集模組 (30秒=1分鐘邏輯) === -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    let totalSeconds = 0;
+    let timerInterval = null;
+
+    // 1. 獲取日期路徑
+    function getDateParts() {
+        const now = new Date();
+        const y = String(now.getFullYear());
+        const m = String(now.getMonth() + 1).padStart(2, '0');
+        const d = String(now.getDate()).padStart(2, '0');
+        return { y, m, d };
+    }
+
+    // 2. 獲取身份
+    function getIdentity() {
+        const rawProfile = localStorage.getItem('studentProfile');
+        let s = null;
+        try { if(rawProfile) s = JSON.parse(rawProfile); } catch (e) {}
+
+        if (s && s.grade && s.class) {
+            const safeName = s.name.replace(/[.#$/[\]]/g, '_'); 
+            return { type: 'student', id: s.uid || `stu_${s.grade}${s.class}_${safeName}`, grade: s.grade, class: s.class };
+        } else {
+            let guestID = localStorage.getItem('sansi_guest_uuid');
+            if (!guestID) {
+                guestID = 'guest_' + Math.random().toString(36).substr(2, 9);
+                localStorage.setItem('sansi_guest_uuid', guestID);
+            }
+            return { type: 'guest', id: guestID, grade: 'Guest', class: 'Visitor' };
+        }
+    }
+
+// === 3. 記錄訪問 (Log Visit) - 高效分流版 ===
+// === 3. 記錄訪問 (Log Visit) - 高效分流版 (含 stats_school 邏輯) ===
+async function logVisitOnce() {
+    if (typeof firebase === 'undefined' || !database) return;
+    
+    const { y, m, d } = getDateParts();
+    const identity = getIdentity();
+    const uid = identity.id;
+
+    // Session 鎖
+    const sessionKey = `sansi_visit_logged_${y}${m}${d}_${uid}`;
+    if (sessionStorage.getItem(sessionKey)) return; 
+
+    // 檢查 Tracking (判斷是否為今日首次)
+    const trackingRef = database.ref(`stats_tracking/${y}/${m}/${d}/unique_users/${uid}`);
+    
+    try {
+        const snap = await trackingRef.once('value');
+        const isFirstTimeToday = !snap.exists();
+
+        const updates = {};
+        const increment1 = firebase.database.ServerValue.increment(1);
+        
+        // 1. 全校總覽路徑 (含訪客) - stats_global
+        const globalPath = `stats_global/${y}/${m}/${d}`;
+        updates[`${globalPath}/visits`] = increment1;
+
+        // ★★★ 新增：純學校路徑 (僅學生) - stats_school ★★★
+        const schoolPath = `stats_school/${y}/${m}/${d}`;
+
+        if (identity.type === 'student') {
+            const classKey = `${identity.grade}${identity.class}`;
+            const studentKey = identity.id.split('_').pop(); // 名字
+
+            // 學生同時寫入 stats_school
+            updates[`${schoolPath}/visits`] = increment1;
+
+            // 2. 班級路徑 (stats_classes/6A/YYYY/MM/DD)
+            const classPath = `stats_classes/${classKey}/${y}/${m}/${d}`;
+            updates[`${classPath}/visits`] = increment1;
+
+            // 3. 學生路徑 (stats_students/6A/陳大文/YYYY/MM/DD)
+            const studentPath = `stats_students/${classKey}/${studentKey}/${y}/${m}/${d}`;
+            updates[`${studentPath}/visits`] = increment1;
+
+            if (isFirstTimeToday) {
+                updates[`stats_tracking/${y}/${m}/${d}/unique_users/${uid}`] = true;
+                
+                // 更新 global unique
+                updates[`${globalPath}/unique`] = increment1;
+                
+                // ★ 更新 school unique (僅學生)
+                updates[`${schoolPath}/unique`] = increment1;
+                
+                // 更新 class unique
+                updates[`${classPath}/unique`] = increment1;
+            }
+        } else {
+            // 訪客 (只寫入 global，不寫入 school)
+            if (isFirstTimeToday) {
+                updates[`stats_tracking/${y}/${m}/${d}/unique_users/${uid}`] = true;
+                updates[`${globalPath}/unique`] = increment1;
+            }
+        }
+
+        await database.ref().update(updates);
+        sessionStorage.setItem(sessionKey, 'true');
+        console.log("📍 [Stats] 訪問計數已分流上傳 (含 stats_school)");
+
+    } catch (e) {
+        console.error("Stats Error:", e);
+    }
+}
+
+// 4. 上傳 1 分鐘 (分流版)
+// 4. 上傳 1 分鐘 (分流版 - 除錯模式)
+function uploadOneMinute() {
+    if (typeof firebase === 'undefined' || !database) return;
+    
+    logVisitOnce(); 
+
+    const { y, m, d } = getDateParts();
+    const identity = getIdentity();
+    
+    // 獲取學生名稱 Key (防呆)
+    const studentKey = identity.id.includes('_') ? identity.id.split('_').pop() : identity.name; 
+    
+    const updates = {};
+    const increment60 = firebase.database.ServerValue.increment(60);
+
+    // 1. 全域 (Global)
+    updates[`stats_global/${y}/${m}/${d}/duration`] = increment60;
+
+    // ★★★ 2. 學生身份判斷 ★★★
+    if (identity.type === 'student') {
+        const classKey = `${identity.grade}${identity.class}`;
+
+        // Path A: 全校 (這是您缺少的)
+        const pathSchool = `stats_school/${y}/${m}/${d}/duration`;
+        updates[pathSchool] = increment60;
+
+        // Path B: 班級
+        const pathClass = `stats_classes/${classKey}/${y}/${m}/${d}/duration`;
+        updates[pathClass] = increment60;
+        
+        // Path C: 個人
+        const pathStudent = `stats_students/${classKey}/${studentKey}/${y}/${m}/${d}/duration`;
+        updates[pathStudent] = increment60;
+
+        // ★ 除錯訊息：請在 F12 Console 查看是否出現此行 ★
+        console.log(`[Stats] 正在上傳時長... 目標包含: ${pathSchool}`);
+    } else {
+        console.log("[Stats] 當前為訪客身份，不寫入 stats_school");
+    }
+
+    database.ref().update(updates)
+        .then(() => console.log("✅ [Stats] 時長上傳成功"))
+        .catch(e => console.error("❌ [Stats] 上傳失敗 (請檢查 Rules):", e));
+}
+    // 5. 計時器啟動 (還原你的邏輯)
+    function startTimer() {
+        if (timerInterval) return;
+        console.log("▶️ [Stats] 計時器啟動");
+        
+        timerInterval = setInterval(() => {
+            totalSeconds++;
+            
+            // ★★★ 你的原始邏輯 ★★★
+            // 30秒 -> 傳送 (算1分鐘)
+            // 90秒 (1分30秒) -> 傳送 (算2分鐘)
+            // 150秒 (2分30秒) -> 傳送 (算3分鐘)
+            if (totalSeconds === 30 || (totalSeconds > 30 && (totalSeconds - 30) % 60 === 0)) {
+                uploadOneMinute();
+            }
+        }, 1000);
+    }
+
+    function pauseTimer() {
+        if (timerInterval) {
+            clearInterval(timerInterval);
+            timerInterval = null;
+            console.log("⏸️ [Stats] 暫停計時 (當前累計: " + totalSeconds + "s)");
+            // 注意：這裡不再有 uploadDuration(unsaved)，未滿的部分直接捨棄
+        }
+    }
+
+    // 延遲啟動
+    setTimeout(() => {
+        logVisitOnce();
+        startTimer();
+    }, 3000);
+
+    // 偵測頁面狀態
+    document.addEventListener('visibilitychange', function() {
+        if (document.visibilityState === 'hidden') pauseTimer();
+        else startTimer();
+    });
+    
+    window.forceLogVisit = logVisitOnce;
+});
+</script>
+
+    <script>
+
+
+
+// ★★★★★ 請將代碼貼在這裡 (原本的內容之下，script 結束標籤之上) ★★★★★
+
+    // =======================================================
+    // === [新增] 在線狀態自動報到系統 (Presence System) ===
+    // =======================================================
+    function initPresenceSystem() {
+        // 延遲執行，確保 Firebase 已初始化且本地存儲已讀取
+        setTimeout(() => {
+            if (typeof database === 'undefined') return;
+
+            // 1. 監聽連線狀態
+            const connectedRef = database.ref('.info/connected');
+
+            connectedRef.on('value', (snap) => {
+                if (snap.val() === true) {
+                    // === 連線成功，準備資料 ===
+                    
+                    // 獲取用戶資料
+                    const s = JSON.parse(localStorage.getItem('studentProfile'));
+                    let myUid = "";
+                    let userData = {};
+
+                    // A. 判斷身分
+                    if (s && s.name) {
+                        // --- 已登入用戶 (學生/老師/特許) ---
+                        const user = firebase.auth().currentUser;
+                        myUid = user ? user.uid : `stu_${s.grade}${s.class}_${s.name}`;
+                        
+                        // 準備寫入的資料
+                        userData = {
+                            name: s.name,
+                            grade: s.grade,
+                            class: s.class,
+                            timestamp: firebase.database.ServerValue.TIMESTAMP,
+                            device: /Mobile|Android/i.test(navigator.userAgent) ? 'Mobile' : 'Desktop'
+                        };
+                    } else {
+                        // --- 訪客 ---
+                        let guestId = localStorage.getItem('sansi_guest_uuid');
+                        if (!guestId) {
+                            guestId = 'guest_' + Math.random().toString(36).substr(2, 9);
+                            localStorage.setItem('sansi_guest_uuid', guestId);
+                        }
+                        myUid = guestId;
+
+                        userData = {
+                            name: "訪客",
+                            grade: "Guest",
+                            class: "Visitor",
+                            timestamp: firebase.database.ServerValue.TIMESTAMP
+                        };
+                    }
+
+                    // B. 執行 Firebase 動作
+                    const myPresenceRef = database.ref(`online_users/${myUid}`);
+
+                    // 關鍵指令：當客戶端斷線時，自動刪除這筆資料
+                    myPresenceRef.onDisconnect().remove().then(() => {
+                        // 斷線指令設定成功後，寫入當前狀態
+                        myPresenceRef.set(userData);
+                    });
+                }
+            });
+        }, 2000); // 延遲 2 秒啟動
+    }
+
+    // 啟動報到系統
+    document.addEventListener('DOMContentLoaded', initPresenceSystem);
+
+
+
+	
+</script>
+
+    
+</body>
+</html>

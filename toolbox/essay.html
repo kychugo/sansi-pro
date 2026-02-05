@@ -1,0 +1,1349 @@
+
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>翻水．議</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;600&family=Zen+Kaku+Gothic+New:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+       :root {
+            /* 新的議論文版配色方案：專業藍灰色調 */
+            --bg-color: #ECEFF1; /* 淡雅的冷灰色背景 */
+            --text-color: #263238; /* 深藍灰色文字，清晰易讀 */
+            --primary-color: #37474F; /* 主色調：沉穩的深藍灰 */
+            --secondary-color: #546E7A; /* 次色調：較柔和的藍灰 */
+            --border-color: #B0BEC5; /* 邊框顏色 */
+            --accent-color: #0288D1; /* 強調色：明亮的專業藍 */
+            --font-serif: 'Noto Serif JP', serif;
+            --font-sans: 'Zen Kaku Gothic New', sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.8;
+            font-weight: 300;
+            overflow-x: hidden;
+            background-image: url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23CFD8DC" fill-opacity="0.2"%3E%3Cpath d="M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem 3rem;
+        }
+
+        header {
+            text-align: center;
+            padding: 2rem 0 3rem 0;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 3rem;
+        }
+
+        header h1 {
+            font-family: var(--font-serif);
+            font-size: 2.8rem;
+            font-weight: 400;
+            color: var(--primary-color);
+            letter-spacing: 0.2em;
+        }
+
+        header p {
+            font-size: 1rem;
+            color: var(--secondary-color);
+            margin-top: 0.5rem;
+            letter-spacing: 0.1em;
+        }
+
+        main {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 4rem;
+            flex-grow: 1;
+        }
+
+        .controls {
+            padding-right: 2rem;
+            border-right: 1px solid var(--border-color);
+        }
+
+        .control-group {
+            margin-bottom: 2.5rem;
+        }
+
+        .control-group label {
+            display: block;
+            margin-bottom: 1rem;
+            font-family: var(--font-serif);
+            font-size: 1.2rem;
+            font-weight: 400;
+            color: var(--primary-color);
+        }
+
+        .control-group input[type="text"],
+        .control-group textarea {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 1px solid var(--border-color);
+            background-color: transparent;
+            border-radius: 4px;
+            font-family: var(--font-sans);
+            font-size: 1rem;
+            color: var(--text-color);
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .control-group input[type="text"]:focus,
+        .control-group textarea:focus {
+          outline: none;
+          border-color: var(--accent-color);
+          box-shadow: 0 0 5px rgba(2, 136, 209, 0.25);
+        }
+
+        .control-group textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .word-count-control {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .word-count-btn {
+            background: none;
+            border: 1px solid var(--border-color);
+            color: var(--primary-color);
+            width: 30px;
+            height: 30px;
+            font-size: 1.5rem;
+            line-height: 26px;
+            text-align: center;
+            cursor: pointer;
+            border-radius: 50%;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .word-count-btn:hover {
+            background-color: var(--primary-color);
+            color: var(--bg-color);
+        }
+
+        #word-count-display {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: var(--text-color);
+            background-color: #FFFFFF;
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            min-width: 80px;
+            text-align: center;
+        }
+
+        .style-selector {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .style-selector label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            padding: 0.6rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+        
+        .style-selector input[type="radio"] {
+            display: none;
+        }
+
+        .style-selector input[type="radio"]:checked + span {
+            font-weight: 500;
+        }
+
+        .style-selector label:has(input:checked) {
+             background-color: var(--accent-color);
+             border-color: var(--accent-color);
+             color: #FFFFFF;
+        }
+
+        .generate-btn {
+            width: 100%;
+            padding: 1rem;
+            margin-top: 1.5rem;
+            font-family: var(--font-serif);
+            font-size: 1.2rem;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            background-color: var(--primary-color);
+            color: var(--bg-color);
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .generate-btn:hover {
+            background-color: #263238;
+        }
+        
+        .generate-btn:disabled {
+            background-color: var(--secondary-color);
+            cursor: not-allowed;
+        }
+
+        .output {
+            position: relative;
+        }
+        
+        .output-toolbar {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.5rem 0;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        #output-word-count {
+            font-size: 0.9rem;
+            color: var(--secondary-color);
+            font-family: var(--font-sans);
+        }
+
+        .icon-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-color);
+        }
+
+        .icon-btn:hover {
+            background-color: #CFD8DC;
+        }
+
+        .icon-btn svg {
+            width: 20px;
+            height: 20px;
+            fill: var(--primary-color);
+        }
+
+        .icon-btn .copy-feedback {
+            font-size: 0.9rem;
+            font-family: var(--font-sans);
+        }
+
+        #essay-placeholder, #generated-essay {
+            padding: 2rem;
+            background-color: #FFFFFF;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            min-height: 60vh;
+            white-space: pre-wrap;
+            font-family: var(--font-serif);
+            font-size: 1.1rem;
+            line-height: 2.2;
+            letter-spacing: 0.05em;
+        }
+        
+        #essay-placeholder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--secondary-color);
+            font-size: 1.5rem;
+        }
+
+        .loader {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border: 5px solid var(--bg-color);
+            border-top: 5px solid var(--accent-color);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+        
+        @media (max-width: 900px) {
+            main {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+            .controls {
+                border-right: none;
+                border-bottom: 1px solid var(--border-color);
+                padding-right: 0;
+                padding-bottom: 2rem;
+            }
+            .container {
+                padding: 1.5rem;
+            }
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- 議論文寫作指令 (對用家隱藏) -->
+    <div id="argumentative-prompt" style="display: none;"><pre>
+你是一個專業的DSE中文議論文作家。請根據以下完整指令生成高質量的議論文：
+[目標] 請根據以下所有詳細要求，根據《論得失》的範文精髓，生成一篇完整的、具有深度和說服力、約1300個中文字符的DSE議論文。文章須緊扣給定題目，內容深刻、論證嚴謹，並嚴格遵守所有議論文寫作規範。 
+
+[文章類型] 議論文
+
+[核心結構：前中後三段式結構] 你的文章必須清晰地呈現「前、中、後」三大結構部分，並確保每個部分都與文章主題緊密扣聯。
+
+主題： [請在此處填入您希望探討的議論文主題，例如「談論得失」、「面對不同意見，哪種態度較為理想？」、「談虛偽」、「談憤怒」等]
+
+議論文結構與內容要求：
+1.
+開端 (「前」)：1
+◦
+概念引入及背景： 從普遍現象、人類本質、或相關概念的背景出發，為主題奠定基礎。這部分應能引起讀者思考，並點出主題的重要性或爭議性1。
+◦
+現實觀察/例子： 結合當代社會現象、歷史事例、或生活中的具體例子，具體化主題在現實中的表現1。
+◦
+觀點衝突/駁論鋪墊： 點出針對主題的常見觀點、誤解，或是不同立場的衝突，為後文的深入論述和反駁作鋪墊1。
+◦
+參考《論得失》的開頭寫法： 該範文從「每個人呱呱墮地時，都是手空空，無一物」的普遍人性引入，隨後帶出現實中追名逐利的現象，並隱含對人類未汲取歷史教訓的批判，為全文的辯證思考埋下伏筆。
+2.
+主體 (「中」)：
+◦
+分層論述： 採用「分類論述」或「分拆論述」的方式，多角度、有層次地深入剖析主題。請至少包含兩個主要論點，每個論點獨立成段，闡述一個核心子觀點。
+◦
+三何論述 (WHAT, WHY, HOW)： 每個論點都應清晰闡明「是什麼」（WHAT，該觀點的內容）、探討「為什麼」（WHY，該觀點成立的原因或其影響）以及提供相關的「如何體現/影響」（HOW，具體例子或詳細說明）的例證或分析，以增強論證的說服力。
+◦
+舉例論證： 運用歷史人物、文學典故、哲學思想、名言警句或具體事件作為例子，有效支撐論點。論證應具體、詳盡，並與論點緊密結合。例子數量不宜太多，論證必須深入。
+◦
+參考《論得失》的主體寫法：
+▪
+論點一 (執著於得失的愚昧)： 以「塵寰的一切名利都不過是虛無的鏡花水月」為核心，運用秦王、曹孟德等歷史人物的功績最終歸於虛無的例子，有力論證了執著於一時得失的無益與愚昧。此處體現了對「得」的「分拆論述」。
+▪
+論點二 (得失的相對性與辯證)： 以「得與失只是相對的概念，任何執著都是狭隘的偏見」為核心，運用塞翁失馬、樗樹（無用之用）、杜甫（「詩窮而後工」）等正面例子，闡述表面之「失」如何成就深層之「得」。同時，也運用楊修（恃才放曠）和老子（「兵強則滅」）的反面例子，說明表面之「得」亦可能導致「失」。此處展現了精妙的「分類論述」與「三何論述」。
+3.
+結尾 (「後」)：1
+◦
+例外情況/其他視角： 探討主題可能存在的例外情況，或從不同的維度提供補充性的看法，使論證更全面、嚴謹，避免絕對化1。
+◦
+方法/策略： 針對主題提出實際的行動建議、轉變觀念的方法、或啟示，為讀者提供解決問題的思路或人生智慧1。
+◦
+昇華主旨： 總結全文，並將主題昇華到更深層次的哲學、文化或人生思考，引發讀者共鳴，使文章餘味悠長。可以採用富有意象的比喻或發人深省的提問1。
+◦
+參考《論得失》的結尾寫法：
+▪
+方法/哲學思考： 以蘇軾為例，闡述「參悟變幻原是永恆」是看透得失的關鍵，並點出「與變幻常在」的豁達境界。
+▪
+其他視角/方法： 考慮到並非人人皆有超然悟性，範文提供了「相信命運」和「努力奮鬥」這兩種現實可行的方法，並引用徐志摩、泰戈爾、村上春樹的語錄加以佐證。
+▪
+呼應及昇華： 最後以「花必然零落，但化作春泥更護花」的詩意比喻，將「今日之失，便是明日之得」的辯證關係推向高潮，並以提問「你，覺悟了嗎？」作結，引人深思。
+寫作風格要求：
+•
+語言： 繁體中文，以白話為主，不要寫得像文言文一樣，用詞精煉，富有文學性和哲理性，可適當加入比喻。
+•
+論證： 邏輯清晰，層次分明，說理透徹，具有強烈說服力。
+•
+深度： 不僅停留在表面現象，能深入挖掘主題背後的文化、歷史、哲學內涵，展現批判性思維。
+
+[議論文範例參考] 請參考以下優秀議論文的風格和技巧：
+
+《論得失》
+每個人呱呱墮地時，都是手空空，無一物。然而，隨著人的年紀漸長，便開始追名逐利，講究「美酒跑車相機金錶」，到了「秒速捉得緊了，而皮膚竟偷偷鬆了」的時候，人才不禁幡然大悟：原來啊，人類從來沒有汲取歷史的教訓，仍然無法從名利的樊籠逃脫出去。
+其實，塵寰的一切名利都不過是虛無的鏡花水月，窮其一生汲汲營營只會徒勞無功。試憶想，多少風流人物的功績都在歷史洪流的沖刷下蕩然無存？秦王掃六合，虎視何雄哉，如今卻只賸得金棺寒灰，以及長埋在驪山的深土裏默然懺悔的靈魂；曹孟德亦雄霸一時，橫槊賦詩，卻只換來了汗青上一筆「奸雄」。即使功業多麼赫然，多麼輝煌，卻依然敵不過時間的淘洗，所有成就都終將恍惚如虛幻的鏡花水月，可見執著於得失是何其愚昧，何其不智。
+況且，得與失只是相對的概念，任何執著都是狹隘的偏見。所謂「福兮禍之所藏，禍兮福之所倚」，一如塞翁失馬，焉知非福？《逍遙遊》中臃腫彎曲的樗樹，立於塗而匠者不顧，但正因為其「無用」，才能成就其「用」，得以全養天年。表面是「失」，但於樗樹而言，卻可稱得上「得」。又如杜甫，一生懷才不遇，顛沛流離，仿佛是一沙鷗恆年飄泊於天地間，但宋代歐陽修曾謂「詩窮而後工」，指文人窮困不得志，才能寫出動人肺腑之作。後人尊杜甫為「詩史」和「詩聖」，然而若天不挫其銳志，不教他勞筋骨、餓體膚，即使杜甫能妙筆生花，有翻水成詩之才，亦不免淪為無病呻吟，日日暢詠風花雪月的小詩人，又如何寫得出《北征》等悲天憫人、震古爍今之作？反之，世人眼中的「得」全然是「得」嗎？不然。楊修才華橫溢，卻因此恃才放曠，不得善終。老子又曰：「兵強則滅。」軍隊強大，卻會成為眾矢之的，遭到圍殲。可見，得與失是一體兩面，執著於其中一者，都無異於管中窺豹，瞎子摸象，必不得見事物的真象和全貌。
+蓋將自其變者而觀之，則天地曾不能以一瞬；自其不變者而觀之，則物與我皆無盡也，而又何羨乎？
+蘇軾的《前赤壁賦》或可為本文落下文學性和哲學性的註腳。要真正看透得失，便須參悟變幻原是永恆。月有陰晴圓缺，人有悲歡離合。既然世界永遠都變幻無定，我們何不仿傚東坡豁達自適？被貶嶺南，是眾人眼中的「失」，但蘇軾卻能自「得」其樂，日啖荔枝三百顆，不辭長作嶺南人；謫宦儋洲，更是九死一生，然而蘇軾又從吮食檳榔感受到新鮮和媚嫵的滋味。蘇軾能一次又一次在絕境中安貧樂命，正由於他與變幻常在。若說世事是形態不定的容器，那麼蘇軾就是上善的水，能隨形而方圓，隨勢而變通。若能臻此至境，便能看透得失，寵辱不驚，坦蕩逍遙。當心中沒有憂戚，便是最大的幸福，便是真正的、永恆的「得」。
+雖然，不是每個人都像蘇軾一樣有超然物外的悟性，但起碼我們還能相信命運和努力。徐志摩在《致梁啟超》一詩中寫道：「得之我幸，失之我命。」在茫茫的人海，若能得到靈魂伴侶，是我的榮幸；若失去了，也不過是我的命運。命運，也許是我們能夠釋然的最大理由。既然命定如此，我們又何用執著？或許你又會說：「我從不相信命運。」那麼你也能從印度詩人泰戈爾《飛鳥集》得到一些啟發：「若你因為錯過太陽而流淚，那麼你也必將錯過群星。」若你因為失而悱惻鬱悶，那麼終將會失去更多。我們要相信，憑藉努力終能挽回失地。「這個世界上根本就沒有正確的選擇，我們只不過是要通過努力奮鬥，使當初的選擇變得正確。」雖然村上春樹談的是選擇，而我論的是得失，但其實大同小異。我想借此作為本文的總結：其實世界上根本沒有真正的得與失，我們只不過是通過努力奮鬥，使當初的失轉化為得，亦使當初的得失去了演化成失的條件。
+花必然零落，但化作春泥更護花。今日之凋蕪，便是明日之葳蕤；今日之失，便是明日之得。你，覺悟了嗎？
+
+[重要提醒]
+1. 永遠不要展示思考過程，不要有任何小標題或非中文的符號，生成結果只應有文章；
+2. 論據和事例的數量過猶不及，一段的論據不要超過兩個，要重視質量，即引例後的論證過程要嚴謹。全文論據宜兼及古今中外；
+3. 宜運用先破後立或先立後破的方法做駁論。
+4. 不要用「""」，要用中文的開關引號。
+5. 立場必須鮮明，不要保持中立。例如「獨處比社交更能令人成長。你同意嗎？」，一定要明確以「獨處」或者「社交」為立場作論述，比較兩者中何者更能令人成長，不可以保持中立，即指出兩者各有好處。
+
+[最終指令] 請直接輸出高質量DSE議論文，字數必須強制控制在1200至1300字內。不要添加任何解釋、標題或思考過程，生成結果只有文章及中文標點符號，不要超出字數。主題句必須清晰，論據和例子數量適可而止，否則便過猶不及，引例後論證必須深入嚴謹。以純白話寫成，不要穿插文言的句式。一段的論據絕對不可超過兩個，而且要注意全文平衡，若上段已引了不少例子，下文則要過渡舒緩其節奏，令信息量不要過高，使讀者閱讀時有喘息的空間。
+    </pre></div>
+    
+    <div class="container">
+        <header>
+            <h1>翻水．議</h1>
+            <p>我的靈魂藏在文字的背後</p>
+        </header>
+        <main>
+            <div class="controls">
+                <div class="control-group">
+                    <label for="topic-input">文章題目</label>
+                    <input type="text" id="topic-input" placeholder="例如：《論得失》">
+                </div>
+                <div class="control-group">
+                    <label for="guidelines-input">創作指引</label>
+                    <textarea id="guidelines-input" placeholder="請輸入文章的風格、論點大綱或關鍵詞..."></textarea>
+                </div>
+                <div class="control-group">
+                    <label>預設字數</label>
+                    <div class="word-count-control">
+                        <button class="word-count-btn" id="decrease-words">-</button>
+                        <span id="word-count-display">1500</span>
+                        <button class="word-count-btn" id="increase-words">+</button>
+                    </div>
+                </div>
+               <!-- ★★★ 請修改為以下內容 ★★★ -->
+<div class="control-group">
+    <label>選擇模型</label>
+    <div class="style-selector">
+        <label>
+            <!-- 魚木設定為 deepseek -->
+            <input type="radio" name="model" value="gemini" checked>
+            <span>魚木</span>
+        </label>
+        <label>
+            <!-- 水心設定為 gemini -->
+            <input type="radio" name="model" value="gemini">
+            <span>水心</span>
+        </label>
+    </div>
+</div>
+                <button class="generate-btn" id="generate-btn">生成文章</button>
+            </div>
+            <div class="output">
+                <div id="essay-placeholder">靜待靈感 ...</div>
+                <div id="output-toolbar" class="output-toolbar" style="display:none;">
+                    <span id="output-word-count"></span>
+                    <button id="copy-btn" class="icon-btn" title="複製全文"></button>
+                </div>
+                <div id="generated-essay" style="display:none;"></div>
+                <div id="loader" class="loader" style="display:none;"></div>
+            </div>
+        </main>
+    </div>
+
+
+    <script>
+
+        // ===============================================================
+// === [神思通用組件] 權限攔截器 & 莫蘭迪提示窗 (含登入連結) ===
+// ===============================================================
+(function() {
+    // 防止重複注入
+    if (window.SansiInterceptorLoaded) return;
+    window.SansiInterceptorLoaded = true;
+
+    // --- 1. 自動注入莫蘭迪 CSS ---
+    const style = document.createElement('style');
+    style.textContent = `
+        /* 莫蘭迪遮罩 */
+        .sansi-limit-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(253, 252, 248, 0.88); /* 米白高模糊 */
+            backdrop-filter: blur(6px);
+            z-index: 9999999; /* 最高層級 */
+            display: none; justify-content: center; align-items: center;
+            opacity: 0; transition: opacity 0.3s ease;
+        }
+        .sansi-limit-show { opacity: 1; }
+
+        /* 視窗卡片 */
+        .sansi-limit-card {
+            background: #fdfcf8;
+            border: 1px solid #e0ddd7;
+            border-radius: 16px;
+            padding: 30px 25px;
+            width: 90%; max-width: 380px;
+            box-shadow: 0 15px 40px rgba(141, 110, 99, 0.15);
+            text-align: center;
+            transform: translateY(20px);
+            transition: transform 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+            font-family: 'Noto Serif TC', serif;
+        }
+        .sansi-limit-show .sansi-limit-card { transform: translateY(0); }
+
+        /* 圖示與文字 */
+        .sansi-limit-icon { font-size: 3rem; color: #d69a92; margin-bottom: 15px; } /* 豆沙紅 */
+        .sansi-limit-title { color: #5d4037; font-size: 1.4rem; font-weight: bold; margin: 0 0 10px 0; }
+        .sansi-limit-desc { color: #888; font-size: 1rem; line-height: 1.6; margin-bottom: 25px; text-align: justify; }
+
+        /* 按鈕群組 */
+        .sansi-btn-group { display: flex; gap: 12px; margin-top: 20px; }
+
+        .sansi-limit-btn {
+            border: none; padding: 10px 0; border-radius: 50px;
+            font-size: 0.95rem; font-weight: bold; cursor: pointer;
+            transition: all 0.2s; font-family: 'Noto Serif TC', serif;
+            flex: 1; display: flex; align-items: center; justify-content: center; gap: 5px;
+            text-decoration: none;
+        }
+
+        /* 主按鈕 (前往登入) - 莫蘭迪綠 */
+        .btn-primary { 
+            background: #8fa398; color: white; 
+            box-shadow: 0 4px 12px rgba(143, 163, 152, 0.4);
+        }
+        .btn-primary:hover { background-color: #7d9186; transform: translateY(-2px); }
+
+        /* 次按鈕 (關閉) - 淺灰 */
+        .btn-secondary { 
+            background: #f0f0f0; color: #777; 
+        }
+        .btn-secondary:hover { background-color: #e5e5e5; }
+    `;
+    document.head.appendChild(style);
+
+    // --- 2. 自動注入 HTML (彈出視窗) ---
+    const modalHTML = `
+        <div id="sansiLimitModal" class="sansi-limit-overlay">
+            <div class="sansi-limit-card">
+                <div class="sansi-limit-icon">
+                    <i class="fas fa-user-lock"></i>
+                </div>
+                <div class="sansi-limit-title">需要登入</div>
+                <div class="sansi-limit-desc">
+                    訪客每日體驗額度已耗盡。<br>
+                    請前往「神思」主頁登入學校帳號，即可解鎖無限使用權限。
+                </div>
+                <div class="sansi-btn-group">
+                    <button class="sansi-limit-btn btn-secondary" onclick="closeSansiLimitModal()">
+                        稍後
+                    </button>
+                    <!-- 點擊直接跳轉至神思主頁 -->
+                    <button class="sansi-limit-btn btn-primary" onclick="window.location.href='https://kenchan20141.github.io/AIChinese/'">
+                        <i class="fas fa-sign-in-alt"></i> 前往登入
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    const div = document.createElement('div');
+    div.innerHTML = modalHTML;
+    document.body.appendChild(div);
+
+    // --- 3. 定義關閉視窗與清理函式 ---
+    window.closeSansiLimitModal = function() {
+        const modal = document.getElementById('sansiLimitModal');
+        if (modal) {
+            modal.classList.remove('sansi-limit-show');
+            setTimeout(() => { modal.style.display = 'none'; }, 300);
+            
+            // 自動嘗試關閉各種工具的 Loading 狀態，防止畫面卡死
+            if (typeof hideProgress === 'function') hideProgress(); // 題孳
+            if (typeof hideLoading === 'function') hideLoading();   // 翻水/寫作
+            
+            // 如果按鈕被禁用，嘗試解鎖 (針對通用按鈕 class)
+            const disabledBtns = document.querySelectorAll('button:disabled');
+            disabledBtns.forEach(btn => btn.disabled = false);
+        }
+    };
+
+    // --- 4. 攔截器核心邏輯 ---
+    const originalFetch = window.fetch;
+    
+    window.fetch = async function(url, options) {
+        // 僅攔截 AI 請求
+        if (typeof url === 'string' && url.includes('pollinations.ai')) {
+            
+            // A. 即時檢查登入狀態 (每次請求都會重新讀取，防止登出後仍能使用)
+            const s = localStorage.getItem('studentProfile');
+            
+            if (s) {
+                // 已登入：放行
+                return originalFetch(url, options);
+            }
+
+            // B. 未登入：檢查額度
+            const today = new Date().toLocaleDateString('zh-HK');
+            const toolName = document.title || "UnknownTool"; 
+            const storageKey = `sansi_guest_usage_${toolName}_${today}`;
+            
+            let currentCount = parseInt(localStorage.getItem(storageKey) || "0");
+
+            // C. 超過額度 -> 阻擋並彈窗
+            if (currentCount >= 1) {
+                // 顯示視窗
+                const modal = document.getElementById('sansiLimitModal');
+                modal.style.display = 'flex';
+                // 強制重繪以觸發過渡動畫
+                void modal.offsetWidth; 
+                modal.classList.add('sansi-limit-show');
+
+                // 回傳錯誤以中斷原本程式的執行
+                return Promise.reject(new Error("Guest Limit Exceeded"));
+            }
+
+            // D. 未超過 -> 記錄並放行
+            localStorage.setItem(storageKey, currentCount + 1);
+            console.log(`[訪客] ${toolName} 使用第 ${currentCount + 1} 次`);
+        }
+
+        return originalFetch(url, options);
+    };
+    
+    console.log("✅ 神思通用權限鎖 (含登入連結) 已啟動");
+})();
+</script>
+
+
+
+
+    
+   <script>
+        // 來自您的評分系統程式碼 (完全保留)
+        // 注意：這些函數主要用於構建發送給AI的指令，前端不會直接調用它們來顯示評分。
+        function displayFullCommentWithGrading(containerId, apiResponse, uniqueIdPrefix, fullTextContent) {
+
+            // 在更新innerHTML之前，先銷毀舊的圖表實例
+            const instanceName = `${uniqueIdPrefix}_radarChartInstance`;
+            if (window[instanceName]) {
+                window[instanceName].destroy();
+                window[instanceName] = null; // 清除變數引用
+            }
+
+            const resultContainer = document.getElementById(containerId);
+
+            const gradingMatch = apiResponse.match(/<grading_json>([\s\S]*?)<\/grading_json>/);
+            const critiqueMatch = apiResponse.match(/<critique>([\s\S]*?)<\/critique>/);
+            const suggestionsMatch = apiResponse.match(/<suggestions>([\s\S]*?)<\/suggestions>/);
+            const rewriteMatch = apiResponse.match(/<rewrite_example>([\s\S]*?)<\/rewrite_example>/);
+
+            let finalHTML = "<h3>陳SIR點評：</h3>";
+            let initialScores = {};
+
+            if (gradingMatch && gradingMatch[1]) {
+                const gradingJSON = gradingMatch[1].trim();
+                try {
+                    const scores = JSON.parse(gradingJSON);
+
+                    // === 【核心修訂：V8 版評分聯動邏輯】 ===
+                    if (scores.radar && scores.radar.扣題 !== undefined) {
+
+                        // 步驟一：獲取所有從 AI 回傳的原始分數
+                        let final = {
+                            kouTi: scores.radar.扣題,
+                            xiangLue: scores.radar.詳略,
+                            structure: scores.structure,
+                            liYi: scores.radar.立意,
+                            quCai: scores.radar.取材,
+
+                            ciHui: scores.radar.詞彙, 
+                            wenXueXing: scores.radar.文學性, 
+                            expression: scores.expression,
+                            content: scores.content
+                        };
+
+                        // --- 步驟二：按嚴格順序應用所有細項分數的調整規則 ---
+
+                        if (final.kouTi >= 5) {
+                            final.liYi = Math.max(final.liYi, 5);
+                            final.quCai = Math.max(final.quCai, 5);
+                        }
+
+                        if (final.kouTi <= 6) {
+                            final.liYi = Math.min(final.liYi, 5);
+                            final.quCai = Math.min(final.quCai, 5);
+                        }
+
+                        if (final.kouTi <= 5) {
+                            final.xiangLue = Math.min(final.xiangLue, 4);
+                            final.structure = Math.min(final.structure, 4);
+                        }
+
+                        if (final.ciHui <= 6 && final.wenXueXing <= 6) { 
+                            final.liYi = Math.min(final.liYi, 6);
+                            final.quCai = Math.min(final.quCai, 6);
+                        }
+
+                        if (!(final.liYi >= 7 && final.quCai >= 7)) {
+                            final.ciHui = Math.min(final.ciHui, 8); 
+                            final.wenXueXing = Math.min(final.wenXueXing, 8); 
+                        }
+
+                        final.quCai = Math.min(final.quCai, final.liYi);
+
+                        // --- 步驟三：根據調整後的細項分數，重新計算三大主項的最終分數 ---
+
+                        if (final.kouTi <= 4) {
+                            let tempContentScore = final.kouTi; 
+                            tempContentScore = Math.min(tempContentScore, 4); 
+                            tempContentScore = Math.max(tempContentScore, 2); 
+                            final.content = tempContentScore; 
+                        } else {
+                            if (final.liYi === 10 && final.quCai === 10) {
+                                final.content = 9;
+                            } else if (final.liYi === 9 && final.quCai === 9) {
+                                final.content = 8;
+                            } else if (final.liYi === 8 && final.quCai === 8) {
+                                final.content = 7;
+                            } else {
+                                final.content = Math.round((final.liYi + final.quCai) / 2);
+                            }
+                        }
+
+                        if (final.ciHui < 8 || final.wenXueXing < 8) {
+                            final.content = Math.min(final.content, 7);
+                        }
+
+                        if (final.ciHui === final.wenXueXing) {
+                            final.expression = final.ciHui - 1;
+                        } else {
+                            final.expression = Math.min(final.ciHui, final.wenXueXing);
+                        }
+
+                        const structureLowerBound = final.content - 1; 
+                        final.structure = Math.min(final.structure, final.content);
+                        final.structure = Math.max(final.structure, structureLowerBound);
+
+                        scores.content = final.content;
+                        scores.expression = final.expression;
+                        scores.structure = final.structure;
+                        scores.radar.立意 = final.liYi;
+                        scores.radar.取材 = final.quCai;
+                        scores.radar.詳略 = final.xiangLue;
+                        scores.radar.詞彙 = final.ciHui;
+                        scores.radar.文學性 = final.wenXueXing;
+                        scores.radar.扣題 = final.kouTi;
+                    }
+
+                    const isFullTextWriting = (uniqueIdPrefix === 'narrative' || uniqueIdPrefix === 'argument');
+
+                    if (isFullTextWriting) {
+                        const wordCount = fullTextContent.length;
+
+                        if (wordCount < 900) {
+                            scores.content = Math.min(scores.content, 5);
+                            scores.structure = Math.min(scores.structure, 5);
+
+                            if (scores.radar) {
+                                scores.radar.立意 = Math.min(scores.radar.立意, 5);
+                                scores.radar.取材 = Math.min(scores.radar.取材, 5);
+                                scores.radar.詳略 = Math.min(scores.radar.詳略, 5);
+                            }
+                        }
+                    }
+
+                    initialScores = scores;
+                } catch (e) {
+                    console.error("解析評等 JSON 失敗:", e, "收到的內容:", gradingJSON);
+                }
+            }
+        }
+
+        // 前端互動與 API 串接邏輯
+        document.addEventListener('DOMContentLoaded', () => {
+            const topicInput = document.getElementById('topic-input');
+            const guidelinesInput = document.getElementById('guidelines-input');
+            const decreaseBtn = document.getElementById('decrease-words');
+            const increaseBtn = document.getElementById('increase-words');
+            const wordCountDisplay = document.getElementById('word-count-display');
+            const generateBtn = document.getElementById('generate-btn');
+            const essayPlaceholder = document.getElementById('essay-placeholder');
+            const generatedEssay = document.getElementById('generated-essay');
+            const loader = document.getElementById('loader');
+            const outputToolbar = document.getElementById('output-toolbar');
+            const outputWordCount = document.getElementById('output-word-count');
+            const copyBtn = document.getElementById('copy-btn');
+            
+// --- 1. 定義新的 GAS 後端網址 ---
+            const CLOUDFLARE_WORKER_URL = "https://script.google.com/macros/s/AKfycbzaAnSXaaCohL8b92B7bRzhMk3cMr7hhoQc1icKSr_Oy1JLFUPV32jbouJIKfEIgUepeA/exec";
+
+            // 索引，用來記錄我們現在該用第幾個 KEY。
+            // 程式中，列表的第一個項目是從 0 開始算，所以 0 代表第一個 KEY。
+            let currentKeyIndex = 0;
+            
+            const originalCopyIcon = `<svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 0 24 24" width="20px"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-5zm0 16H8V7h11v14z"/></svg>`;
+            copyBtn.innerHTML = originalCopyIcon;
+
+            let wordCount = 1500;
+
+            const updateWordCountDisplay = () => {
+                wordCountDisplay.textContent = wordCount;
+            };
+
+            decreaseBtn.addEventListener('click', () => {
+                if (wordCount > 100) {
+                    wordCount -= 100;
+                    updateWordCountDisplay();
+                }
+            });
+
+            increaseBtn.addEventListener('click', () => {
+                wordCount += 100;
+                updateWordCountDisplay();
+            });
+            
+            copyBtn.addEventListener('click', () => {
+                if (!generatedEssay.textContent) return;
+                
+                navigator.clipboard.writeText(generatedEssay.textContent).then(() => {
+                    copyBtn.innerHTML = `<span class="copy-feedback">已複製！</span>`;
+                    setTimeout(() => {
+                        copyBtn.innerHTML = originalCopyIcon;
+                    }, 2000);
+                }).catch(err => {
+                    console.error('複製失敗:', err);
+                    alert('複製失敗，您的瀏覽器可能不支援此功能。');
+                });
+            });
+
+            // =================================================================
+            // 【核心修改】 1. 建立一個包含重試邏輯的新函式
+            // =================================================================
+            async function generateWithRetry(payload) {
+                // 我們將會嘗試 API_KEYS.length 次，也就是每個 key 都試一次
+                for (let i = 0; i < API_KEYS.length; i++) {
+                    const apiKeyToUse = API_KEYS[currentKeyIndex];
+                    console.log(`正在嘗試使用第 ${currentKeyIndex + 1} 個 API Key...`);
+
+                    try {
+                        // 使用當前的 key 進行 API 請求
+                        const response = await fetch(API_URL, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${apiKeyToUse}` 
+                            },
+                            body: JSON.stringify(payload)
+                        });
+                        
+                        // 如果 response 的狀態不是 ok (例如 401, 429, 500 等錯誤)
+                        // 我們就手動拋出一個錯誤，讓它被下面的 catch 區塊捕捉
+                        if (!response.ok) {
+                            throw new Error(`API 請求失敗，狀態碼：${response.status}`);
+                        }
+
+                        // 如果程式能執行到這裡，代表請求成功！
+                        console.log(`第 ${currentKeyIndex + 1} 個 API Key 請求成功！`);
+                        const data = await response.json();
+                        return data; // 將成功的結果返回，並結束函式
+
+                    } catch (error) {
+                        // 如果請求失敗（無論是網路問題還是上面拋出的狀態碼錯誤）
+                        console.error(`第 ${currentKeyIndex + 1} 個 API Key 失敗:`, error.message);
+                        
+                        // 將索引指向下一個 key，準備下一次迴圈的嘗試
+                        // (currentKeyIndex + 1) % API_KEYS.length 確保索引到底後會繞回 0
+                        currentKeyIndex = (currentKeyIndex + 1) % API_KEYS.length;
+                    }
+                }
+                
+                // 如果 for 迴圈跑完了，但函式還沒返回，
+                // 這就意味著所有的 Key 都嘗試失敗了。
+                // 此時，我們拋出一個最終的錯誤。
+                throw new Error("所有備用的 API Key 均嘗試失敗，請檢查 Key 或網路連線。");
+            }
+
+
+           generateBtn.addEventListener('click', async () => {
+                const topic = topicInput.value.trim();
+                const userGuidelines = guidelinesInput.value.trim();
+                const hiddenInstruction = "引用古今中外論據，偶然要用比喻作論證，不要抄襲《論得失》的論據。此外，要根據題目靈活分段，不要抄襲《論得失》的的分段，只要超過一千字，便必須分為6段或以上。";
+
+                const finalGuidelines = userGuidelines 
+                    ? `${userGuidelines}\n${hiddenInstruction}` 
+                    : hiddenInstruction;
+                
+                // 這裡會讀取你在第一步修改的 value (deepseek 或 gemini)
+                const selectedModel = document.querySelector('input[name="model"]:checked').value;
+                
+                if (!topic) {
+                    alert('請輸入文章題目。');
+                    return;
+                }
+
+                generateBtn.disabled = true;
+                generateBtn.textContent = '生成中...';
+                loader.style.display = 'block';
+                essayPlaceholder.style.display = 'none';
+                generatedEssay.style.display = 'none';
+                outputToolbar.style.display = 'none';
+                
+                try {
+                    let systemPrompt = document.getElementById('argumentative-prompt').textContent;
+                    systemPrompt = systemPrompt.replace(/\[請在此處填入您希望探討的議論文主題，例如.+\]/, `主題： ${topic}`);
+                    systemPrompt = systemPrompt.replace(/約1300個中文字符/g, `約${wordCount}個中文字符`);
+                    systemPrompt = systemPrompt.replace(/字數必須強制控制在1200至1300字內/g, `字數請盡量貼近用家設定的 ${wordCount} 字`);
+
+                    if (finalGuidelines) {
+                        systemPrompt += `\n\n[額外創作指引]\n${finalGuidelines}`;
+                    }
+
+                    // --- 2. 發送請求至 GAS 後端 (修改部分) ---
+                    // 注意：這裡移除了 headers 中的 Authorization，因為 Token Injector 會自動處理
+                    // 也不再使用 generateWithRetry，直接 fetch
+                    const response = await fetch(CLOUDFLARE_WORKER_URL, {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            model: selectedModel, // 傳送 "deepseek" 或 "gemini"
+                            messages: [
+                                { role: 'system', content: systemPrompt },
+                                { role: 'user', content: `請根據以上所有指示，為題目《${topic}》生成一篇議論文。` }
+                            ],
+                            stream: false
+                        })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`API 請求失敗，狀態碼：${response.status}`);
+                    }
+
+                    const data = await response.json();
+
+                    // === [Log Provider Info] 顯示後端調度資訊 (含顏色) ===
+                    if (data._provider_log) {
+                        console.log(
+                            `%c[Backend] Provider: ${data._provider_log}`, 
+                            'background: #2b2d42; color: #8d99ae; padding: 4px 8px; border-radius: 4px; font-weight: bold; border: 1px solid #edf2f4;'
+                        );
+                    }
+                    
+                    // 檢查後端錯誤
+                    if (data.error) {
+                        throw new Error(`Backend Error: ${data.error}`);
+                    }
+
+                    const resultText = data.choices[0].message.content;
+
+                    generatedEssay.textContent = resultText;
+                    outputWordCount.textContent = `字數：${resultText.length}`;
+                    generatedEssay.style.display = 'block';
+                    outputToolbar.style.display = 'flex';
+
+                } catch (error) {
+                    console.error('生成失敗:', error);
+                    essayPlaceholder.textContent = '生成失敗，請稍後再試。';
+                    essayPlaceholder.style.display = 'flex';
+                } finally {
+                    generateBtn.disabled = false;
+                    generateBtn.textContent = '生成文章';
+                    loader.style.display = 'none';
+                }
+            });
+
+            updateWordCountDisplay();
+        });
+    </script>
+
+
+<!-- === 1. Firebase SDK 引入 === -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+
+<!-- === 2. Firebase 初始化、持久化與 Token 注入器 === -->
+<script>
+    // 1. 定義 Firebase 設定
+    const firebaseConfig = {
+        apiKey: "AIzaSyBgwrgn2m343mRJb0WjzUhteiospegXhvI",
+        authDomain: "sansidata.firebaseapp.com",
+        projectId: "sansidata",
+        storageBucket: "sansidata.firebasestorage.app",
+        messagingSenderId: "580288358575",
+        appId: "1:580288358575:web:35dcf4e79bcef530de4c5a",
+        databaseURL: "https://sansidata-default-rtdb.firebaseio.com"
+    };
+
+    // 2. 初始化 Firebase
+    if (typeof firebase !== 'undefined' && !firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
+    
+    var database = firebase.database();
+    var auth = firebase.auth();
+
+    // 3. 啟動監聽與同步邏輯 (持久化)
+    document.addEventListener('DOMContentLoaded', function() {
+        if (auth) {
+            auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+            .then(() => {
+                auth.onAuthStateChanged(async (user) => {
+                    const s = JSON.parse(localStorage.getItem('studentProfile'));
+
+                    if (user) {
+                        console.log("[ZiZhen] 🟢 偵測到有效登入:", user.email);
+                        if (!s) {
+                            console.log("[ZiZhen] 正在同步雲端身份...");
+                            try {
+                                const emailKey = btoa(user.email);
+                                const snapshot = await database.ref('email_mapping/' + emailKey).once('value');
+                                const profile = snapshot.val();
+                                if (profile) {
+                                    localStorage.setItem('studentProfile', JSON.stringify(profile));
+                                    // window.location.reload(); // 可選：刷新以更新 UI
+                                }
+                            } catch (e) { console.error("同步失敗:", e); }
+                        }
+                    } else {
+                        console.log("[ZiZhen] ⚪ 未偵測到登入");
+                        if (s) {
+                            console.warn("[ZiZhen] ⚠️ 發現失效的身份資料，執行安全清除...");
+                            localStorage.removeItem('studentProfile');
+                        }
+                    }
+                });
+            })
+            .catch((error) => console.error("[ZiZhen] 持久化設定失敗:", error));
+        }
+    });
+
+    // 4. [核心] 全域請求攔截器 (Auto Token Injector)
+    (function() {
+        // 防止與嚴格鎖衝突，這裡針對後端 API 進行二次攔截
+        const originalFetch = window.fetch; 
+        const TARGET_URL_PART = "script.google.com"; // 攔截發往 GAS 的請求
+
+        window.fetch = async function(url, options) {
+            // 檢查是否為發往後端的 POST 請求
+            if (typeof url === 'string' && url.includes(TARGET_URL_PART) && options && options.method === 'POST') {
+                
+                console.log("[TokenInjector] 偵測到後端請求，準備注入 Token...");
+
+                const user = await new Promise((resolve) => {
+                    if (firebase.auth().currentUser) {
+                        resolve(firebase.auth().currentUser);
+                    } else {
+                        const unsubscribe = firebase.auth().onAuthStateChanged(u => {
+                            unsubscribe();
+                            resolve(u);
+                        });
+                        setTimeout(() => resolve(null), 2000);
+                    }
+                });
+
+                if (user) {
+                    try {
+                        const token = await user.getIdToken(true);
+                        // GAS 接收的 body 必須是 JSON 格式
+                        let bodyData = {};
+                        try {
+                             bodyData = JSON.parse(options.body);
+                        } catch(e) {
+                            console.warn("[TokenInjector] Body 非 JSON，嘗試強制封裝");
+                            bodyData = { originalBody: options.body };
+                        }
+                        
+                        bodyData.token = token; // ★ 強制注入 Token
+                        options.body = JSON.stringify(bodyData);
+                        console.log("[TokenInjector] Token 注入成功！");
+                    } catch (e) {
+                        console.error("[TokenInjector] Token 獲取失敗:", e);
+                    }
+                } else {
+                    console.warn("[TokenInjector] 用戶未登入，無法注入 Token");
+                    // 這裡不需阻擋，因為「嚴格權限鎖」已經在前面擋過了
+                }
+            }
+            return originalFetch(url, options);
+        };
+    })();
+</script>
+
+
+<!-- === [還原版] 神思大數據收集模組 (30秒=1分鐘邏輯) === -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    let totalSeconds = 0;
+    let timerInterval = null;
+
+    // 1. 獲取日期路徑
+    function getDateParts() {
+        const now = new Date();
+        const y = String(now.getFullYear());
+        const m = String(now.getMonth() + 1).padStart(2, '0');
+        const d = String(now.getDate()).padStart(2, '0');
+        return { y, m, d };
+    }
+
+    // 2. 獲取身份
+    function getIdentity() {
+        const rawProfile = localStorage.getItem('studentProfile');
+        let s = null;
+        try { if(rawProfile) s = JSON.parse(rawProfile); } catch (e) {}
+
+        if (s && s.grade && s.class) {
+            const safeName = s.name.replace(/[.#$/[\]]/g, '_'); 
+            return { type: 'student', id: s.uid || `stu_${s.grade}${s.class}_${safeName}`, grade: s.grade, class: s.class };
+        } else {
+            let guestID = localStorage.getItem('sansi_guest_uuid');
+            if (!guestID) {
+                guestID = 'guest_' + Math.random().toString(36).substr(2, 9);
+                localStorage.setItem('sansi_guest_uuid', guestID);
+            }
+            return { type: 'guest', id: guestID, grade: 'Guest', class: 'Visitor' };
+        }
+    }
+
+// === 3. 記錄訪問 (Log Visit) - 高效分流版 ===
+// === 3. 記錄訪問 (Log Visit) - 高效分流版 (含 stats_school 邏輯) ===
+async function logVisitOnce() {
+    if (typeof firebase === 'undefined' || !database) return;
+    
+    const { y, m, d } = getDateParts();
+    const identity = getIdentity();
+    const uid = identity.id;
+
+    // Session 鎖
+    const sessionKey = `sansi_visit_logged_${y}${m}${d}_${uid}`;
+    if (sessionStorage.getItem(sessionKey)) return; 
+
+    // 檢查 Tracking (判斷是否為今日首次)
+    const trackingRef = database.ref(`stats_tracking/${y}/${m}/${d}/unique_users/${uid}`);
+    
+    try {
+        const snap = await trackingRef.once('value');
+        const isFirstTimeToday = !snap.exists();
+
+        const updates = {};
+        const increment1 = firebase.database.ServerValue.increment(1);
+        
+        // 1. 全校總覽路徑 (含訪客) - stats_global
+        const globalPath = `stats_global/${y}/${m}/${d}`;
+        updates[`${globalPath}/visits`] = increment1;
+
+        // ★★★ 新增：純學校路徑 (僅學生) - stats_school ★★★
+        const schoolPath = `stats_school/${y}/${m}/${d}`;
+
+        if (identity.type === 'student') {
+            const classKey = `${identity.grade}${identity.class}`;
+            const studentKey = identity.id.split('_').pop(); // 名字
+
+            // 學生同時寫入 stats_school
+            updates[`${schoolPath}/visits`] = increment1;
+
+            // 2. 班級路徑 (stats_classes/6A/YYYY/MM/DD)
+            const classPath = `stats_classes/${classKey}/${y}/${m}/${d}`;
+            updates[`${classPath}/visits`] = increment1;
+
+            // 3. 學生路徑 (stats_students/6A/陳大文/YYYY/MM/DD)
+            const studentPath = `stats_students/${classKey}/${studentKey}/${y}/${m}/${d}`;
+            updates[`${studentPath}/visits`] = increment1;
+
+            if (isFirstTimeToday) {
+                updates[`stats_tracking/${y}/${m}/${d}/unique_users/${uid}`] = true;
+                
+                // 更新 global unique
+                updates[`${globalPath}/unique`] = increment1;
+                
+                // ★ 更新 school unique (僅學生)
+                updates[`${schoolPath}/unique`] = increment1;
+                
+                // 更新 class unique
+                updates[`${classPath}/unique`] = increment1;
+            }
+        } else {
+            // 訪客 (只寫入 global，不寫入 school)
+            if (isFirstTimeToday) {
+                updates[`stats_tracking/${y}/${m}/${d}/unique_users/${uid}`] = true;
+                updates[`${globalPath}/unique`] = increment1;
+            }
+        }
+
+        await database.ref().update(updates);
+        sessionStorage.setItem(sessionKey, 'true');
+        console.log("📍 [Stats] 訪問計數已分流上傳 (含 stats_school)");
+
+    } catch (e) {
+        console.error("Stats Error:", e);
+    }
+}
+
+// 4. 上傳 1 分鐘 (分流版 - 除錯模式)
+function uploadOneMinute() {
+    if (typeof firebase === 'undefined' || !database) return;
+    
+    logVisitOnce(); 
+
+    const { y, m, d } = getDateParts();
+    const identity = getIdentity();
+    
+    // 獲取學生名稱 Key (防呆)
+    const studentKey = identity.id.includes('_') ? identity.id.split('_').pop() : identity.name; 
+    
+    const updates = {};
+    const increment60 = firebase.database.ServerValue.increment(60);
+
+    // 1. 全域 (Global)
+    updates[`stats_global/${y}/${m}/${d}/duration`] = increment60;
+
+    // ★★★ 2. 學生身份判斷 ★★★
+    if (identity.type === 'student') {
+        const classKey = `${identity.grade}${identity.class}`;
+
+        // Path A: 全校 (這是您缺少的)
+        const pathSchool = `stats_school/${y}/${m}/${d}/duration`;
+        updates[pathSchool] = increment60;
+
+        // Path B: 班級
+        const pathClass = `stats_classes/${classKey}/${y}/${m}/${d}/duration`;
+        updates[pathClass] = increment60;
+        
+        // Path C: 個人
+        const pathStudent = `stats_students/${classKey}/${studentKey}/${y}/${m}/${d}/duration`;
+        updates[pathStudent] = increment60;
+
+        // ★ 除錯訊息：請在 F12 Console 查看是否出現此行 ★
+        console.log(`[Stats] 正在上傳時長... 目標包含: ${pathSchool}`);
+    } else {
+        console.log("[Stats] 當前為訪客身份，不寫入 stats_school");
+    }
+
+    database.ref().update(updates)
+        .then(() => console.log("✅ [Stats] 時長上傳成功"))
+        .catch(e => console.error("❌ [Stats] 上傳失敗 (請檢查 Rules):", e));
+}
+
+    // 5. 計時器啟動 (還原你的邏輯)
+    function startTimer() {
+        if (timerInterval) return;
+        console.log("▶️ [Stats] 計時器啟動");
+        
+        timerInterval = setInterval(() => {
+            totalSeconds++;
+            
+            // ★★★ 你的原始邏輯 ★★★
+            // 30秒 -> 傳送 (算1分鐘)
+            // 90秒 (1分30秒) -> 傳送 (算2分鐘)
+            // 150秒 (2分30秒) -> 傳送 (算3分鐘)
+            if (totalSeconds === 30 || (totalSeconds > 30 && (totalSeconds - 30) % 60 === 0)) {
+                uploadOneMinute();
+            }
+        }, 1000);
+    }
+
+    function pauseTimer() {
+        if (timerInterval) {
+            clearInterval(timerInterval);
+            timerInterval = null;
+            console.log("⏸️ [Stats] 暫停計時 (當前累計: " + totalSeconds + "s)");
+            // 注意：這裡不再有 uploadDuration(unsaved)，未滿的部分直接捨棄
+        }
+    }
+
+    // 延遲啟動
+    setTimeout(() => {
+        logVisitOnce();
+        startTimer();
+    }, 3000);
+
+    // 偵測頁面狀態
+    document.addEventListener('visibilitychange', function() {
+        if (document.visibilityState === 'hidden') pauseTimer();
+        else startTimer();
+    });
+    
+    window.forceLogVisit = logVisitOnce;
+});
+</script>
+
+
+    <script>
+
+
+
+// ★★★★★ 請將代碼貼在這裡 (原本的內容之下，script 結束標籤之上) ★★★★★
+
+    // =======================================================
+    // === [新增] 在線狀態自動報到系統 (Presence System) ===
+    // =======================================================
+    function initPresenceSystem() {
+        // 延遲執行，確保 Firebase 已初始化且本地存儲已讀取
+        setTimeout(() => {
+            if (typeof database === 'undefined') return;
+
+            // 1. 監聽連線狀態
+            const connectedRef = database.ref('.info/connected');
+
+            connectedRef.on('value', (snap) => {
+                if (snap.val() === true) {
+                    // === 連線成功，準備資料 ===
+                    
+                    // 獲取用戶資料
+                    const s = JSON.parse(localStorage.getItem('studentProfile'));
+                    let myUid = "";
+                    let userData = {};
+
+                    // A. 判斷身分
+                    if (s && s.name) {
+                        // --- 已登入用戶 (學生/老師/特許) ---
+                        const user = firebase.auth().currentUser;
+                        myUid = user ? user.uid : `stu_${s.grade}${s.class}_${s.name}`;
+                        
+                        // 準備寫入的資料
+                        userData = {
+                            name: s.name,
+                            grade: s.grade,
+                            class: s.class,
+                            timestamp: firebase.database.ServerValue.TIMESTAMP,
+                            device: /Mobile|Android/i.test(navigator.userAgent) ? 'Mobile' : 'Desktop'
+                        };
+                    } else {
+                        // --- 訪客 ---
+                        let guestId = localStorage.getItem('sansi_guest_uuid');
+                        if (!guestId) {
+                            guestId = 'guest_' + Math.random().toString(36).substr(2, 9);
+                            localStorage.setItem('sansi_guest_uuid', guestId);
+                        }
+                        myUid = guestId;
+
+                        userData = {
+                            name: "訪客",
+                            grade: "Guest",
+                            class: "Visitor",
+                            timestamp: firebase.database.ServerValue.TIMESTAMP
+                        };
+                    }
+
+                    // B. 執行 Firebase 動作
+                    const myPresenceRef = database.ref(`online_users/${myUid}`);
+
+                    // 關鍵指令：當客戶端斷線時，自動刪除這筆資料
+                    myPresenceRef.onDisconnect().remove().then(() => {
+                        // 斷線指令設定成功後，寫入當前狀態
+                        myPresenceRef.set(userData);
+                    });
+                }
+            });
+        }, 2000); // 延遲 2 秒啟動
+    }
+
+    // 啟動報到系統
+    document.addEventListener('DOMContentLoaded', initPresenceSystem);
+
+
+
+	
+</script>
+    
+
+</body>
+</html>

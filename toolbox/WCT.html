@@ -1,0 +1,1498 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>琢玉——作文批改工具</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: 'Noto Serif TC', 'cwTeXHei', 'cwTeXFangSong', 'cwTeXKai', 'cwTeXMing', 'PingFang TC', 'Microsoft JhengHei', serif;
+            background: url('https://i.ibb.co/nNMDqGJt/4.png') center/cover fixed;
+            overflow: hidden;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        body.dark-mode {
+            background-color: #1a1a1a;
+            color: #ffffff;
+        }
+
+ .copyright-footer {
+            position: fixed;
+            bottom: 0;
+            right: 0;
+            padding: 5px 10px;
+            background-color: #f1f1f1;
+        }
+
+        .copyright-footer p {
+            margin: 0;
+            font-size: 14px;
+        }
+
+        @media (max-width: 600px) {
+            .copyright-footer p {
+                font-size: 12px;
+            }
+        }
+
+            
+        .container {
+            display: flex;
+            height: 100%;
+        }
+        .document-area {
+            flex: 7;
+            overflow-y: hidden;
+            background: #f5f5f5;
+            position: relative;
+        }
+        .dark-mode .document-area {
+            background: #252525;
+            border-right-color: #444;
+        }
+        #default-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        .pdf-container {
+            transform-origin: top left;
+            transition: transform 0.3s ease;
+            display: block;
+        }
+        .pdf-container canvas, .pdf-container img {
+            image-rendering: crisp-edges;
+            display: block;
+        }
+        .comment-area {
+            flex: 3;
+            background: rgba(245, 245, 245, 0.98);
+            position: relative;
+            width: 30%;
+            overflow: hidden;
+            border-radius: 0 8px 8px 0;
+            box-shadow: -3px 0 10px rgba(0,0,0,0.1);
+            font-family: 'Noto Serif TC', 'cwTeXHei', 'cwTeXFangSong', 'cwTeXKai', 'cwTeXMing', 'PingFang TC', 'Microsoft JhengHei', serif;
+            transition: background 0.3s, border-color 0.3s;
+        }
+        .dark-mode .comment-area {
+            background: rgba(40, 40, 40, 0.98);
+            box-shadow: -3px 0 10px rgba(0,0,0,0.3);
+        }
+        .comment-section {
+            padding: 10px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            box-sizing: border-box;
+            font-family: inherit;
+        }
+        .comment-header {
+            background: #e8e8e8;
+            padding: 10px 15px;
+            border-radius: 6px 6px 0 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .dark-mode .comment-header {
+            background: #3a3a3a;
+        }
+        .comment-section h3 {
+            margin: 0;
+            font-size: 20px;
+            color: #444;
+            font-weight: 700;
+        }
+        .dark-mode .comment-section h3 {
+            color: #eee;
+        }
+        .page-comment-container {
+            border: none;
+            border-radius: 6px;
+            padding: 0px;
+            margin-bottom: 1.8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+        .dark-mode .page-comment-container {
+            background: #444444;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .page-comment-container::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 100%;
+            height: 15px;
+            background-color: #a9cce3;
+        }
+        .pdf-border {
+            border-width: 3px;
+            border-style: solid;
+            border-color: #303f9f;
+        }
+        .page-comment {
+            color: #212121;
+            margin: 0;
+            padding: 10px 12px;
+            background: transparent;
+            width: 100%;
+            box-sizing: border-box;
+            min-height: 80px;
+            font-size: 40px;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            overflow: hidden;
+            font-family: 'cwTeXFangSong', 'cwTeXHei', 'Noto Serif TC', 'cwTeXKai', 'cwTeXMing', 'PingFang TC', 'Microsoft JhengHei', serif;
+            transition: all 0.3s;
+            border: none;
+            outline: none;
+        }
+        .dark-mode .page-comment {
+            color: #eee;
+        }
+        .page-comment:focus {
+            background: #f9f9f9;
+            outline: none;
+        }
+        .dark-mode .page-comment:focus {
+            background: #333;
+        }
+        .page-number {
+            position: absolute;
+            top: -8px;
+            right: 10px;
+            background: #5b7db1;
+            color: white;
+            font-size: 16px;
+            padding: 4px 12px;
+            border-radius: 10px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+        .dark-mode .page-number {
+            background: #445980;
+        }
+        .total-comment {
+            margin-top: 20px;
+            padding: 40px;
+            border-top: 2px solid #ccc;
+            background: rgba(255, 255, 255, 0.98);
+            font-size: 18px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+            position: relative;
+        }
+        .dark-mode .total-comment {
+            background: rgba(50, 50, 50, 0.98);
+            border-top-color: #555;
+        }
+        .score-input {
+            margin: 10px 0;
+            display: flex;
+            align-items: center;
+        }
+        .score-input label {
+            display: inline-block;
+            width: 120px;
+            font-size: 18px;
+            font-weight: 500;
+        }
+        .score-input input {
+            width: 60px;
+            font-size: 18px;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            text-align: center;
+        }
+        .dark-mode .score-input input {
+            background: #333;
+            color: #fff;
+            border-color: #555;
+        }
+        textarea {
+            width: 100%;
+            resize: vertical;
+            font-size: 18px;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-family: inherit;
+            min-height: 120px;
+        }
+        .dark-mode textarea {
+            background: #333;
+            color: #fff;
+            border-color: #555;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 15px 0;
+            cursor: pointer;
+            font-size: 16px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        button:hover {
+            background: #0056b3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        .dark-mode button {
+            background: #007bff;
+        }
+        .dark-mode button:hover {
+            background: #0056b3;
+        }
+        .controls {
+            position: sticky;
+            top: 0;
+            background: #fff;
+            padding: 10px;
+            z-index: 10;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .dark-mode .controls {
+            background: #333;
+        }
+        .left-controls, .right-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .font-size-control {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .font-size-control label {
+            font-size: 14px;
+            white-space: nowrap;
+        }
+        .font-size-control input {
+            width: 100px;
+        }
+        .mode-toggle {
+            padding: 10px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.7);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #e0e0e0;
+        }
+        .dark-mode .mode-toggle {
+            background: rgba(60,60,60,0.7);
+        }
+        .tool-title {
+            flex: 1;
+            text-align: center;
+            font-size: 30px;
+            font-weight: bold;
+            color: #34495e;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+        .dark-mode .tool-title {
+            color: #66aaff;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+        .total-comment-pdf {
+            position: absolute;
+            width: 794px !important;
+            height: 1123px !important;
+            transform: scale(1) !important;
+            transform-origin: 0 0 !important;
+            zoom: 1 !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+            box-sizing: border-box;
+            left: 0 !important;
+            top: 0 !important;
+        }
+        .total-score-display {
+            font-size: 22px;
+            font-weight: bold;
+            margin-top: 15px;
+            padding: 10px;
+            background: #f0f6ff;
+            border-radius: 4px;
+            display: inline-block;
+        }
+        .dark-mode .total-score-display {
+            background: #3a4659;
+        }
+        .problem-categories {
+            margin-top: 15px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .category-btn {
+            padding: 5px 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background: #f0f0f0;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .category-btn:hover {
+            background: #ff0000;
+            color: white;
+            border-color: #ff0000;
+        }
+        .category-btn.active-red {
+            background: #ff0000;
+            color: white;
+            border-color: #ff0000;
+        }
+        .category-btn.active-green {
+            background: #4caf50;
+            color: white;
+            border-color: #4caf50;
+        }
+        .dark-mode .category-btn {
+            background: #333;
+            border-color: #555;
+            color: #fff;
+        }
+        .dark-mode .category-btn:hover {
+            background: #cc0000;
+            border-color: #cc0000;
+        }
+        .dark-mode .category-btn.active-red {
+            background: #cc0000;
+            border-color: #cc0000;
+        }
+        .dark-mode .category-btn.active-green {
+            background: #388e3c;
+            border-color: #388e3c;
+        }
+        .total-comment h4 {
+            margin-bottom: 10px;
+            font-size: 18px;
+            color: #444;
+        }
+        .dark-mode .total-comment h4 {
+            color: #eee;
+        }
+        #file-upload-label {
+            padding: 10px 20px;
+            background: #f0f0f0;
+            color: #000;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        #file-upload-label:hover {
+            background: #e0e0e0;
+        }
+        .dark-mode #file-upload-label {
+            background: #444;
+            color: #fff;
+            border-color: #555;
+        }
+        .dark-mode #file-upload-label:hover {
+            background: #555;
+        }
+        #file-upload {
+            display: none;
+        }
+        #file-status {
+            font-size: 16px;
+            color: #333;
+        }
+        .dark-mode #file-status {
+            color: #ddd;
+        }
+        #file-order-modal > div {
+            background: white;
+            margin: 100px auto;
+            padding: 20px;
+            width: 400px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        #file-list li {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            cursor: move;
+        }
+        #file-list span {
+            flex: 1;
+        }
+        .thumbnail {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+        .progress-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 20px;
+            background-color: #117864;
+            z-index: 1000;
+            display: none;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 5px;
+            background-color: #117864;
+            margin-top: 10px;
+        }
+        .progress-bar-inner {
+            height: 100%;
+            background-color: #117864;
+            width: 0;
+            transition: width 0.2s ease;
+        }
+        .progress-text {
+            position: fixed;
+            top: 30px;
+            right: 20px;
+            color: #666;
+            font-size: 18px;
+            z-index: 1000;
+            display: none;
+        }
+        .symbol-container {
+            position: absolute;
+            pointer-events: none;
+        }
+        .highlight {
+            position: absolute;
+            cursor: move;
+            pointer-events: auto;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="document-area" id="document-area">
+            <div class="controls">
+                <div class="left-controls">
+                    <label for="file-upload" id="file-upload-label">選擇檔案</label>
+                    <input type="file" id="file-upload" accept="image/*,application/pdf" multiple style="display: none;">
+                    <span id="file-status"></span>
+                </div>
+                <div class="tool-title">琢玉</div>
+                <div class="right-controls">
+                    <button onclick="resetZoom()"><i class="fas fa-sync-alt"></i></button>
+                    <button onclick="zoomIn()"><i class="fas fa-search-plus"></i></button>
+                    <button onclick="zoomOut()"><i class="fas fa-search-minus"></i></button>
+                    <button class="mode-toggle" onclick="toggleDarkMode()"><i class="fas fa-moon"></i></button>
+                </div>
+            </div>
+            <img id="default-image" src="https://i.ibb.co/DH4C0TgB/image.png" alt="Default Image">
+            <div class="pdf-container" id="pdf-container" style="display: none;"></div>
+        </div>
+        <div class="comment-area" id="comment-area">
+            <div class="comment-section" id="comment-section">
+                <div class="comment-header">
+                    <h3>旁批</h3>
+                    <div class="font-size-control">
+                        <label for="font-size">文字大小:</label>
+                        <input type="range" id="font-size" min="20" max="70" value="40" step="2">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="file-order-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000;">
+        <div style="background: white; margin: 100px auto; padding: 20px; width: 400px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); position: relative;">
+            <h3>安排圖片順序</h3>
+            <ul id="file-list" style="list-style: none; padding: 0; max-height: 300px; overflow-y: auto;"></ul>
+            <div class="progress-bar">
+                <div class="progress-bar-inner"></div>
+            </div>
+            <button id="confirm-order" style="margin-top: 10px; padding: 10px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; display: flex; justify-content: center; text-align: center; width: 100%;">確認</button>
+        </div>
+    </div>
+    <div class="progress-container">
+        <div class="progress-bar"></div>
+    </div>
+    <div class="progress-text">生成進度：0%</div>
+
+    <script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+            if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+                try {
+                    var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                    var firstSheetName = workbook.SheetNames[0];
+                    var worksheet = workbook.Sheets[firstSheetName];
+                    var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                    var filteredData = jsonData.filter(row => row.some(filledCell));
+                    var headerRowIndex = filteredData.findIndex((row, index) =>
+                      row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                    );
+                    if (headerRowIndex === -1 || headerRowIndex > 25) {
+                      headerRowIndex = 0;
+                    }
+                    var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex));
+                    csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                    return csv;
+                } catch (e) {
+                    console.error(e);
+                    return "";
+                }
+            }
+            return gk_fileData[filename] || "";
+        }
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+    <script>
+        const { jsPDF } = window.jspdf;
+        let pdfFiles = [];
+        let pdfData = [];
+        let currentPdfIndex = 0;
+        let pdfPages = [];
+        let pdfDoc = null;
+        let currentZoom = 1.0;
+        let totalSection = null;
+        let pageHeights = [];
+        let baseWidth = 0;
+        let comments = [];
+        let fontSize = 40;
+        const LINE_HEIGHT = 38;
+        let currentFileType = '';
+        let isDarkMode = false;
+        let originalFileName = '';
+        let orderedFiles = [];
+        let currentMode = '';
+        const VIEWPORT_WIDTH = document.getElementById('document-area').clientWidth || 875;
+        let symbolContainers = [];
+        let lastTapTime = 0;
+        let lastTapX = 0;
+        let lastTapY = 0;
+        let isHighlighting = false;
+        let highlightStartX, highlightStartY;
+
+        function toggleDarkMode() {
+            isDarkMode = !isDarkMode;
+            document.body.classList.toggle('dark-mode', isDarkMode);
+            const icon = document.querySelector('.mode-toggle i');
+            icon.className = isDarkMode ? 'fas fa-sun' : 'fas fa-moon';
+        }
+
+        function synchronizeHeights() {
+            const pdfContainer = document.getElementById('pdf-container');
+            const commentSection = document.getElementById('comment-section');
+            const children = Array.from(pdfContainer.children).filter(child => !child.classList.contains('total-comment') && child.tagName === 'CANVAS');
+            const totalHeight = children.reduce((acc, child) => acc + (child.offsetHeight || child.clientHeight || 0), 0);
+
+            pdfContainer.style.height = `${totalHeight}px`;
+            commentSection.style.height = `${totalHeight}px`;
+            comments.forEach((comment, index) => {
+                const pageHeight = children[index].offsetHeight * currentZoom;
+                comment.container.style.height = `${pageHeight}px`;
+                comment.element.style.height = `${pageHeight - 20}px`;
+                const lines = Math.floor((pageHeight - 20) / LINE_HEIGHT);
+                const currentLines = comment.element.textContent.split('\n').length;
+                if (currentLines < lines) {
+                    comment.element.textContent += '\n'.repeat(lines - currentLines);
+                } else if (currentLines > lines) {
+                    const arr = comment.element.textContent.split('\n');
+                    comment.element.textContent = arr.slice(0, lines).join('\n');
+                }
+            });
+        }
+
+        document.getElementById('file-upload').addEventListener('change', function(event) {
+            const files = event.target.files;
+            if (files.length === 0) {
+                document.getElementById('file-status').textContent = '';
+                return;
+            }
+
+            const allPdfs = Array.from(files).every(file => file.type === 'application/pdf');
+            const allImages = Array.from(files).every(file => file.type.startsWith('image/'));
+
+            if (files.length > 1) {
+                if (allPdfs) {
+                    currentMode = 'multiplePdfs';
+                    pdfFiles = Array.from(files);
+                    pdfData = pdfFiles.map(file => ({
+                        file: file,
+                        comments: [],
+                        totalComment: '',
+                        scores: {},
+                        categories: {}
+                    }));
+                    currentPdfIndex = 0;
+                    loadCurrentPdf();
+                } else if (allImages) {
+                    currentMode = 'multipleImages';
+                    orderedFiles = Array.from(files);
+                    showFileOrderModal(files);
+                } else {
+                    alert('請選擇多個PDF檔案或多張圖片。');
+                    return;
+                }
+            } else {
+                const file = files[0];
+                originalFileName = file.name.split('.').slice(0, -1).join('.');
+                if (file.type === 'application/pdf') {
+                    currentMode = 'singlePdf';
+                    pdfFiles = [file];
+                    pdfData = [{ file: file, comments: [], totalComment: '', scores: {}, categories: {} }];
+                    currentPdfIndex = 0;
+                    loadPDF(file);
+                    updateFileStatus();
+                } else if (file.type.startsWith('image/')) {
+                    currentMode = 'singleImage';
+                    pdfFiles = [];
+                    pdfData = [{ comments: [], totalComment: '', scores: {}, categories: {} }];
+                    currentPdfIndex = 0;
+                    handleMultipleImages([file]);
+                    updateFileStatus();
+                } else {
+                    alert('不支援的檔案類型。');
+                    return;
+                }
+            }
+
+            document.getElementById('default-image').style.display = 'none';
+            document.getElementById('pdf-container').style.display = 'block';
+            document.getElementById('document-area').style.overflowY = 'auto';
+        });
+
+        function updateFileStatus() {
+            const fileStatus = document.getElementById('file-status');
+            if (currentMode === 'multiplePdfs') {
+                fileStatus.textContent = `正在批改第${currentPdfIndex + 1}篇作文，共${pdfFiles.length}篇`;
+            } else if (currentMode === 'singlePdf' || currentMode === 'singleImage') {
+                fileStatus.textContent = originalFileName;
+            } else if (currentMode === 'multipleImages') {
+                fileStatus.textContent = `${pdfPages.length}頁`;
+            } else {
+                fileStatus.textContent = '';
+            }
+        }
+
+        function loadCurrentPdf() {
+            if (currentPdfIndex >= pdfFiles.length) {
+                alert('所有作文批改完畢，可以下班了！');
+                return;
+            }
+
+            pdfPages = [];
+            comments = [];
+            totalSection = null;
+            currentZoom = 1.0;
+            symbolContainers = [];
+            const pdfContainer = document.getElementById('pdf-container');
+            pdfContainer.innerHTML = '';
+
+            const currentPdf = pdfFiles[currentPdfIndex];
+            originalFileName = currentPdf.name.split('.').slice(0, -1).join('.');
+            loadPDF(currentPdf);
+
+            updateFileStatus();
+        }
+
+        function showFileOrderModal(files) {
+            orderedFiles = Array.from(files);
+            renderFileList();
+            document.getElementById('file-order-modal').style.display = 'block';
+
+            const fileList = document.getElementById('file-list');
+            const progressBarInner = document.querySelector('.progress-bar-inner');
+
+            fileList.addEventListener('scroll', () => {
+                const scrollTop = fileList.scrollTop;
+                const scrollHeight = fileList.scrollHeight;
+                const clientHeight = fileList.clientHeight;
+                const progress = (scrollTop / (scrollHeight - clientHeight)) * 100;
+                progressBarInner.style.width = `${progress}%`;
+            });
+        }
+
+        function renderFileList() {
+            const fileList = document.getElementById('file-list');
+            fileList.innerHTML = '';
+            orderedFiles.forEach((file, index) => {
+                const li = document.createElement('li');
+                const img = document.createElement('img');
+                img.className = 'thumbnail';
+                img.src = URL.createObjectURL(file);
+                img.addEventListener('click', () => showEnlargedImage(file));
+                li.appendChild(img);
+                const span = document.createElement('span');
+                span.textContent = file.name;
+                li.appendChild(span);
+                fileList.appendChild(li);
+            });
+
+            new Sortable(fileList, {
+                animation: 150,
+                onEnd: (evt) => {
+                    [orderedFiles[evt.oldIndex], orderedFiles[evt.newIndex]] = [orderedFiles[evt.newIndex], orderedFiles[evt.oldIndex]];
+                }
+            });
+        }
+
+        document.getElementById('confirm-order').addEventListener('click', function() {
+            document.getElementById('file-order-modal').style.display = 'none';
+            pdfFiles = [];
+            pdfData = [{ comments: [], totalComment: '', scores: {}, categories: {} }];
+            currentPdfIndex = 0;
+            handleMultipleImages(orderedFiles);
+            updateFileStatus();
+        });
+
+        async function handleMultipleImages(files) {
+            originalFileName = files[0].name.split('.').slice(0, -1).join('.');
+            const pdfContainer = document.getElementById('pdf-container');
+            pdfContainer.innerHTML = '';
+            pdfPages = [];
+            pageHeights = [];
+            baseWidth = 0;
+            comments = [];
+            totalSection = null;
+            symbolContainers = [];
+
+            const docAreaWidth = document.getElementById('document-area').clientWidth;
+
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const img = await loadImage(file);
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+
+                const scale = docAreaWidth / img.naturalWidth;
+                canvas.width = img.naturalWidth * scale * 2;
+                canvas.height = img.naturalHeight * scale * 2;
+                canvas.style.width = `${canvas.width / 2}px`;
+                canvas.style.height = `${canvas.height / 2}px`;
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                canvas.dataset.page = i + 1;
+                pdfContainer.appendChild(canvas);
+
+                const symbolContainer = document.createElement('div');
+                symbolContainer.className = 'symbol-container';
+                symbolContainer.style.position = 'absolute';
+                symbolContainer.style.top = `${canvas.offsetTop}px`;
+                symbolContainer.style.left = `${canvas.offsetLeft}px`;
+                symbolContainer.style.width = `${parseFloat(canvas.style.width) * currentZoom}px`;
+                symbolContainer.style.height = `${parseFloat(canvas.style.height) * currentZoom}px`;
+                symbolContainer.style.pointerEvents = 'none';
+                pdfContainer.appendChild(symbolContainer);
+                symbolContainers.push(symbolContainer);
+
+                pdfPages.push({
+                    canvas: canvas,
+                    originalWidth: img.naturalWidth,
+                    originalHeight: img.naturalHeight
+                });
+
+                pageHeights.push(canvas.height / 2);
+                if (baseWidth === 0) baseWidth = canvas.width / 2;
+            }
+
+            initComments(files.length);
+            synchronizeHeights();
+            appendTotalSection();
+            updateFileStatus();
+        }
+
+        function loadImage(file) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.onload = () => resolve(img);
+                img.onerror = reject;
+                img.src = URL.createObjectURL(file);
+            });
+        }
+
+        function loadPDF(file) {
+            const url = URL.createObjectURL(file);
+            pdfjsLib.getDocument(url).promise.then(pdf => {
+                pdfDoc = pdf;
+                const pdfContainer = document.getElementById('pdf-container');
+                pdfContainer.innerHTML = '';
+                pdfPages = [];
+                pageHeights = [];
+                comments = [];
+                totalSection = null;
+                symbolContainers = [];
+                renderAllPages(pdf, pdfContainer);
+            });
+        }
+
+        async function renderAllPages(pdf, container) {
+            baseWidth = 0;
+            const docAreaWidth = document.getElementById('document-area').clientWidth;
+
+            for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+                const page = await pdf.getPage(pageNum);
+                const originalViewport = page.getViewport({ scale: 1.0 });
+                const scale = docAreaWidth / originalViewport.width;
+                const viewport = page.getViewport({ scale: scale * 2.0 });
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
+
+                canvas.width = viewport.width;
+                canvas.height = viewport.height;
+                canvas.style.width = `${viewport.width / 2}px`;
+                canvas.style.height = `${viewport.height / 2}px`;
+                canvas.dataset.page = pageNum;
+                await page.render({ canvasContext: context, viewport }).promise;
+                container.appendChild(canvas);
+
+                const symbolContainer = document.createElement('div');
+                symbolContainer.className = 'symbol-container';
+                symbolContainer.style.position = 'absolute';
+                symbolContainer.style.top = `${canvas.offsetTop}px`;
+                symbolContainer.style.left = `${canvas.offsetLeft}px`;
+                symbolContainer.style.width = `${parseFloat(canvas.style.width) * currentZoom}px`;
+                symbolContainer.style.height = `${parseFloat(canvas.style.height) * currentZoom}px`;
+                symbolContainer.style.pointerEvents = 'none';
+                container.appendChild(symbolContainer);
+                symbolContainers.push(symbolContainer);
+
+                pdfPages.push({
+                    canvas: canvas,
+                    originalWidth: originalViewport.width,
+                    originalHeight: originalViewport.height
+                });
+
+                pageHeights.push(viewport.height / 2);
+                if (baseWidth === 0) baseWidth = viewport.width / 2;
+                if (pageNum === pdf.numPages) {
+                    initComments(pdf.numPages);
+                    synchronizeHeights();
+                    appendTotalSection();
+                }
+            }
+        }
+
+        function initComments(pageCount) {
+            const commentSection = document.getElementById('comment-section');
+            commentSection.innerHTML = `
+                <div class="comment-header">
+                    <h3>旁批</h3>
+                    <div class="font-size-control">
+                        <label for="font-size">文字大小:</label>
+                        <input type="range" id="font-size" min="16" max="64" value="32" step="1">
+                    </div>
+                </div>
+            `;
+            comments = [];
+            for (let i = 0; i < pageCount; i++) {
+                const commentContainer = document.createElement('div');
+                commentContainer.className = 'page-comment-container';
+
+                const pageNumber = document.createElement('div');
+                pageNumber.className = 'page-number';
+                pageNumber.textContent = `${i + 1}`;
+                commentContainer.appendChild(pageNumber);
+
+                const commentDiv = document.createElement('div');
+                commentDiv.className = 'page-comment';
+                commentDiv.contentEditable = true;
+                const divHeight = pageHeights[i] * currentZoom;
+                commentDiv.style.fontSize = `${fontSize}px`;
+                const lines = Math.floor((divHeight - 20) / LINE_HEIGHT);
+                commentDiv.textContent = pdfData[currentPdfIndex].comments[i] || '\n'.repeat(lines - 1);
+                commentContainer.appendChild(commentDiv);
+
+                commentSection.appendChild(commentContainer);
+
+                comments.push({
+                    element: commentDiv,
+                    container: commentContainer,
+                    page: i,
+                    positionY: pageHeights.slice(0, i).reduce((a, b) => a + b, 0)
+                });
+
+                commentDiv.addEventListener('mousedown', function(e) {
+                    handleCommentClick(e, this);
+                });
+            }
+
+            document.getElementById('font-size').addEventListener('input', function() {
+                fontSize = this.value;
+                comments.forEach(comment => {
+                    comment.element.style.fontSize = `${fontSize}px`;
+                });
+                synchronizeHeights();
+            });
+        }
+
+        function handleCommentClick(e, element) {
+            if (e.target !== element) return;
+            if (document.caretRangeFromPoint) {
+                const range = document.caretRangeFromPoint(e.clientX, e.clientY);
+                if (range) {
+                    const sel = window.getSelection();
+                    sel.removeAllRanges();
+                    sel.addRange(range);
+                    element.focus();
+                }
+            } else {
+                const rect = element.getBoundingClientRect();
+                const y = e.clientY - rect.top;
+                const lineNumber = Math.floor(y / LINE_HEIGHT);
+                moveCursorToLine(element, lineNumber);
+            }
+        }
+
+        function moveCursorToLine(element, lineNumber) {
+            element.normalize();
+            let text = element.textContent;
+            const maxLines = Math.floor(element.offsetHeight / LINE_HEIGHT);
+            lineNumber = Math.min(lineNumber, maxLines - 1);
+            const currentLines = text.split('\n').length;
+            if (currentLines <= lineNumber) {
+                const needed = lineNumber - currentLines + 1;
+                element.textContent = text + '\n'.repeat(needed);
+            }
+            const lines = element.textContent.split('\n');
+            let pos = 0;
+            for (let i = 0; i < lineNumber; i++) {
+                pos += (lines[i]?.length || 0) + 1;
+            }
+            const range = document.createRange();
+            const sel = window.getSelection();
+            if (element.childNodes.length === 0) {
+                element.textContent = ' ';
+            }
+            const textNode = element.childNodes[0];
+            range.setStart(textNode, Math.min(pos, textNode.length));
+            range.collapse(true);
+            sel.removeAllRanges();
+            sel.addRange(range);
+            element.focus();
+        }
+
+        function resetZoom() {
+            currentZoom = 1.0;
+            applyZoom();
+        }
+
+        function zoomIn() {
+            currentZoom += 0.2;
+            applyZoom();
+        }
+
+        function zoomOut() {
+            if (currentZoom > 0.5) currentZoom -= 0.2;
+            applyZoom();
+        }
+
+        function applyZoom() {
+            const pdfContainer = document.getElementById('pdf-container');
+            const children = Array.from(pdfContainer.children).filter(child => child.tagName === 'CANVAS');
+            children.forEach((child, index) => {
+                child.style.transform = `scale(${currentZoom})`;
+                child.style.transformOrigin = 'top left';
+                symbolContainers[index].style.width = `${parseFloat(child.style.width) * currentZoom}px`;
+                symbolContainers[index].style.height = `${parseFloat(child.style.height) * currentZoom}px`;
+            });
+            synchronizeHeights();
+        }
+
+        function appendTotalSection() {
+            if (!totalSection) {
+                totalSection = document.createElement('div');
+                totalSection.className = 'total-comment';
+                totalSection.innerHTML = `
+                    <h3>總評</h3>
+                    <textarea id="total-comment-text" rows="6" placeholder="輸入總評">${pdfData[currentPdfIndex].totalComment}</textarea>
+                    <h4>範疇</h4>
+                    <div class="problem-categories">
+                        <button class="category-btn" data-category="取材">取材</button>
+                        <button class="category-btn" data-category="扣題">扣題</button>
+                        <button class="category-btn" data-category="立意">立意</button>
+                        <button class="category-btn" data-category="詳略">詳略</button>
+                        <button class="category-btn" data-category="密度">密度</button>
+                        <button class="category-btn" data-category="示現敘事">示現敘事</button>
+                    </div>
+                    <h4>評分</h4>
+                    <div class="score-input">
+                        <label>內容:</label>
+                        <input type="number" id="content-score" min="0" max="10" value="${pdfData[currentPdfIndex].scores.content || ''}">
+                    </div>
+                    <div class="score-input">
+                        <label>結構:</label>
+                        <input type="number" id="structure-score" min="0" max="10" value="${pdfData[currentPdfIndex].scores.structure || ''}">
+                    </div>
+                    <div class="score-input">
+                        <label>表達:</label>
+                        <input type="number" id="expression-score" min="0" max="10" value="${pdfData[currentPdfIndex].scores.expression || ''}">
+                    </div>
+                    <div class="score-input">
+                        <label>標點符號:</label>
+                        <input type="number" id="punctuation-score" min="0" max="10" value="${pdfData[currentPdfIndex].scores.punctuation || ''}">
+                    </div>
+                    <div class="score-input">
+                        <label>錯別字:</label>
+                        <input type="number" id="bonus-score" min="0" max="3" value="${pdfData[currentPdfIndex].scores.bonus || ''}">
+                    </div>
+                    <div class="total-score-display">
+                        <label>總分:</label>
+                        <span id="total-score">0</span>
+                    </div>
+                    <button onclick="generatePDF()"><i class="fas fa-file-pdf"></i> 生成PDF</button>
+                `;
+                document.getElementById('pdf-container').appendChild(totalSection);
+                document.querySelectorAll('.score-input input').forEach(input => {
+                    input.addEventListener('input', calculateTotalScore);
+                });
+                document.querySelectorAll('.category-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const category = this.dataset.category;
+                        if (this.classList.contains('active-red')) {
+                            this.classList.remove('active-red');
+                            this.classList.add('active-green');
+                            pdfData[currentPdfIndex].categories[category] = 'green';
+                        } else if (this.classList.contains('active-green')) {
+                            this.classList.remove('active-green');
+                            delete pdfData[currentPdfIndex].categories[category];
+                        } else {
+                            this.classList.add('active-red');
+                            pdfData[currentPdfIndex].categories[category] = 'red';
+                        }
+                    });
+                    const state = pdfData[currentPdfIndex].categories[btn.dataset.category];
+                    if (state === 'red') btn.classList.add('active-red');
+                    else if (state === 'green') btn.classList.add('active-green');
+                });
+                calculateTotalScore();
+            }
+        }
+
+        function calculateTotalScore() {
+            const content = parseInt(document.getElementById('content-score').value || 0) * 4;
+            const structure = parseInt(document.getElementById('structure-score').value || 0) * 3;
+            const expression = parseInt(document.getElementById('expression-score').value || 0) * 2;
+            const punctuation = parseInt(document.getElementById('punctuation-score').value || 0) * 1;
+            const bonus = parseInt(document.getElementById('bonus-score').value || 0);
+            document.getElementById('total-score').innerText = content + structure + expression + punctuation + bonus;
+        }
+
+        async function generatePDF() {
+            if (pdfPages.length === 0) return;
+
+            pdfData[currentPdfIndex].comments = comments.map(comment => comment.element.textContent);
+            pdfData[currentPdfIndex].totalComment = document.getElementById('total-comment-text').value;
+            pdfData[currentPdfIndex].scores = {
+                content: document.getElementById('content-score').value,
+                structure: document.getElementById('structure-score').value,
+                expression: document.getElementById('expression-score').value,
+                punctuation: document.getElementById('punctuation-score').value,
+                bonus: document.getElementById('bonus-score').value
+            };
+
+            const progressContainer = document.querySelector('.progress-container');
+            const progressBar = document.querySelector('.progress-bar');
+            const progressText = document.querySelector('.progress-text');
+            progressContainer.style.display = 'block';
+            progressText.style.display = 'block';
+            progressBar.style.width = '0%';
+            progressText.textContent = '生成進度：0%';
+
+            const pdf = new jsPDF({
+                unit: 'px',
+                compress: true
+            });
+            const totalPages = pdfPages.length;
+
+            try {
+                for (let index = 0; index < totalPages; index++) {
+                    const pageData = pdfPages[index];
+                    const comment = comments[index];
+                    const symbolContainer = symbolContainers[index];
+
+                    const progress = ((index + 1) / (totalPages + 1)) * 100;
+                    progressBar.style.width = `${progress.toFixed(1)}%`;
+                    progressText.textContent = `生成進度：${progress.toFixed(1)}%`;
+
+                    const originalWidth = pageData.originalWidth;
+                    const originalHeight = pageData.originalHeight;
+                    let scale = VIEWPORT_WIDTH / originalWidth;
+                    if (originalWidth < VIEWPORT_WIDTH) {
+                        scale = VIEWPORT_WIDTH / originalWidth;
+                    }
+                    const pdfWidth = VIEWPORT_WIDTH * currentZoom;
+                    const pdfHeight = originalHeight * scale * currentZoom;
+                    const isPortrait = pdfHeight >= pdfWidth;
+                    const fixedCommentWidth = isPortrait ? 400 : 300;
+                    const pageWidth = pdfWidth + fixedCommentWidth;
+                    const pageHeight = pdfHeight;
+
+                    if (index > 0) {
+                        pdf.addPage([pageWidth, pageHeight], pageWidth > pageHeight ? 'landscape' : 'portrait');
+                    } else {
+                        pdf.internal.pageSize.width = pageWidth;
+                        pdf.internal.pageSize.height = pageHeight;
+                        pdf.setPage(1);
+                    }
+
+                    const tempContainer = document.createElement('div');
+                    tempContainer.style.position = 'absolute';
+                    tempContainer.style.width = `${pdfWidth}px`;
+                    tempContainer.style.height = `${pdfHeight}px`;
+                    tempContainer.style.left = '-9999px';
+                    document.body.appendChild(tempContainer);
+
+                    const tempCanvas = document.createElement('canvas');
+                    tempCanvas.width = pdfWidth;
+                    tempCanvas.height = pdfHeight;
+                    const ctx = tempCanvas.getContext('2d');
+                    ctx.drawImage(pageData.canvas, 0, 0, pdfWidth, pdfHeight);
+                    tempContainer.appendChild(tempCanvas);
+
+                    Array.from(symbolContainer.children).forEach(symbol => {
+                        const clone = symbol.cloneNode(true);
+                        const left = parseFloat(symbol.style.left) / currentZoom;
+                        const top = parseFloat(symbol.style.top) / currentZoom;
+                        const width = parseFloat(symbol.style.width) / currentZoom;
+                        const height = parseFloat(symbol.style.height) / currentZoom;
+                        clone.style.left = `${left}px`;
+                        clone.style.top = `${top}px`;
+                        clone.style.width = `${width}px`;
+                        clone.style.height = `${height}px`;
+                        clone.style.transform = 'none';
+                        tempContainer.appendChild(clone);
+                    });
+
+                    const pageCanvas = await html2canvas(tempContainer, {
+                        scale: 1,
+                        useCORS: true,
+                        backgroundColor: null
+                    });
+                    document.body.removeChild(tempContainer);
+
+                    pdf.addImage(pageCanvas, 'PNG', 0, 0, pdfWidth, pdfHeight);
+
+                    if (comment.element.innerText.trim()) {
+                        comment.container.classList.add('pdf-border');
+                        const commentCanvas = await html2canvas(comment.container, {
+                            scale: 3,
+                            useCORS: true,
+                            backgroundColor: null
+                        });
+                        comment.container.classList.remove('pdf-border');
+                        pdf.addImage(commentCanvas, 'PNG', pdfWidth, 0, fixedCommentWidth, pdfHeight);
+                    }
+
+                    await new Promise(resolve => setTimeout(resolve, 50));
+                }
+
+                const totalClone = totalSection.cloneNode(true);
+                totalClone.classList.add('total-comment-pdf');
+                const textarea = totalClone.querySelector('#total-comment-text');
+                const commentText = textarea.value;
+                const textDiv = document.createElement('div');
+                textDiv.style.fontSize = '18px';
+                textDiv.style.lineHeight = '1.5';
+                textDiv.style.padding = '12px';
+                textDiv.style.width = '100%';
+                textDiv.style.boxSizing = 'border-box';
+                textDiv.style.whiteSpace = 'pre-wrap';
+                textDiv.style.wordWrap = 'break-word';
+                textDiv.style.maxHeight = '600px';
+                textDiv.style.overflow = 'hidden';
+                textDiv.textContent = commentText;
+                textarea.parentNode.replaceChild(textDiv, textarea);
+
+                totalClone.style.background = isDarkMode ? 'rgba(50, 50, 50, 0.98)' : 'rgba(255, 255, 255, 0.98)';
+                totalClone.style.border = 'none';
+                totalClone.style.padding = '20px';
+                totalClone.style.fontFamily = "'Noto Serif TC', 'PingFang TC', 'Microsoft JhengHei', serif";
+
+                document.body.appendChild(totalClone);
+                const totalCanvas = await html2canvas(totalClone, {
+                    scale: 3,
+                    useCORS: true,
+                    width: 794,
+                    height: 1123,
+                    backgroundColor: isDarkMode ? '#323232' : '#fff'
+                });
+                document.body.removeChild(totalClone);
+
+                pdf.addPage([794, 1123], 'portrait');
+                pdf.addImage(totalCanvas, 'PNG', 0, 0, 794, 1123);
+
+                const newFileName = originalFileName ? `${originalFileName}【已批改】.pdf` : '批改結果.pdf';
+                pdf.save(newFileName);
+                progressContainer.style.display = 'none';
+                progressText.style.display = 'none';
+
+                if (currentMode === 'multiplePdfs') {
+                    if (currentPdfIndex < pdfFiles.length - 1) {
+                        currentPdfIndex++;
+                        loadCurrentPdf();
+                    } else {
+                        alert('所有作文批改完畢，可以下班了！');
+                    }
+                }
+            } catch (error) {
+                console.error('生成PDF失敗:', error);
+                progressContainer.style.display = 'none';
+                progressText.style.display = 'none';
+                alert('PDF生成失敗，請檢查控制台日誌');
+            }
+        }
+
+        document.getElementById('document-area').addEventListener('scroll', () => {
+            const documentArea = document.getElementById('document-area');
+            const commentSection = document.getElementById('comment-section');
+            commentSection.style.top = `-${documentArea.scrollTop}px`;
+        });
+
+        function showEnlargedImage(file) {
+            const img = new Image();
+            img.src = URL.createObjectURL(file);
+            const win = window.open('');
+            win.document.write(img.outerHTML);
+        }
+
+        let isMouseDown = false;
+        let startX, startY;
+        let currentPage;
+        let currentSymbol = null;
+        let clickTimeout = null;
+        const CLICK_DELAY = 250;
+
+        const pdfContainer = document.getElementById('pdf-container');
+
+        pdfContainer.addEventListener('mousedown', function(e) {
+            if (e.target.tagName === 'CANVAS') {
+                currentPage = e.target.dataset.page;
+                const canvas = e.target;
+                const rect = canvas.getBoundingClientRect();
+                startX = (e.clientX - rect.left) / currentZoom;
+                startY = (e.clientY - rect.top) / currentZoom;
+                isMouseDown = true;
+                currentSymbol = null;
+
+                if (clickTimeout) {
+                    clearTimeout(clickTimeout);
+                    clickTimeout = null;
+                }
+            }
+        });
+
+        document.addEventListener('mousemove', function(e) {
+            if (!isMouseDown || !currentPage) return;
+
+            const canvas = pdfPages[currentPage - 1].canvas;
+            const rect = canvas.getBoundingClientRect();
+            const x = (e.clientX - rect.left) / currentZoom;
+            const y = (e.clientY - rect.top) / currentZoom;
+
+            if (currentSymbol) {
+                const color = x > startX ? 'rgba(255, 255, 0, 0.3)' : 'rgba(255, 0, 0, 0.3)';
+                currentSymbol.style.background = color;
+                const left = Math.min(startX, x) * currentZoom;
+                const top = Math.min(startY, y) * currentZoom;
+                const width = Math.abs(x - startX) * currentZoom;
+                const height = Math.abs(y - startY) * currentZoom;
+                currentSymbol.style.left = `${left}px`;
+                currentSymbol.style.top = `${top}px`;
+                currentSymbol.style.width = `${width}px`;
+                currentSymbol.style.height = `${height}px`;
+            } else {
+                const distance = Math.sqrt((x - startX) ** 2 + (y - startY) ** 2);
+                if (distance > 5) {
+                    currentSymbol = createHighlight(startX, startY, x, y, symbolContainers[currentPage - 1]);
+                }
+            }
+        });
+
+        document.addEventListener('mouseup', function(e) {
+            if (!isMouseDown || !currentPage) return;
+            isMouseDown = false;
+
+            const canvas = pdfPages[currentPage - 1].canvas;
+            const rect = canvas.getBoundingClientRect();
+            const endX = (e.clientX - rect.left) / currentZoom;
+            const endY = (e.clientY - rect.top) / currentZoom;
+            const distance = Math.sqrt((endX - startX) ** 2 + (endY - startY) ** 2);
+
+            if (distance < 5) {
+                if (clickTimeout) {
+                    clearTimeout(clickTimeout);
+                    clickTimeout = null;
+                }
+            }
+            currentPage = null;
+        });
+
+        pdfContainer.addEventListener('touchstart', handleTouchStart, { passive: false });
+        pdfContainer.addEventListener('touchmove', handleTouchMove, { passive: false });
+        pdfContainer.addEventListener('touchend', handleTouchEnd);
+
+        function handleTouchStart(e) {
+            if (e.touches.length !== 1) return;
+            const touch = e.touches[0];
+            const canvas = touch.target;
+            if (canvas.tagName !== 'CANVAS') return;
+            const currentTime = Date.now();
+            const tapX = touch.clientX;
+            const tapY = touch.clientY;
+            const timeDiff = currentTime - lastTapTime;
+            const distance = Math.sqrt((tapX - lastTapX) ** 2 + (tapY - lastTapY) ** 2);
+            if (timeDiff < 300 && distance < 30) {
+                e.preventDefault();
+                isHighlighting = true;
+                const rect = canvas.getBoundingClientRect();
+                highlightStartX = (tapX - rect.left) / currentZoom;
+                highlightStartY = (tapY - rect.top) / currentZoom;
+                currentPage = canvas.dataset.page;
+                currentSymbol = createHighlight(highlightStartX, highlightStartY, highlightStartX, highlightStartY, symbolContainers[currentPage - 1]);
+            } else {
+                lastTapTime = currentTime;
+                lastTapX = tapX;
+                lastTapY = tapY;
+            }
+        }
+
+        function handleTouchMove(e) {
+            if (!isHighlighting || e.touches.length !== 1) return;
+            e.preventDefault();
+            const touch = e.touches[0];
+            const canvas = pdfPages[currentPage - 1].canvas;
+            const rect = canvas.getBoundingClientRect();
+            const x = (touch.clientX - rect.left) / currentZoom;
+            const y = (touch.clientY - rect.top) / currentZoom;
+            if (currentSymbol) {
+                const color = x > highlightStartX ? 'rgba(255, 255, 0, 0.3)' : 'rgba(255, 0, 0, 0.3)';
+                currentSymbol.style.background = color;
+                const left = Math.min(highlightStartX, x) * currentZoom;
+                const top = Math.min(highlightStartY, y) * currentZoom;
+                const width = Math.abs(x - highlightStartX) * currentZoom;
+                const height = Math.abs(y - highlightStartY) * currentZoom;
+                currentSymbol.style.left = `${left}px`;
+                currentSymbol.style.top = `${top}px`;
+                currentSymbol.style.width = `${width}px`;
+                currentSymbol.style.height = `${height}px`;
+            }
+        }
+
+        function handleTouchEnd(e) {
+            if (isHighlighting) {
+                isHighlighting = false;
+                currentSymbol = null;
+                currentPage = null;
+            }
+        }
+
+        function createHighlight(startX, startY, endX, endY, container) {
+            const highlight = document.createElement('div');
+            highlight.className = 'highlight';
+            const left = Math.min(startX, endX) * currentZoom;
+            const top = Math.min(startY, endY) * currentZoom;
+            const width = Math.abs(endX - startX) * currentZoom;
+            const height = Math.abs(endY - startY) * currentZoom;
+            highlight.style.left = `${left}px`;
+            highlight.style.top = `${top}px`;
+            highlight.style.width = `${width}px`;
+            highlight.style.height = `${height}px`;
+            const color = endX > startX ? 'rgba(255, 255, 0, 0.2)' : 'rgba(255, 0, 0, 0.2)';
+            highlight.style.background = color;
+            addSymbolEvents(highlight);
+            container.appendChild(highlight);
+            return highlight;
+        }
+
+        function addSymbolEvents(symbol) {
+            symbol.addEventListener('dblclick', function() {
+                symbol.remove();
+            });
+        }
+    </script>
+
+<footer class="copyright-footer">
+        <p>Copyright © 2025 陳冠健. All rights reserved.</p>
+    </footer>
+
+        
+</body>
+</html>

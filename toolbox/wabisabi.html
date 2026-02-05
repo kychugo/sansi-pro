@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>一瞬之詩 | Wabi-Sabi AI Poet</title>
+    <meta name="description" content="上傳一張圖片，讓 AI 為您的瞬間譜寫一首充滿侘寂美學的單行詩。">
+    
+    <!-- 引入具手寫感的思源宋體，增添人文氣息 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+
+
+.copyright-footer {
+            position: fixed;
+            bottom: 0;
+            right: 0;
+            padding: 5px 10px;
+            background-color: #f1f1f1;
+        }
+
+        .copyright-footer p {
+            margin: 0;
+            font-size: 14px;
+        }
+
+        @media (max-width: 600px) {
+            .copyright-footer p {
+                font-size: 12px;
+            }
+        }
+
+
+
+
+        :root {
+            --bg-color: #F5F3EF; /* 仿宣紙的米白 */
+            --text-color: #3D3B37; /* 墨色 */
+            --accent-color: #A39B8B; /* 枯木色 */
+            --border-color: #DCD6C8; /* 淺石色 */
+            --font-main: 'Noto Serif TC', serif;
+        }
+
+        body {
+            font-family: var(--font-main);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start; /* 從頂部開始佈局 */
+            min-height: 100vh;
+            margin: 0;
+            padding: 2rem;
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        #container {
+            width: 100%;
+            max-width: 520px;
+            background: rgba(255, 255, 255, 0.3);
+            padding: 2rem;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            text-align: center;
+            transition: all 0.5s ease;
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            margin-top: 2rem; /* 與頂部的間距 */
+        }
+        
+        h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: 0.2em;
+            margin: 0 0 0.5rem 0.2em;
+            color: var(--text-color);
+        }
+
+        #subtitle {
+            font-size: 0.9rem;
+            color: var(--accent-color);
+            margin-bottom: 2rem;
+        }
+
+        #image-input-area {
+            position: relative;
+            width: 100%;
+            min-height: 200px; /* 初始最小高度 */
+            border: 2px dashed var(--border-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+        
+        /* 當有圖片時，邊框變為實線且無最小高度限制 */
+        #image-input-area.has-image {
+            min-height: 0;
+            border: 1px solid var(--border-color);
+            background: none;
+        }
+
+        #image-input-area:hover:not(.has-image) {
+            border-color: var(--accent-color);
+        }
+
+        #image-preview {
+            display: none; /* 預設隱藏 */
+            width: 100%;
+            height: auto; /* 高度自動，維持比例 */
+            max-width: 100%;
+            transition: opacity 0.5s ease;
+        }
+
+        #image-preview.visible {
+            display: block; /* 顯示圖片 */
+        }
+
+        #upload-prompt {
+            z-index: 2;
+            padding: 1rem;
+            transition: opacity 0.5s ease;
+        }
+        
+        #upload-prompt.hidden {
+            display: none;
+        }
+
+        .upload-icon {
+            width: 32px;
+            height: 32px;
+            margin-bottom: 0.5rem;
+            color: var(--accent-color);
+        }
+
+        /* 隱藏原生檔案上傳按鈕 */
+        #file-input, #camera-input {
+            display: none;
+        }
+        
+        #action-buttons {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap; /* 在小螢幕上換行 */
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .action-btn {
+            background: none;
+            border: 1px solid var(--border-color);
+            color: var(--accent-color);
+            padding: 10px 20px;
+            font-family: var(--font-main);
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .action-btn:hover:not(:disabled) {
+            background-color: var(--bg-color);
+            border-color: var(--accent-color);
+            color: var(--text-color);
+        }
+
+        .action-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+        
+        /* 結果顯示區域 */
+        #result-container {
+            margin-top: 2rem;
+            width: 100%;
+            min-height: 100px;
+            padding-top: 1.5rem;
+            box-sizing: border-box;
+            border-top: 1px solid var(--border-color);
+            text-align: left; /* 整體靠左 */
+            opacity: 0;
+            transition: opacity 1.5s ease;
+        }
+        
+        #result-container.visible {
+            opacity: 1;
+        }
+        
+        #poem-display {
+            font-size: 1.25rem;
+            font-weight: 400;
+            line-height: 1.8;
+            letter-spacing: 0.1em;
+            color: var(--text-color);
+            white-space: pre-wrap;
+            margin: 0;
+        }
+        
+        #analysis-container {
+            margin-top: 1.5rem;
+        }
+        
+        #analysis-container h4 {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--text-color);
+            margin: 0 0 0.5rem 0;
+            letter-spacing: 0.1em;
+        }
+        
+        #poem-analysis {
+            font-size: 0.9rem;
+            line-height: 1.7;
+            color: var(--accent-color);
+            white-space: pre-wrap;
+            margin: 0;
+        }
+
+        /* Loading 狀態 */
+        #loading-indicator {
+            display: none; /* 預設隱藏 */
+            width: 100%;
+            text-align: center;
+            padding: 2rem 0;
+            font-size: 1rem;
+            color: var(--accent-color);
+        }
+
+        #loading-indicator.visible {
+            display: block;
+            animation: fadeInOut 2s infinite;
+        }
+        
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        /* --- 響應式設計強化 --- */
+        @media (max-width: 768px) {
+            body {
+                padding: 1.5rem;
+            }
+            #container {
+                padding: 1.5rem;
+                margin-top: 1rem;
+            }
+            h1 {
+                font-size: 1.6rem; /* 在小螢幕上縮小標題 */
+            }
+            #poem-display {
+                font-size: 1.1rem; /* 在小螢幕上縮小詩句文字 */
+            }
+            .action-btn {
+                padding: 8px 16px; /* 稍微縮小按鈕 */
+                font-size: 0.85rem;
+            }
+        }
+
+
+
+    </style>
+</head>
+<body>
+
+    <div id="container">
+        <h1>一瞬之詩</h1>
+        <p id="subtitle">置入一隅風景，得一句侘寂之詩</p>
+
+        <!-- 圖片上傳區域 -->
+        <div id="image-input-area">
+            <img id="image-preview" src="" alt="圖片預覽">
+            <div id="upload-prompt">
+                <svg class="upload-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+                </svg>
+                <p>點擊此處選擇檔案</p>
+            </div>
+        </div>
+        
+        <!-- 隱藏的 input 元素 -->
+        <input type="file" id="file-input" accept="image/*">
+        <input type="file" id="camera-input" accept="image/*" capture="environment">
+
+        <!-- 操作按鈕 -->
+        <div id="action-buttons">
+            <button id="camera-btn" class="action-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M10.5 8.5a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z"/>
+                    <path d="M2 4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-1.172a2 2 0 0 1-1.414-.586l-.828-.828A2 2 0 0 0 9.172 2H6.828a2 2 0 0 0-1.414.586l-.828.828A2 2 0 0 1 3.172 4H2zm.5 2a.5.5 0 1 1 0-1 .5.5 0 0 1 0 1zm9 2.5a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0z"/>
+                </svg>
+                <span>即席攝影</span>
+            </button>
+            <button id="generate-btn" class="action-btn" disabled>生成詩句</button>
+        </div>
+        
+        <!-- 結果顯示區域 -->
+        <div id="result-container">
+            <p id="poem-display"></p>
+            <div id="analysis-container" style="display: none;">
+                <h4>賞析</h4>
+                <p id="poem-analysis"></p>
+            </div>
+        </div>
+
+        <!-- Loading 指示器 -->
+        <div id="loading-indicator">尋覓詩句中…</div>
+    </div>
+
+
+    <script>
+
+        // ===============================================================
+// === [神思通用組件] 權限攔截器 & 莫蘭迪提示窗 (含登入連結) ===
+// ===============================================================
+(function() {
+    // 防止重複注入
+    if (window.SansiInterceptorLoaded) return;
+    window.SansiInterceptorLoaded = true;
+
+    // --- 1. 自動注入莫蘭迪 CSS ---
+    const style = document.createElement('style');
+    style.textContent = `
+        /* 莫蘭迪遮罩 */
+        .sansi-limit-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(253, 252, 248, 0.88); /* 米白高模糊 */
+            backdrop-filter: blur(6px);
+            z-index: 9999999; /* 最高層級 */
+            display: none; justify-content: center; align-items: center;
+            opacity: 0; transition: opacity 0.3s ease;
+        }
+        .sansi-limit-show { opacity: 1; }
+
+        /* 視窗卡片 */
+        .sansi-limit-card {
+            background: #fdfcf8;
+            border: 1px solid #e0ddd7;
+            border-radius: 16px;
+            padding: 30px 25px;
+            width: 90%; max-width: 380px;
+            box-shadow: 0 15px 40px rgba(141, 110, 99, 0.15);
+            text-align: center;
+            transform: translateY(20px);
+            transition: transform 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+            font-family: 'Noto Serif TC', serif;
+        }
+        .sansi-limit-show .sansi-limit-card { transform: translateY(0); }
+
+        /* 圖示與文字 */
+        .sansi-limit-icon { font-size: 3rem; color: #d69a92; margin-bottom: 15px; } /* 豆沙紅 */
+        .sansi-limit-title { color: #5d4037; font-size: 1.4rem; font-weight: bold; margin: 0 0 10px 0; }
+        .sansi-limit-desc { color: #888; font-size: 1rem; line-height: 1.6; margin-bottom: 25px; text-align: justify; }
+
+        /* 按鈕群組 */
+        .sansi-btn-group { display: flex; gap: 12px; margin-top: 20px; }
+
+        .sansi-limit-btn {
+            border: none; padding: 10px 0; border-radius: 50px;
+            font-size: 0.95rem; font-weight: bold; cursor: pointer;
+            transition: all 0.2s; font-family: 'Noto Serif TC', serif;
+            flex: 1; display: flex; align-items: center; justify-content: center; gap: 5px;
+            text-decoration: none;
+        }
+
+        /* 主按鈕 (前往登入) - 莫蘭迪綠 */
+        .btn-primary { 
+            background: #8fa398; color: white; 
+            box-shadow: 0 4px 12px rgba(143, 163, 152, 0.4);
+        }
+        .btn-primary:hover { background-color: #7d9186; transform: translateY(-2px); }
+
+        /* 次按鈕 (關閉) - 淺灰 */
+        .btn-secondary { 
+            background: #f0f0f0; color: #777; 
+        }
+        .btn-secondary:hover { background-color: #e5e5e5; }
+    `;
+    document.head.appendChild(style);
+
+    // --- 2. 自動注入 HTML (彈出視窗) ---
+    const modalHTML = `
+        <div id="sansiLimitModal" class="sansi-limit-overlay">
+            <div class="sansi-limit-card">
+                <div class="sansi-limit-icon">
+                    <i class="fas fa-user-lock"></i>
+                </div>
+                <div class="sansi-limit-title">需要登入</div>
+                <div class="sansi-limit-desc">
+                    訪客每日體驗額度已耗盡。<br>
+                    請前往「神思」主頁登入學校帳號，即可解鎖無限使用權限。
+                </div>
+                <div class="sansi-btn-group">
+                    <button class="sansi-limit-btn btn-secondary" onclick="closeSansiLimitModal()">
+                        稍後
+                    </button>
+                    <!-- 點擊直接跳轉至神思主頁 -->
+                    <button class="sansi-limit-btn btn-primary" onclick="window.location.href='https://kenchan20141.github.io/AIChinese/'">
+                        <i class="fas fa-sign-in-alt"></i> 前往登入
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    const div = document.createElement('div');
+    div.innerHTML = modalHTML;
+    document.body.appendChild(div);
+
+    // --- 3. 定義關閉視窗與清理函式 ---
+    window.closeSansiLimitModal = function() {
+        const modal = document.getElementById('sansiLimitModal');
+        if (modal) {
+            modal.classList.remove('sansi-limit-show');
+            setTimeout(() => { modal.style.display = 'none'; }, 300);
+            
+            // 自動嘗試關閉各種工具的 Loading 狀態，防止畫面卡死
+            if (typeof hideProgress === 'function') hideProgress(); // 題孳
+            if (typeof hideLoading === 'function') hideLoading();   // 翻水/寫作
+            
+            // 如果按鈕被禁用，嘗試解鎖 (針對通用按鈕 class)
+            const disabledBtns = document.querySelectorAll('button:disabled');
+            disabledBtns.forEach(btn => btn.disabled = false);
+        }
+    };
+
+    // --- 4. 攔截器核心邏輯 ---
+    const originalFetch = window.fetch;
+    
+    window.fetch = async function(url, options) {
+        // 僅攔截 AI 請求
+        if (typeof url === 'string' && url.includes('pollinations.ai')) {
+            
+            // A. 即時檢查登入狀態 (每次請求都會重新讀取，防止登出後仍能使用)
+            const s = localStorage.getItem('studentProfile');
+            
+            if (s) {
+                // 已登入：放行
+                return originalFetch(url, options);
+            }
+
+            // B. 未登入：檢查額度
+            const today = new Date().toLocaleDateString('zh-HK');
+            const toolName = document.title || "UnknownTool"; 
+            const storageKey = `sansi_guest_usage_${toolName}_${today}`;
+            
+            let currentCount = parseInt(localStorage.getItem(storageKey) || "0");
+
+            // C. 超過額度 -> 阻擋並彈窗
+            if (currentCount >= 1) {
+                // 顯示視窗
+                const modal = document.getElementById('sansiLimitModal');
+                modal.style.display = 'flex';
+                // 強制重繪以觸發過渡動畫
+                void modal.offsetWidth; 
+                modal.classList.add('sansi-limit-show');
+
+                // 回傳錯誤以中斷原本程式的執行
+                return Promise.reject(new Error("Guest Limit Exceeded"));
+            }
+
+            // D. 未超過 -> 記錄並放行
+            localStorage.setItem(storageKey, currentCount + 1);
+            console.log(`[訪客] ${toolName} 使用第 ${currentCount + 1} 次`);
+        }
+
+        return originalFetch(url, options);
+    };
+    
+    console.log("✅ 神思通用權限鎖 (含登入連結) 已啟動");
+})();
+</script>
+
+
+
+
+
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // 獲取所有需要的 DOM 元素
+            const imageInputArea = document.getElementById('image-input-area');
+            const fileInput = document.getElementById('file-input');
+            const cameraInput = document.getElementById('camera-input');
+            const cameraBtn = document.getElementById('camera-btn');
+            const generateBtn = document.getElementById('generate-btn');
+            const imagePreview = document.getElementById('image-preview');
+            const uploadPrompt = document.getElementById('upload-prompt');
+            const resultContainer = document.getElementById('result-container');
+            const poemDisplay = document.getElementById('poem-display');
+            const analysisContainer = document.getElementById('analysis-container');
+            const poemAnalysis = document.getElementById('poem-analysis');
+            const loadingIndicator = document.getElementById('loading-indicator');
+
+            let currentImageBase64 = null; // 用於儲存當前處理好的圖片
+
+            // --- 事件監聽 ---
+
+            imageInputArea.addEventListener('click', () => fileInput.click());
+            cameraBtn.addEventListener('click', () => cameraInput.click());
+            fileInput.addEventListener('change', handleFileSelect);
+            cameraInput.addEventListener('change', handleFileSelect);
+            generateBtn.addEventListener('click', generatePoem);
+
+            // --- 核心功能函數 ---
+
+            function handleFileSelect(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                // 重置狀態
+                resultContainer.classList.remove('visible');
+                loadingIndicator.classList.add('visible');
+                loadingIndicator.textContent = '壓縮圖片中…';
+                analysisContainer.style.display = 'none';
+
+                // 壓縮並處理圖片
+                resizeImage(file, 1024, 0.85, (base64) => {
+                    currentImageBase64 = base64;
+                    imagePreview.src = base64;
+                    imagePreview.classList.add('visible');
+                    
+                    uploadPrompt.classList.add('hidden');
+                    imageInputArea.classList.add('has-image');
+                    
+                    generateBtn.disabled = false;
+                    generateBtn.textContent = '生成詩句';
+                    
+                    loadingIndicator.classList.remove('visible');
+                });
+            }
+
+            function resizeImage(file, maxSize, quality, callback) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        let { width, height } = img;
+
+                        if (width > height) {
+                            if (width > maxSize) {
+                                height *= maxSize / width;
+                                width = maxSize;
+                            }
+                        } else {
+                            if (height > maxSize) {
+                                width *= maxSize / height;
+                                height = maxSize;
+                            }
+                        }
+
+                        const canvas = document.createElement('canvas');
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+                        callback(canvas.toDataURL('image/jpeg', quality));
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+
+            async function generatePoem() {
+                if (!currentImageBase64) {
+                    alert('請先選擇一張圖片。');
+                    return;
+                }
+
+                // 更新 UI 為處理中狀態
+                generateBtn.disabled = true;
+                generateBtn.textContent = '尋詩中…';
+                resultContainer.classList.remove('visible');
+                loadingIndicator.classList.add('visible');
+                loadingIndicator.textContent = '尋覓詩句中…';
+                
+                // 【修訂一】在 Prompt 中加入隨機數，確保每次請求都獨一無二，強制 API 重新生成
+                const cacheBuster = Math.random();
+                const promptText = `你是一位深諳文學的散文家。必須參考真實作者及真實文學作品，並根據這張圖片的內容，以繁體中文引錄一句精煉、有留白空間、富文學性的真實散文節錄的句子。要多嘗試詞語的新鮮組合。只需回傳那一句句子，不要任何多餘的文字或解釋。JSON 結構如下： {"poem": "一句繁體散文句子，不包含篇名及作者名稱", "analysis": "一段50字左右的繁體中文賞析"}。句子需精煉、富文學性且有留白意境。賞析需簡要分析圖片如何引發詩意。(隨機數: ${cacheBuster})`;
+
+                const requestBody = {
+  model: "gemini-2.5-flash-lite", // 確保使用支援 Vision 的模型
+  messages: [{
+    role: "user",
+    content: [{
+      type: "text",
+      text: promptText
+    }, {
+      type: "image_url",
+      image_url: { "url": currentImageBase64 }
+    }]
+  }],
+  temperature: 1.2, // 提高溫度以增加創意
+  stream: false,
+  // 【教學範例】如果 API 支援，這是一種可能加入隱私設定的方式。
+  // 這行程式碼在您目前的服務中不會有作用。
+  "private": true
+};
+
+                try {
+                    const response = await fetch('https://gen.pollinations.ai/v1/chat/completions', {
+                        method: 'POST',
+                        headers: { 
+                            'Content-Type': 'application/json',
+                            'Authorization': 'Bearer pk_oe8RqRUjeOqQ8Dvj' /* 【新增處】 */
+                        },
+                        body: JSON.stringify(requestBody)
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`API 請求失敗，狀態碼: ${response.status}`);
+                    }
+
+                    const data = await response.json();
+                    let content = data.choices?.[0]?.message?.content?.trim();
+
+                    if (!content) {
+                        throw new Error('API 回應內容為空。');
+                    }
+                    
+                    // 嘗試解析 AI 回傳的 JSON
+                    try {
+                        // 清理可能的 markdown 程式碼區塊
+                        const jsonString = content.replace(/```json\n?|\n?```/g, '');
+                        const parsed = JSON.parse(jsonString);
+
+                        if (parsed.poem && parsed.analysis) {
+                            poemDisplay.textContent = parsed.poem;
+                            poemAnalysis.textContent = parsed.analysis;
+                            analysisContainer.style.display = 'block';
+                        } else {
+                            // 若 JSON 格式不對，直接顯示原始回傳內容
+                            throw new Error('JSON 格式不符。');
+                        }
+                    } catch (e) {
+                        // 如果解析失敗，可能是 AI 沒有回傳標準 JSON，我們做一個降級處理
+                        poemDisplay.textContent = content;
+                        analysisContainer.style.display = 'none'; // 隱藏賞析區塊
+                    }
+
+                    resultContainer.classList.add('visible');
+
+                } catch (error) {
+                    console.error('生成詩句時發生錯誤:', error);
+                    poemDisplay.textContent = '詩意走失，請稍後再試。';
+                    analysisContainer.style.display = 'none';
+                    resultContainer.classList.add('visible');
+                } finally {
+                    // 無論成功或失敗，都恢復按鈕狀態並隱藏 loading
+                    loadingIndicator.classList.remove('visible');
+                    generateBtn.disabled = false;
+                    generateBtn.textContent = '再覓一詩'; // 讓使用者可以重新生成
+                }
+            }
+        });
+    </script>
+
+<footer class="copyright-footer">
+<p>Copyright © 2025 陳冠健. All rights reserved.</p>
+</footer>
+
+
+
+<!-- === 1. Firebase SDK 引入 === -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+
+<!-- === 2. Firebase 初始化與配置 (這裡修復了您漏掉的啟動碼) === -->
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyBgwrgn2m343mRJb0WjzUhteiospegXhvI",
+    authDomain: "sansidata.firebaseapp.com",
+    projectId: "sansidata",
+    storageBucket: "sansidata.firebasestorage.app",
+    messagingSenderId: "580288358575",
+    appId: "1:580288358575:web:35dcf4e79bcef530de4c5a",
+    databaseURL: "https://sansidata-default-rtdb.firebaseio.com" 
+  };
+
+  // ★★★ 修正重點：補上初始化指令 ★★★
+  if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+  }
+  
+  // ★★★ 修正重點：定義 database 變數，下面的程式才抓得到 ★★★
+  var database = firebase.database();
+
+  // (選用) 啟用匿名驗證，確保連線權限更穩定
+  firebase.auth().signInAnonymously().catch((error) => {
+      console.error("Auth Error:", error);
+  });
+</script>
+
+
+<!-- === [還原版] 神思大數據收集模組 (30秒=1分鐘邏輯) === -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    let totalSeconds = 0;
+    let timerInterval = null;
+
+    // 1. 獲取日期路徑
+    function getDateParts() {
+        const now = new Date();
+        const y = String(now.getFullYear());
+        const m = String(now.getMonth() + 1).padStart(2, '0');
+        const d = String(now.getDate()).padStart(2, '0');
+        return { y, m, d };
+    }
+
+    // 2. 獲取身份
+    function getIdentity() {
+        const rawProfile = localStorage.getItem('studentProfile');
+        let s = null;
+        try { if(rawProfile) s = JSON.parse(rawProfile); } catch (e) {}
+
+        if (s && s.grade && s.class) {
+            const safeName = s.name.replace(/[.#$/[\]]/g, '_'); 
+            return { type: 'student', id: s.uid || `stu_${s.grade}${s.class}_${safeName}`, grade: s.grade, class: s.class };
+        } else {
+            let guestID = localStorage.getItem('sansi_guest_uuid');
+            if (!guestID) {
+                guestID = 'guest_' + Math.random().toString(36).substr(2, 9);
+                localStorage.setItem('sansi_guest_uuid', guestID);
+            }
+            return { type: 'guest', id: guestID, grade: 'Guest', class: 'Visitor' };
+        }
+    }
+
+// === 3. 記錄訪問 (Log Visit) - 高效分流版 ===
+// === 3. 記錄訪問 (Log Visit) - 高效分流版 (含 stats_school 邏輯) ===
+async function logVisitOnce() {
+    if (typeof firebase === 'undefined' || !database) return;
+    
+    const { y, m, d } = getDateParts();
+    const identity = getIdentity();
+    const uid = identity.id;
+
+    // Session 鎖
+    const sessionKey = `sansi_visit_logged_${y}${m}${d}_${uid}`;
+    if (sessionStorage.getItem(sessionKey)) return; 
+
+    // 檢查 Tracking (判斷是否為今日首次)
+    const trackingRef = database.ref(`stats_tracking/${y}/${m}/${d}/unique_users/${uid}`);
+    
+    try {
+        const snap = await trackingRef.once('value');
+        const isFirstTimeToday = !snap.exists();
+
+        const updates = {};
+        const increment1 = firebase.database.ServerValue.increment(1);
+        
+        // 1. 全校總覽路徑 (含訪客) - stats_global
+        const globalPath = `stats_global/${y}/${m}/${d}`;
+        updates[`${globalPath}/visits`] = increment1;
+
+        // ★★★ 新增：純學校路徑 (僅學生) - stats_school ★★★
+        const schoolPath = `stats_school/${y}/${m}/${d}`;
+
+        if (identity.type === 'student') {
+            const classKey = `${identity.grade}${identity.class}`;
+            const studentKey = identity.id.split('_').pop(); // 名字
+
+            // 學生同時寫入 stats_school
+            updates[`${schoolPath}/visits`] = increment1;
+
+            // 2. 班級路徑 (stats_classes/6A/YYYY/MM/DD)
+            const classPath = `stats_classes/${classKey}/${y}/${m}/${d}`;
+            updates[`${classPath}/visits`] = increment1;
+
+            // 3. 學生路徑 (stats_students/6A/陳大文/YYYY/MM/DD)
+            const studentPath = `stats_students/${classKey}/${studentKey}/${y}/${m}/${d}`;
+            updates[`${studentPath}/visits`] = increment1;
+
+            if (isFirstTimeToday) {
+                updates[`stats_tracking/${y}/${m}/${d}/unique_users/${uid}`] = true;
+                
+                // 更新 global unique
+                updates[`${globalPath}/unique`] = increment1;
+                
+                // ★ 更新 school unique (僅學生)
+                updates[`${schoolPath}/unique`] = increment1;
+                
+                // 更新 class unique
+                updates[`${classPath}/unique`] = increment1;
+            }
+        } else {
+            // 訪客 (只寫入 global，不寫入 school)
+            if (isFirstTimeToday) {
+                updates[`stats_tracking/${y}/${m}/${d}/unique_users/${uid}`] = true;
+                updates[`${globalPath}/unique`] = increment1;
+            }
+        }
+
+        await database.ref().update(updates);
+        sessionStorage.setItem(sessionKey, 'true');
+        console.log("📍 [Stats] 訪問計數已分流上傳 (含 stats_school)");
+
+    } catch (e) {
+        console.error("Stats Error:", e);
+    }
+}
+
+// 4. 上傳 1 分鐘 (分流版 - 除錯模式)
+function uploadOneMinute() {
+    if (typeof firebase === 'undefined' || !database) return;
+    
+    logVisitOnce(); 
+
+    const { y, m, d } = getDateParts();
+    const identity = getIdentity();
+    
+    // 獲取學生名稱 Key (防呆)
+    const studentKey = identity.id.includes('_') ? identity.id.split('_').pop() : identity.name; 
+    
+    const updates = {};
+    const increment60 = firebase.database.ServerValue.increment(60);
+
+    // 1. 全域 (Global)
+    updates[`stats_global/${y}/${m}/${d}/duration`] = increment60;
+
+    // ★★★ 2. 學生身份判斷 ★★★
+    if (identity.type === 'student') {
+        const classKey = `${identity.grade}${identity.class}`;
+
+        // Path A: 全校 (這是您缺少的)
+        const pathSchool = `stats_school/${y}/${m}/${d}/duration`;
+        updates[pathSchool] = increment60;
+
+        // Path B: 班級
+        const pathClass = `stats_classes/${classKey}/${y}/${m}/${d}/duration`;
+        updates[pathClass] = increment60;
+        
+        // Path C: 個人
+        const pathStudent = `stats_students/${classKey}/${studentKey}/${y}/${m}/${d}/duration`;
+        updates[pathStudent] = increment60;
+
+        // ★ 除錯訊息：請在 F12 Console 查看是否出現此行 ★
+        console.log(`[Stats] 正在上傳時長... 目標包含: ${pathSchool}`);
+    } else {
+        console.log("[Stats] 當前為訪客身份，不寫入 stats_school");
+    }
+
+    database.ref().update(updates)
+        .then(() => console.log("✅ [Stats] 時長上傳成功"))
+        .catch(e => console.error("❌ [Stats] 上傳失敗 (請檢查 Rules):", e));
+}
+
+    // 5. 計時器啟動 (還原你的邏輯)
+    function startTimer() {
+        if (timerInterval) return;
+        console.log("▶️ [Stats] 計時器啟動");
+        
+        timerInterval = setInterval(() => {
+            totalSeconds++;
+            
+            // ★★★ 你的原始邏輯 ★★★
+            // 30秒 -> 傳送 (算1分鐘)
+            // 90秒 (1分30秒) -> 傳送 (算2分鐘)
+            // 150秒 (2分30秒) -> 傳送 (算3分鐘)
+            if (totalSeconds === 30 || (totalSeconds > 30 && (totalSeconds - 30) % 60 === 0)) {
+                uploadOneMinute();
+            }
+        }, 1000);
+    }
+
+    function pauseTimer() {
+        if (timerInterval) {
+            clearInterval(timerInterval);
+            timerInterval = null;
+            console.log("⏸️ [Stats] 暫停計時 (當前累計: " + totalSeconds + "s)");
+            // 注意：這裡不再有 uploadDuration(unsaved)，未滿的部分直接捨棄
+        }
+    }
+
+    // 延遲啟動
+    setTimeout(() => {
+        logVisitOnce();
+        startTimer();
+    }, 3000);
+
+    // 偵測頁面狀態
+    document.addEventListener('visibilitychange', function() {
+        if (document.visibilityState === 'hidden') pauseTimer();
+        else startTimer();
+    });
+    
+    window.forceLogVisit = logVisitOnce;
+});
+</script>
+
+    
+<script>
+
+
+
+// ★★★★★ 請將代碼貼在這裡 (原本的內容之下，script 結束標籤之上) ★★★★★
+
+    // =======================================================
+    // === [新增] 在線狀態自動報到系統 (Presence System) ===
+    // =======================================================
+    function initPresenceSystem() {
+        // 延遲執行，確保 Firebase 已初始化且本地存儲已讀取
+        setTimeout(() => {
+            if (typeof database === 'undefined') return;
+
+            // 1. 監聽連線狀態
+            const connectedRef = database.ref('.info/connected');
+
+            connectedRef.on('value', (snap) => {
+                if (snap.val() === true) {
+                    // === 連線成功，準備資料 ===
+                    
+                    // 獲取用戶資料
+                    const s = JSON.parse(localStorage.getItem('studentProfile'));
+                    let myUid = "";
+                    let userData = {};
+
+                    // A. 判斷身分
+                    if (s && s.name) {
+                        // --- 已登入用戶 (學生/老師/特許) ---
+                        const user = firebase.auth().currentUser;
+                        myUid = user ? user.uid : `stu_${s.grade}${s.class}_${s.name}`;
+                        
+                        // 準備寫入的資料
+                        userData = {
+                            name: s.name,
+                            grade: s.grade,
+                            class: s.class,
+                            timestamp: firebase.database.ServerValue.TIMESTAMP,
+                            device: /Mobile|Android/i.test(navigator.userAgent) ? 'Mobile' : 'Desktop'
+                        };
+                    } else {
+                        // --- 訪客 ---
+                        let guestId = localStorage.getItem('sansi_guest_uuid');
+                        if (!guestId) {
+                            guestId = 'guest_' + Math.random().toString(36).substr(2, 9);
+                            localStorage.setItem('sansi_guest_uuid', guestId);
+                        }
+                        myUid = guestId;
+
+                        userData = {
+                            name: "訪客",
+                            grade: "Guest",
+                            class: "Visitor",
+                            timestamp: firebase.database.ServerValue.TIMESTAMP
+                        };
+                    }
+
+                    // B. 執行 Firebase 動作
+                    const myPresenceRef = database.ref(`online_users/${myUid}`);
+
+                    // 關鍵指令：當客戶端斷線時，自動刪除這筆資料
+                    myPresenceRef.onDisconnect().remove().then(() => {
+                        // 斷線指令設定成功後，寫入當前狀態
+                        myPresenceRef.set(userData);
+                    });
+                }
+            });
+        }, 2000); // 延遲 2 秒啟動
+    }
+
+    // 啟動報到系統
+    document.addEventListener('DOMContentLoaded', initPresenceSystem);
+
+
+
+	
+</script>
+
+</body>
+</html>

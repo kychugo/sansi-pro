@@ -1,0 +1,1768 @@
+
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文章幻燈片</title>
+
+    <!-- Google Fonts: Noto Serif TC -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700&family=Segoe+UI:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* --- Base and Font Setup --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            /* Correctly set Noto Serif TC as the primary font */
+            font-family: 'Noto Serif TC', serif;
+            background: linear-gradient(135deg, #f0f4f8 0%, #d9e2ec 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #2d3748;
+            overflow-x: hidden; /* Prevent horizontal scroll on body */
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        /* --- Header and Typography --- */
+        header {
+            text-align: center;
+            padding: 40px 0 20px;
+            margin-bottom: 20px;
+        }
+        
+        h1 {
+            font-size: 2.8rem;
+            font-weight: 700;
+            color: #2c5282;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            background: linear-gradient(to right, #2c5282, #4a5568);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            color: #4a5568;
+            max-width: 700px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #2c5282;
+        }
+        
+        /* --- App Layout --- */
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            margin-bottom: 40px;
+        }
+        
+        .input-section, .slides-section {
+            padding: 30px;
+        }
+
+        .input-section {
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .input-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            gap: 15px;
+        }
+        
+        .input-header i {
+            font-size: 28px;
+            color: #3182ce;
+        }
+        
+        /* --- Form Elements and Controls --- */
+        .input-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        textarea {
+            width: 100%;
+            height: 200px;
+            padding: 20px;
+            border: 2px solid #cbd5e0;
+            border-radius: 12px;
+            font-size: 16px;
+            line-height: 1.6;
+            resize: vertical;
+            transition: all 0.3s;
+            background: white;
+            /* Ensure textarea uses the correct font */
+            font-family: 'Noto Serif TC', serif;
+        }
+        
+        textarea:focus {
+            outline: none;
+            border-color: #3182ce;
+            box-shadow: 0 0 0 4px rgba(66, 153, 225, 0.2);
+        }
+        
+        .char-count {
+            text-align: right;
+            color: #718096;
+            font-size: 14px;
+            font-weight: 500;
+            /* Use a sans-serif font for UI clarity */
+            font-family: 'Segoe UI', sans-serif;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .btn {
+            padding: 14px 30px;
+            border: none;
+            border-radius: 50px;
+            font-size: 17px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            /* Use a clear, readable sans-serif font for buttons */
+            font-family: 'Segoe UI', sans-serif;
+            font-weight: 600;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(to right, #3182ce, #2b6cb0);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(to right, #2b6cb0, #2c5282);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(43, 108, 176, 0.35);
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(to right, #e53e3e, #c53030);
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: linear-gradient(to right, #c53030, #9b2c2c);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(197, 48, 48, 0.35);
+        }
+        
+        .btn:disabled {
+            background: #a0aec0;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* --- Slides and Carousel --- */
+        .slides-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+        
+        .slides-container {
+            display: flex;
+            overflow-x: auto;
+            gap: 30px;
+            padding: 20px; /* Increased padding to show overflow */
+            margin: 0 -20px; /* Negative margin to compensate padding */
+            scroll-behavior: smooth;
+            min-height: 550px;
+            align-items: center;
+            scrollbar-width: thin;
+            scrollbar-color: #3182ce #e2e8f0;
+        }
+        
+        .slides-container::-webkit-scrollbar { height: 10px; }
+        .slides-container::-webkit-scrollbar-track { background: #e2e8f0; border-radius: 10px; }
+        .slides-container::-webkit-scrollbar-thumb { background: #3182ce; border-radius: 10px; }
+        
+        .slide {
+            flex: 0 0 400px; /* Do not shrink, do not grow, base width 400px */
+            width: 400px;
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+            transition: transform 0.3s, box-shadow 0.3s;
+            border: 1px solid #e2e8f0;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeIn 0.5s forwards;
+        }
+        
+        @keyframes fadeIn {
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .slide:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.18);
+        }
+        
+        .slide-header {
+            background: #2c5282;
+            color: white;
+            padding: 15px 20px;
+            font-size: 18px;
+            display: flex;
+            justify-content: space-between;
+            font-family: 'Segoe UI', sans-serif;
+            font-weight: 600;
+        }
+        
+        .slide-image {
+            width: 100%;
+            height: 400px;
+            background: #f7fafc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-bottom: 1px solid #e2e8f0;
+            position: relative; /* Needed for positioning regeneration UI */
+            text-align: center; /* Center content like error messages */
+            padding: 20px;
+        }
+        
+        .slide-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: opacity 0.3s;
+            padding: 0; /* Reset padding for the image itself */
+        }
+        
+        /* 【新增】圖片生成失敗時的重試樣式 */
+        .generation-error {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            cursor: pointer;
+            color: #c53030;
+            border: 2px dashed #e53e3e;
+            border-radius: 12px;
+            height: 100%;
+            width: 100%;
+            transition: background-color 0.3s;
+        }
+        .generation-error:hover {
+            background-color: #fed7d7;
+        }
+        .generation-error i {
+            font-size: 3rem;
+        }
+        .generation-error p {
+            font-weight: 600;
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+
+        .slide-text {
+            padding: 20px;
+            font-size: 16px;
+            line-height: 1.7;
+            color: #2d3748;
+            min-height: 150px;
+            background: #f8fafc;
+        }
+
+        .placeholder, .loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: #718096;
+            padding: 30px;
+            flex-grow: 1; /* Make it fill the container */
+        }
+        
+        .placeholder i { font-size: 70px; margin-bottom: 25px; color: #cbd5e0; opacity: 0.7; }
+        .placeholder p { font-size: 18px; max-width: 500px; line-height: 1.6; font-weight: 500; }
+        .loading { gap: 25px; padding: 50px; }
+
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 6px solid rgba(49, 130, 206, 0.15);
+            border-top: 6px solid #3182ce;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        
+        .slide-controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .slide-nav {
+            background: #3182ce;
+            color: white;
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 10px rgba(49, 130, 206, 0.3);
+        }
+        
+        .slide-nav:hover {
+            background: #2b6cb0;
+            transform: scale(1.08);
+            box-shadow: 0 6px 15px rgba(49, 130, 206, 0.4);
+        }
+        
+        .slide-nav:disabled {
+            background: #a0aec0;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        /* --- Utilities --- */
+        .notification {
+            position: fixed;
+            top: 25px;
+            right: 25px;
+            padding: 18px 28px;
+            border-radius: 10px;
+            background: #38a169;
+            color: white;
+            font-weight: 600;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+            transform: translateX(120%);
+            transition: transform 0.4s ease;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        
+        .notification.show { transform: translateX(0); }
+        .notification.error { background: #e53e3e; }
+        
+        .progress-container {
+            width: 100%;
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 15px;
+            display: none;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(to right, #3182ce, #2b6cb0);
+            border-radius: 4px;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 30px 0;
+            color: #4a5568;
+            font-size: 15px;
+            border-top: 1px solid #e2e8f0;
+            margin-top: 20px;
+        }
+        
+        /* --- Responsive Design --- */
+        
+        /* For Tablets (and large mobile) */
+        @media (max-width: 768px) {
+            body {
+                padding: 15px;
+            }
+            .app-container {
+                gap: 20px;
+            }
+            h1 {
+                font-size: 2.2rem;
+            }
+            .subtitle {
+                font-size: 1.1rem;
+            }
+            .input-section, .slides-section {
+                padding: 25px;
+            }
+            .slide {
+                flex-basis: 340px;
+                width: 340px;
+            }
+            .slide-image {
+                height: 340px;
+            }
+            .slides-container {
+                min-height: 520px;
+            }
+        }
+        
+        /* For Mobile phones */
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            h1 {
+                font-size: 1.8rem;
+            }
+            .subtitle {
+                font-size: 1rem;
+            }
+            .input-section, .slides-section {
+                padding: 20px;
+            }
+            .controls {
+                flex-direction: column;
+            }
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            /* Responsive slide sizing */
+            .slide {
+                flex-basis: 85vw; /* Set base width relative to viewport */
+                width: 85vw;
+                max-width: 320px; /* Prevent it from getting too large */
+            }
+            
+            .slide-image {
+                height: 85vw;
+                max-height: 320px;
+            }
+
+            .slide-header {
+                font-size: 16px;
+                padding: 12px 15px;
+            }
+
+            .slides-container {
+                min-height: 480px;
+                padding: 20px 15px;
+                margin: 0 -15px;
+            }
+        }
+
+
+/* --- 通用輸入框懸浮視窗 (CSS) --- */
+
+/* 1. 讓所有符合條件的輸入框看起來可以點擊 */
+textarea:not(.no-modal-editor),
+input[type="text"]:not(.no-modal-editor) {
+cursor: pointer; /* 滑鼠變成手形指標 */
+background-color: #f0f8ff; /* 淡藍色背景提示 */
+transition: background-color 0.2s;
+}
+
+/* 2. 當滑鼠懸停時，背景色稍深一點 */
+textarea:not(.no-modal-editor):hover,
+input[type="text"]:not(.no-modal-editor):hover {
+background-color: #e6f2ff;
+}
+
+/* 3. 懸浮視窗本身的樣式 (與之前相同，可直接覆蓋) */
+.outline-modal-overlay {
+display: none;
+position: fixed;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+background-color: rgba(0, 0, 0, 0.65);
+z-index: 2000;
+justify-content: center;
+align-items: center;
+padding: 1rem;
+box-sizing: border-box;
+}
+
+.outline-modal-content {
+    background-color: #fdfdfd;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    
+    /* --- 以下是核心修改 --- */
+    width: 90vw;  /* 設定寬度為視窗寬度的 90% */
+    height: 90vh; /* 設定高度為視窗高度的 90% */
+    /* max-width 已被移除，以允許視窗在大螢幕上完全展開 */
+
+    position: relative;
+    animation: fadeIn 0.3s;
+    display: flex;
+    flex-direction: column;
+}
+
+.outline-modal-content h3 {
+margin-top: 0;
+margin-bottom: 15px;
+color: #333;
+font-size: 1.2em;
+font-weight: 700;
+}
+
+#modal-textarea {
+width: 100%;
+box-sizing: border-box;
+font-size: 1.3em;
+line-height: 1.6;
+border: 1px solid #ccc;
+border-radius: 8px;
+padding: 10px;
+flex-grow: 1;
+min-height: 250px;
+}
+
+.outline-modal-content .modal-buttons {
+text-align: right;
+margin-top: 15px;
+}
+
+.outline-modal-content .preview-close-btn {
+position: absolute;
+top: 10px;
+right: 10px;
+}
+
+/* 確保按鈕樣式也被複製 */
+.btn-action {
+display: inline-block;
+padding: 10px 20px;
+margin: 5px;
+border-radius: 8px;
+cursor: pointer;
+font-size: 14px;
+font-weight: bold;
+font-family: 'Noto Serif TC', serif;
+transition: all 0.3s ease;
+border: 2px solid white;
+box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+color: white;
+background-color: rgba(31, 122, 85, 0.8);
+backdrop-filter: blur(5px);
+text-align: center;
+text-decoration: none;
+}
+.btn-action:hover {
+transform: translateY(-2px);
+box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+filter: brightness(110%);
+}
+        
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>文章幻燈片</h1>
+        </header>
+        
+        <div class="app-container">
+            <div class="input-section">
+                <div class="input-header">
+                    <i class="fas fa-edit"></i>
+                    <h2>輸入文章內容</h2>
+                </div>
+                
+                <div class="input-container">
+                    <textarea id="article-input" placeholder="請在此輸入繁體中文文章內容..."></textarea>
+                    <div class="char-count">字數: <span id="char-count">0</span></div>
+                </div>
+                <div class="progress-container" id="progress-container">
+                    <div class="progress-bar" id="progress-bar"></div>
+                </div>
+                <div class="controls">
+                    <button id="generate-btn" class="btn btn-primary">
+                        <i class="fas fa-magic"></i> 生成幻燈片
+                    </button>
+                    <button id="reset-btn" class="btn btn-secondary">
+                        <i class="fas fa-redo"></i> 重置內容
+                    </button>
+                </div>
+            </div>
+            
+            <div class="slides-section">
+                <div class="slides-header">
+                    <div class="input-header">
+                        <i class="fas fa-images"></i>
+                        <h2>幻燈片展示</h2>
+                    </div>
+                </div>
+                
+                <div class="slides-container" id="slides-container">
+                    <div class="placeholder">
+                        <i class="fas fa-scroll"></i>
+                        <p>輸入文章並點擊「生成幻燈片」按鈕後，這裡將顯示帶有AI生成插圖的幻燈片</p>
+                    </div>
+                </div>
+                
+                <div class="slide-controls">
+                    <div class="slide-nav" id="prev-slide" title="上一張">
+                        <i class="fas fa-chevron-left"></i>
+                    </div>
+                    <div class="slide-nav" id="next-slide" title="下一張">
+                        <i class="fas fa-chevron-right"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>© 2025 陳冠健</p>
+        </footer>
+    </div>
+    
+    <div class="notification" id="notification">
+        <i class="fas fa-check-circle"></i>
+        <span>通知訊息</span>
+    </div>
+
+
+<script>
+
+	const POLLINATIONS_API_KEY = "pk_oe8RqRUjeOqQ8Dvj";
+// 使用官方建議的 Pro 路徑，並將 token 帶在參數中
+const API_BASE_URL = "https://image.pollinations.ai/prompt";
+
+
+
+	async function generateSlidesSequentially(paragraphs) {
+    slidesContainer.innerHTML = '';
+    const baseSeed = Math.floor(Math.random() * 1000000);
+    
+    for (let i = 0; i < paragraphs.length; i++) {
+        const para = paragraphs[i];
+        const progress = Math.floor((i / paragraphs.length) * 100);
+        progressBar.style.width = `${progress}%`;
+        
+        const tempSlide = document.createElement('div');
+        tempSlide.className = 'slide';
+        tempSlide.dataset.paragraph = para;
+        tempSlide.innerHTML = `
+            <div class="slide-header">
+                <span>幻燈片 ${i+1}/${paragraphs.length}</span>
+                <span>${para.length} 字</span>
+            </div>
+            <div class="slide-image">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>正在處理中...</p>
+                </div>
+            </div>
+            <div class="slide-text">
+                <p>${para}</p>
+            </div>
+        `;
+        slidesContainer.appendChild(tempSlide);
+        
+        slidesContainer.scrollTo({
+            left: tempSlide.offsetLeft - slidesContainer.offsetLeft,
+            behavior: 'smooth'
+        });
+        
+        const slideImageContainer = tempSlide.querySelector('.slide-image');
+        const loadingText = slideImageContainer.querySelector('.loading p');
+
+        try {
+            loadingText.textContent = '正在翻譯文字...';
+            const englishPara = await translateToEnglish(para);
+            if (!englishPara) throw new Error('翻譯失敗');
+
+            loadingText.textContent = '正在生成插圖...';
+            const prompt = generateImagePrompt(englishPara);
+            
+            // 構建授權網址
+            const imageUrl = `${API_BASE_URL}/${encodeURIComponent(prompt)}?model=flux&seed=${baseSeed + i}&width=1024&height=1024&nologo=true`;
+
+            // 執行帶有 Authorization 的請求
+            const response = await fetch(imageUrl, {
+                method: 'GET',
+                headers: { 
+                    'Authorization': `Bearer ${POLLINATIONS_API_KEY}`
+                }
+            });
+
+            if (!response.ok) throw new Error('伺服器授權驗證失敗');
+
+            const blob = await response.blob();
+            const objectURL = URL.createObjectURL(blob);
+
+            const img = new Image();
+            await new Promise((resolve, reject) => {
+                img.onload = () => {
+                    img.style.cursor = 'pointer';
+                    img.title = '點擊以重新生成此圖片';
+                    slideImageContainer.innerHTML = '';
+                    slideImageContainer.appendChild(img);
+                    resolve();
+                };
+                img.onerror = () => reject(new Error('圖片解析失敗'));
+                img.src = objectURL;
+                img.alt = `第${i+1}張幻燈片插圖`;
+            });
+
+        } catch (error) {
+            console.error('Slide error:', error);
+            slideImageContainer.innerHTML = `
+                <div class="generation-error" data-action="retry-generation" title="點擊以重新生成此圖片">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <p>生成失敗: 授權或系統錯誤<br>點擊此處重試</p>
+                </div>`;
+        }
+        await new Promise(resolve => setTimeout(resolve, 300));
+    }
+    
+    progressBar.style.width = '100%';
+    prevSlideBtn.disabled = paragraphs.length === 0;
+    nextSlideBtn.disabled = paragraphs.length === 0;
+}
+
+
+	async function regenerateImageForSlide(slideElement) {
+    const imageContainer = slideElement.querySelector('.slide-image');
+    const originalParagraph = slideElement.dataset.paragraph;
+
+    if (!originalParagraph) {
+        showNotification('找不到原始文本', true);
+        return;
+    }
+
+    imageContainer.innerHTML = `
+        <div class="loading" style="padding: 20px;">
+            <div class="spinner" style="width: 40px; height: 40px; border-width: 4px;"></div>
+            <p style="font-size: 14px; margin-top: 10px;">重新生成中...</p>
+        </div>`;
+
+    try {
+        const englishPara = await translateToEnglish(originalParagraph);
+        if (!englishPara) throw new Error('翻譯失敗');
+
+        const prompt = generateImagePrompt(englishPara);
+        const newSeed = Math.floor(Math.random() * 10000000);
+        
+        // 使用 URL 帶 Token 模式
+        const imageUrl = `${API_BASE_URL}/${encodeURIComponent(prompt)}?model=flux&token=${POLLINATIONS_API_KEY}&seed=${newSeed}&width=1024&height=1024&nologo=true`;
+
+        const img = new Image();
+        await new Promise((resolve, reject) => {
+            img.onload = () => {
+                img.style.cursor = 'pointer';
+                img.title = '點擊以重新生成此圖片';
+                imageContainer.innerHTML = '';
+                imageContainer.appendChild(img);
+                resolve();
+            };
+            img.onerror = () => reject(new Error('圖片載入失敗'));
+            img.src = imageUrl;
+        });
+        showNotification('圖片已更新！');
+
+    } catch (error) {
+        imageContainer.innerHTML = `
+            <div class="generation-error" data-action="retry-generation" title="點擊以重試">
+                <i class="fas fa-sync-alt"></i>
+                <p>更新失敗: ${error.message}</p>
+            </div>`;
+    }
+}
+
+</script>
+
+
+
+	
+
+    <script>
+
+        // ===============================================================
+// === [神思通用組件] 權限攔截器 & 莫蘭迪提示窗 (含登入連結) ===
+// ===============================================================
+(function() {
+    // 防止重複注入
+    if (window.SansiInterceptorLoaded) return;
+    window.SansiInterceptorLoaded = true;
+
+    // --- 1. 自動注入莫蘭迪 CSS ---
+    const style = document.createElement('style');
+    style.textContent = `
+        /* 莫蘭迪遮罩 */
+        .sansi-limit-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(253, 252, 248, 0.88); /* 米白高模糊 */
+            backdrop-filter: blur(6px);
+            z-index: 9999999; /* 最高層級 */
+            display: none; justify-content: center; align-items: center;
+            opacity: 0; transition: opacity 0.3s ease;
+        }
+        .sansi-limit-show { opacity: 1; }
+
+        /* 視窗卡片 */
+        .sansi-limit-card {
+            background: #fdfcf8;
+            border: 1px solid #e0ddd7;
+            border-radius: 16px;
+            padding: 30px 25px;
+            width: 90%; max-width: 380px;
+            box-shadow: 0 15px 40px rgba(141, 110, 99, 0.15);
+            text-align: center;
+            transform: translateY(20px);
+            transition: transform 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+            font-family: 'Noto Serif TC', serif;
+        }
+        .sansi-limit-show .sansi-limit-card { transform: translateY(0); }
+
+        /* 圖示與文字 */
+        .sansi-limit-icon { font-size: 3rem; color: #d69a92; margin-bottom: 15px; } /* 豆沙紅 */
+        .sansi-limit-title { color: #5d4037; font-size: 1.4rem; font-weight: bold; margin: 0 0 10px 0; }
+        .sansi-limit-desc { color: #888; font-size: 1rem; line-height: 1.6; margin-bottom: 25px; text-align: justify; }
+
+        /* 按鈕群組 */
+        .sansi-btn-group { display: flex; gap: 12px; margin-top: 20px; }
+
+        .sansi-limit-btn {
+            border: none; padding: 10px 0; border-radius: 50px;
+            font-size: 0.95rem; font-weight: bold; cursor: pointer;
+            transition: all 0.2s; font-family: 'Noto Serif TC', serif;
+            flex: 1; display: flex; align-items: center; justify-content: center; gap: 5px;
+            text-decoration: none;
+        }
+
+        /* 主按鈕 (前往登入) - 莫蘭迪綠 */
+        .btn-primary { 
+            background: #8fa398; color: white; 
+            box-shadow: 0 4px 12px rgba(143, 163, 152, 0.4);
+        }
+        .btn-primary:hover { background-color: #7d9186; transform: translateY(-2px); }
+
+        /* 次按鈕 (關閉) - 淺灰 */
+        .btn-secondary { 
+            background: #f0f0f0; color: #777; 
+        }
+        .btn-secondary:hover { background-color: #e5e5e5; }
+    `;
+    document.head.appendChild(style);
+
+    // --- 2. 自動注入 HTML (彈出視窗) ---
+    const modalHTML = `
+        <div id="sansiLimitModal" class="sansi-limit-overlay">
+            <div class="sansi-limit-card">
+                <div class="sansi-limit-icon">
+                    <i class="fas fa-user-lock"></i>
+                </div>
+                <div class="sansi-limit-title">需要登入</div>
+                <div class="sansi-limit-desc">
+                    訪客每日體驗額度已耗盡。<br>
+                    請前往「神思」主頁登入學校帳號，即可解鎖無限使用權限。
+                </div>
+                <div class="sansi-btn-group">
+                    <button class="sansi-limit-btn btn-secondary" onclick="closeSansiLimitModal()">
+                        稍後
+                    </button>
+                    <!-- 點擊直接跳轉至神思主頁 -->
+                    <button class="sansi-limit-btn btn-primary" onclick="window.location.href='https://kenchan20141.github.io/AIChinese/'">
+                        <i class="fas fa-sign-in-alt"></i> 前往登入
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    const div = document.createElement('div');
+    div.innerHTML = modalHTML;
+    document.body.appendChild(div);
+
+    // --- 3. 定義關閉視窗與清理函式 ---
+    window.closeSansiLimitModal = function() {
+        const modal = document.getElementById('sansiLimitModal');
+        if (modal) {
+            modal.classList.remove('sansi-limit-show');
+            setTimeout(() => { modal.style.display = 'none'; }, 300);
+            
+            // 自動嘗試關閉各種工具的 Loading 狀態，防止畫面卡死
+            if (typeof hideProgress === 'function') hideProgress(); // 題孳
+            if (typeof hideLoading === 'function') hideLoading();   // 翻水/寫作
+            
+            // 如果按鈕被禁用，嘗試解鎖 (針對通用按鈕 class)
+            const disabledBtns = document.querySelectorAll('button:disabled');
+            disabledBtns.forEach(btn => btn.disabled = false);
+        }
+    };
+
+    // --- 4. 攔截器核心邏輯 ---
+    const originalFetch = window.fetch;
+    
+    window.fetch = async function(url, options) {
+        // 僅攔截 AI 請求
+        if (typeof url === 'string' && url.includes('pollinations.ai')) {
+            
+            // A. 即時檢查登入狀態 (每次請求都會重新讀取，防止登出後仍能使用)
+            const s = localStorage.getItem('studentProfile');
+            
+            if (s) {
+                // 已登入：放行
+                return originalFetch(url, options);
+            }
+
+            // B. 未登入：檢查額度
+            const today = new Date().toLocaleDateString('zh-HK');
+            const toolName = document.title || "UnknownTool"; 
+            const storageKey = `sansi_guest_usage_${toolName}_${today}`;
+            
+            let currentCount = parseInt(localStorage.getItem(storageKey) || "0");
+
+            // C. 超過額度 -> 阻擋並彈窗
+            if (currentCount >= 1) {
+                // 顯示視窗
+                const modal = document.getElementById('sansiLimitModal');
+                modal.style.display = 'flex';
+                // 強制重繪以觸發過渡動畫
+                void modal.offsetWidth; 
+                modal.classList.add('sansi-limit-show');
+
+                // 回傳錯誤以中斷原本程式的執行
+                return Promise.reject(new Error("Guest Limit Exceeded"));
+            }
+
+            // D. 未超過 -> 記錄並放行
+            localStorage.setItem(storageKey, currentCount + 1);
+            console.log(`[訪客] ${toolName} 使用第 ${currentCount + 1} 次`);
+        }
+
+        return originalFetch(url, options);
+    };
+    
+    console.log("✅ 神思通用權限鎖 (含登入連結) 已啟動");
+})();
+</script>
+
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 獲取DOM元素
+            const articleInput = document.getElementById('article-input');
+            const charCount = document.getElementById('char-count');
+            const generateBtn = document.getElementById('generate-btn');
+            const resetBtn = document.getElementById('reset-btn');
+            const slidesContainer = document.getElementById('slides-container');
+            const prevSlideBtn = document.getElementById('prev-slide');
+            const nextSlideBtn = document.getElementById('next-slide');
+            const notification = document.getElementById('notification');
+            const progressContainer = document.getElementById('progress-container');
+            const progressBar = document.getElementById('progress-bar');
+
+            // =======================================================
+// === 通用懸浮視窗編輯器 & OCR 整合邏輯 開始 ===
+// =======================================================
+
+// --- 懸浮視窗核心邏輯 ---
+
+const modal = document.getElementById('outline-editor-modal');
+const modalTextarea = document.getElementById('modal-textarea');
+const modalTitle = document.getElementById('modal-title');
+const modalSaveBtn = document.getElementById('modal-save-btn');
+const modalCloseBtn = document.getElementById('modal-close-btn');
+const ocrBtn = document.getElementById('modal-ocr-btn');
+
+if (!modal || !modalTextarea || !modalSaveBtn || !modalCloseBtn || !ocrBtn) {
+    console.error("懸浮視窗的 HTML 結構不完整或未找到！");
+} else {
+    let currentEditingElement = null;
+
+    function openModalEditor(element) {
+        currentEditingElement = element;
+        modalTextarea.value = currentEditingElement.value;
+
+        // 【特別修訂】為「文章幻燈片」的輸入框設定專屬標題
+        if (element.id === 'article-input') {
+            modalTitle.textContent = '輸入文章內容';
+        } else {
+            modalTitle.textContent = '編輯內容'; // 預設標題
+        }
+        
+        modal.style.display = 'flex';
+        modalTextarea.focus();
+    }
+
+    function closeModalEditor() {
+        modal.style.display = 'none';
+        currentEditingElement = null;
+    }
+
+    function saveAndCloseEditor() {
+        if (currentEditingElement) {
+            currentEditingElement.value = modalTextarea.value;
+            // 觸發 input 事件，讓字數統計等功能能夠更新
+            currentEditingElement.dispatchEvent(new Event('input'));
+        }
+        closeModalEditor();
+    }
+
+    // 將點擊事件監聽器綁定到 document.body
+    document.body.addEventListener('click', function(event) {
+        const target = event.target;
+        
+        // 我們只關心 ID 為 'article-input' 的 textarea
+        if (target.id === 'article-input' && target.tagName === 'TEXTAREA') {
+            // 防止預設行為，並打開我們的編輯器
+            event.preventDefault();
+            openModalEditor(target);
+        }
+    });
+
+    // 為懸浮視窗的按鈕和外部區域綁定事件
+    modalSaveBtn.addEventListener('click', saveAndCloseEditor);
+    modalCloseBtn.addEventListener('click', closeModalEditor);
+    modal.addEventListener('click', function(event) {
+        if (event.target === modal) {
+            closeModalEditor();
+        }
+    });
+
+    // --- OCR 整合邏輯 ---
+    
+    let ocrWindow = null;
+    const VERCEL_OCR_URL = 'https://gemini-ocr-proxy.vercel.app/'; // 您的 OCR 工具網址
+
+    ocrBtn.addEventListener('click', function() {
+        if (ocrWindow && !ocrWindow.closed) {
+            ocrWindow.focus();
+            return;
+        }
+        ocrWindow = window.open(VERCEL_OCR_URL, 'OCRWindow', 'width=650,height=850,scrollbars=yes,resizable=yes');
+    });
+
+    window.addEventListener('message', function(event) {
+        // 安全性檢查：確保訊息來源是您信任的 OCR 工具
+        if (event.origin !== new URL(VERCEL_OCR_URL).origin) {
+            return;
+        }
+
+        if (event.data && event.data.type === 'ocrResult') {
+            const ocrText = event.data.text;
+            
+            // 將辨識文字附加到懸浮視窗的輸入框中
+            modalTextarea.value += (modalTextarea.value.trim() ? '\n' : '') + ocrText;
+            
+            if (ocrWindow) {
+                ocrWindow.close();
+            }
+            modalTextarea.focus();
+        }
+    });
+}
+// =======================================================
+// === 通用懸浮視窗編輯器 & OCR 整合邏輯 結束 ===
+// =======================================================
+            
+            // 字數統計
+            articleInput.addEventListener('input', function() {
+                const text = articleInput.value;
+                charCount.textContent = text.length;
+            });
+            
+            // 顯示通知
+            function showNotification(message, isError = false) {
+                const icon = isError ? 'fas fa-exclamation-circle' : 'fas fa-check-circle';
+                notification.innerHTML = `<i class="${icon}"></i> <span>${message}</span>`;
+                notification.className = 'notification';
+                if (isError) {
+                    notification.classList.add('error');
+                }
+                notification.classList.add('show');
+                
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 3500);
+            }
+            
+            // 重置內容
+            resetBtn.addEventListener('click', function() {
+                articleInput.value = '';
+                charCount.textContent = '0';
+                slidesContainer.innerHTML = `
+                    <div class="placeholder">
+                        <i class="fas fa-scroll"></i>
+                        <p>輸入文章並點擊「生成幻燈片」按鈕後，這裡將顯示帶有AI生成插圖的幻燈片</p>
+                    </div>
+                `;
+                prevSlideBtn.disabled = true;
+                nextSlideBtn.disabled = true;
+                progressContainer.style.display = 'none';
+                progressBar.style.width = '0%';
+                showNotification('已重置所有內容！');
+            });
+            
+            // 生成幻燈片
+            generateBtn.addEventListener('click', async function() {
+                const article = articleInput.value.trim();
+                
+                if (!article) {
+                    showNotification('請輸入文章內容！', true);
+                    return;
+                }
+                
+                generateBtn.disabled = true;
+                resetBtn.disabled = true;
+                
+                slidesContainer.innerHTML = `
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        <p>正在生成幻燈片，請稍候...這可能需要一些時間</p>
+                    </div>
+                `;
+                
+                progressContainer.style.display = 'block';
+                progressBar.style.width = '0%';
+                
+                const paragraphs = splitArticleIntoParagraphs(article);
+                
+                try {
+                    await generateSlidesSequentially(paragraphs);
+                    showNotification('幻燈片生成完成！');
+                } catch (error) {
+                    showNotification('生成過程中發生錯誤，請重試', true);
+                    console.error('生成錯誤:', error);
+                    slidesContainer.innerHTML = `
+                    <div class="placeholder">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p>抱歉，生成時發生未知錯誤。請檢查網路連線或稍後再試。</p>
+                    </div>`;
+                } finally {
+                    generateBtn.disabled = false;
+                    resetBtn.disabled = false;
+                }
+            });
+            
+            function splitArticleIntoParagraphs(article) {
+    const sentences = article.split(/(?<=[。！？；])/g);
+    const paragraphs = [];
+    let currentParagraph = '';
+
+    sentences.forEach(sentence => {
+        if ((currentParagraph + sentence).length <= 100) {
+            currentParagraph += sentence;
+        } else {
+            if (currentParagraph.trim()) {
+                paragraphs.push(currentParagraph.trim());
+            }
+            currentParagraph = sentence;
+        }
+    });
+
+    if (currentParagraph.trim()) {
+        paragraphs.push(currentParagraph.trim());
+    }
+
+    // 【新增】後處理段落，修正開頭的標點符號
+    // 定義不應出現在段落開頭的標點符號列表
+    const leadingPunctuationsToMove = ['」', '』', '”', '’', '）', '】', '〕', '．', '，', '、', '：', '；'];
+
+    for (let i = 1; i < paragraphs.length; i++) {
+        // 如果當前段落不為空，且其第一個字元在我們的修正列表中
+        if (paragraphs[i] && leadingPunctuationsToMove.includes(paragraphs[i][0])) {
+            
+            // 1. 將這個標點符號加到前一個段落的結尾
+            paragraphs[i - 1] += paragraphs[i][0];
+            
+            // 2. 從當前段落中移除這個標點符號
+            paragraphs[i] = paragraphs[i].substring(1);
+        }
+    }
+
+    // 過濾掉可能因修正而變為空字串的段落
+    return paragraphs.filter(p => p.trim() !== '');
+}
+
+            async function translateToEnglish(textToTranslate) {
+    // 【重要】請將此處的信箱替換為您自己的有效電子郵件地址
+    const myEmail = 'kenchan20151@gmail.com'; 
+
+    const apiUrl = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(textToTranslate)}&langpair=zh-TW|en&de=${myEmail}`;
+
+    try {
+        const response = await fetch(apiUrl);
+        if (!response.ok) {
+            throw new Error(`Translation API failed with status ${response.status}`);
+        }
+        const data = await response.json();
+
+        if (data.responseStatus !== 200) {
+            // MyMemory 在額度用盡時的回應細節
+            if (data.responseDetails && data.responseDetails.includes("daily limit")) {
+                 console.error('MyMemory API daily limit exceeded for this IP or email.');
+                 throw new Error(`MyMemory API error: Daily limit exceeded.`);
+            }
+            throw new Error(`MyMemory API error: ${data.responseDetails}`);
+        }
+
+        if (data.responseData && data.responseData.translatedText) {
+            return data.responseData.translatedText;
+        } else {
+            throw new Error('Translated text not found in API response.');
+        }
+    } catch (error) {
+        console.error('Translation error:', error);
+        return null; // 保持錯誤時返回 null 的行為
+    }
+}
+            
+            function generateImagePrompt(englishParagraph) {
+                return `Illustration of: "${englishParagraph}". Rendered in a classic manga style with an emphasis on simplicity. Use only black and white, with clean, uniform, and minimalist line art. The overall feel should be a high-contrast, clear monochrome comic panel or sketch. No text is included`;
+            }
+            
+          async function generateSlidesSequentially(paragraphs) {
+    slidesContainer.innerHTML = '';
+    const baseSeed = Math.floor(Math.random() * 1000000);
+    
+    for (let i = 0; i < paragraphs.length; i++) {
+        const para = paragraphs[i];
+        const progress = Math.floor((i / paragraphs.length) * 100);
+        progressBar.style.width = `${progress}%`;
+        
+        const tempSlide = document.createElement('div');
+        tempSlide.className = 'slide';
+        tempSlide.dataset.paragraph = para;
+        tempSlide.innerHTML = `
+            <div class="slide-header">
+                <span>幻燈片 ${i+1}/${paragraphs.length}</span>
+                <span>${para.length} 字</span>
+            </div>
+            <div class="slide-image">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>正在處理中...</p>
+                </div>
+            </div>
+            <div class="slide-text">
+                <p>${para}</p>
+            </div>
+        `;
+        slidesContainer.appendChild(tempSlide);
+        
+        slidesContainer.scrollTo({
+            left: tempSlide.offsetLeft - slidesContainer.offsetLeft,
+            behavior: 'smooth'
+        });
+        
+        const slideImageContainer = tempSlide.querySelector('.slide-image');
+        const loadingText = slideImageContainer.querySelector('.loading p');
+
+        try {
+            loadingText.textContent = '正在翻譯文字...';
+            const englishPara = await translateToEnglish(para);
+            if (!englishPara) throw new Error('翻譯失敗');
+
+            loadingText.textContent = '正在生成插圖...';
+            const prompt = generateImagePrompt(englishPara);
+            
+            // 直接將 pk_... Token 放在 URL 參數中，這能繞過 fetch 的 CORS 問題
+            const imageUrl = `${API_BASE_URL}/${encodeURIComponent(prompt)}?model=flux&token=${POLLINATIONS_API_KEY}&seed=${baseSeed + i}&width=1024&height=1024&nologo=true`;
+
+            // 使用 Image 對象載入
+            const img = new Image();
+            await new Promise((resolve, reject) => {
+                img.onload = () => {
+                    img.style.cursor = 'pointer';
+                    img.title = '點擊以重新生成此圖片';
+                    slideImageContainer.innerHTML = '';
+                    slideImageContainer.appendChild(img);
+                    resolve();
+                };
+                img.onerror = () => reject(new Error('圖片生成失敗，請檢查 Token'));
+                img.src = imageUrl;
+                img.alt = `第${i+1}張幻燈片插圖`;
+            });
+
+        } catch (error) {
+            console.error('Generation error:', error);
+            slideImageContainer.innerHTML = `
+                <div class="generation-error" data-action="retry-generation" title="點擊以重試">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <p>生成失敗<br>${error.message}</p>
+                </div>`;
+        }
+        await new Promise(resolve => setTimeout(resolve, 300));
+    }
+    
+    progressBar.style.width = '100%';
+    prevSlideBtn.disabled = paragraphs.length === 0;
+    nextSlideBtn.disabled = paragraphs.length === 0;
+}
+            
+            // 【修訂】將重新生成邏輯封裝成一個獨立函數
+          async function regenerateImageForSlide(slideElement) {
+    const imageContainer = slideElement.querySelector('.slide-image');
+    const originalParagraph = slideElement.dataset.paragraph;
+
+    if (!originalParagraph) {
+        showNotification('找不到原始文本，無法重新生成。', true);
+        return;
+    }
+
+    imageContainer.innerHTML = `
+        <div class="loading" style="padding: 20px;">
+            <div class="spinner" style="width: 40px; height: 40px; border-width: 4px;"></div>
+            <p style="font-size: 14px; margin-top: 10px;">授權驗證與生成中...</p>
+        </div>`;
+
+    try {
+        const englishPara = await translateToEnglish(originalParagraph);
+        if (!englishPara) throw new Error('翻譯失敗');
+
+        const prompt = generateImagePrompt(englishPara);
+        const newSeed = Math.floor(Math.random() * 10000000);
+        const imageUrl = `${API_BASE_URL}/${encodeURIComponent(prompt)}?model=flux&seed=${newSeed}&width=1024&height=1024&nologo=true`;
+
+        const response = await fetch(imageUrl, {
+            method: 'GET',
+            headers: { 
+                'Authorization': `Bearer ${POLLINATIONS_API_KEY}`
+            }
+        });
+
+        if (!response.ok) throw new Error('Token 無效或額度已滿');
+
+        const blob = await response.blob();
+        const objectURL = URL.createObjectURL(blob);
+
+        const img = new Image();
+        await new Promise((resolve, reject) => {
+            img.onload = () => {
+                img.style.cursor = 'pointer';
+                img.title = '點擊以重新生成此圖片';
+                imageContainer.innerHTML = '';
+                imageContainer.appendChild(img);
+                resolve();
+            };
+            img.onerror = () => reject(new Error('圖片顯示失敗'));
+            img.src = objectURL;
+        });
+        showNotification('圖片已成功更新！');
+
+    } catch (error) {
+        imageContainer.innerHTML = `
+            <div class="generation-error" data-action="retry-generation" title="點擊以重新生成此圖片">
+                <i class="fas fa-sync-alt"></i>
+                <p>更新失敗: ${error.message}</p>
+            </div>`;
+        showNotification(`錯誤：${error.message}`, true);
+    }
+}
+            // 【修訂】統一的點擊事件監聽器，處理圖片和失敗後的重試
+            slidesContainer.addEventListener('click', async function(event) {
+                const retryTarget = event.target.closest('[data-action="retry-generation"]');
+                const imageTarget = event.target.tagName === 'IMG' ? event.target : null;
+
+                if (retryTarget || imageTarget) {
+                    const isConfirmed = confirm('您確定要重新生成這張插圖嗎？');
+                    
+                    if (isConfirmed) {
+                        const slideElement = event.target.closest('.slide');
+                        if (slideElement) {
+                            await regenerateImageForSlide(slideElement);
+                        }
+                    }
+                }
+            });
+            
+            // 幻燈片導航
+            prevSlideBtn.addEventListener('click', function() {
+                const slideWidth = slidesContainer.querySelector('.slide')?.offsetWidth || 0;
+                const scrollAmount = slidesContainer.scrollLeft - (slideWidth + 30);
+                slidesContainer.scrollTo({
+                    left: scrollAmount < 0 ? 0 : scrollAmount,
+                    behavior: 'smooth'
+                });
+            });
+            
+            nextSlideBtn.addEventListener('click', function() {
+                const slideWidth = slidesContainer.querySelector('.slide')?.offsetWidth || 0;
+                const scrollAmount = slidesContainer.scrollLeft + (slideWidth + 30);
+                slidesContainer.scrollTo({
+                    left: scrollAmount,
+                    behavior: 'smooth'
+                });
+            });
+            
+            // 初始禁用導航按鈕
+            prevSlideBtn.disabled = true;
+            nextSlideBtn.disabled = true;
+        });
+    </script>
+
+<!-- === 大綱編輯懸浮視窗 (修正版) === -->
+<div id="outline-editor-modal" class="outline-modal-overlay">
+    <div class="outline-modal-content">
+        <h3 id="modal-title">編輯內容</h3>
+        <textarea id="modal-textarea" rows="15"></textarea>
+        <div class="modal-buttons">
+            <!-- 【新增的按鈕】 -->
+            <button id="modal-ocr-btn" class="btn-action" style="background-color: #17a2b8;">OCR</button>
+            
+            <button id="modal-save-btn" class="btn-action">輸入</button>
+        </div>
+        <button id="modal-close-btn" class="preview-close-btn" title="關閉">&times;</button>
+    </div>
+</div>
+
+
+<!-- === 1. Firebase SDK 引入 === -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+
+<!-- === 2. Firebase 初始化與配置 (這裡修復了您漏掉的啟動碼) === -->
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyBgwrgn2m343mRJb0WjzUhteiospegXhvI",
+    authDomain: "sansidata.firebaseapp.com",
+    projectId: "sansidata",
+    storageBucket: "sansidata.firebasestorage.app",
+    messagingSenderId: "580288358575",
+    appId: "1:580288358575:web:35dcf4e79bcef530de4c5a",
+    databaseURL: "https://sansidata-default-rtdb.firebaseio.com" 
+  };
+
+  // ★★★ 修正重點：補上初始化指令 ★★★
+  if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+  }
+  
+  // ★★★ 修正重點：定義 database 變數，下面的程式才抓得到 ★★★
+  var database = firebase.database();
+
+  // (選用) 啟用匿名驗證，確保連線權限更穩定
+  firebase.auth().signInAnonymously().catch((error) => {
+      console.error("Auth Error:", error);
+  });
+</script>
+
+
+<!-- === [還原版] 神思大數據收集模組 (30秒=1分鐘邏輯) === -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    let totalSeconds = 0;
+    let timerInterval = null;
+
+    // 1. 獲取日期路徑
+    function getDateParts() {
+        const now = new Date();
+        const y = String(now.getFullYear());
+        const m = String(now.getMonth() + 1).padStart(2, '0');
+        const d = String(now.getDate()).padStart(2, '0');
+        return { y, m, d };
+    }
+
+    // 2. 獲取身份
+    function getIdentity() {
+        const rawProfile = localStorage.getItem('studentProfile');
+        let s = null;
+        try { if(rawProfile) s = JSON.parse(rawProfile); } catch (e) {}
+
+        if (s && s.grade && s.class) {
+            const safeName = s.name.replace(/[.#$/[\]]/g, '_'); 
+            return { type: 'student', id: s.uid || `stu_${s.grade}${s.class}_${safeName}`, grade: s.grade, class: s.class };
+        } else {
+            let guestID = localStorage.getItem('sansi_guest_uuid');
+            if (!guestID) {
+                guestID = 'guest_' + Math.random().toString(36).substr(2, 9);
+                localStorage.setItem('sansi_guest_uuid', guestID);
+            }
+            return { type: 'guest', id: guestID, grade: 'Guest', class: 'Visitor' };
+        }
+    }
+
+// === 3. 記錄訪問 (Log Visit) - 高效分流版 ===
+// === 3. 記錄訪問 (Log Visit) - 高效分流版 (含 stats_school 邏輯) ===
+async function logVisitOnce() {
+    if (typeof firebase === 'undefined' || !database) return;
+    
+    const { y, m, d } = getDateParts();
+    const identity = getIdentity();
+    const uid = identity.id;
+
+    // Session 鎖
+    const sessionKey = `sansi_visit_logged_${y}${m}${d}_${uid}`;
+    if (sessionStorage.getItem(sessionKey)) return; 
+
+    // 檢查 Tracking (判斷是否為今日首次)
+    const trackingRef = database.ref(`stats_tracking/${y}/${m}/${d}/unique_users/${uid}`);
+    
+    try {
+        const snap = await trackingRef.once('value');
+        const isFirstTimeToday = !snap.exists();
+
+        const updates = {};
+        const increment1 = firebase.database.ServerValue.increment(1);
+        
+        // 1. 全校總覽路徑 (含訪客) - stats_global
+        const globalPath = `stats_global/${y}/${m}/${d}`;
+        updates[`${globalPath}/visits`] = increment1;
+
+        // ★★★ 新增：純學校路徑 (僅學生) - stats_school ★★★
+        const schoolPath = `stats_school/${y}/${m}/${d}`;
+
+        if (identity.type === 'student') {
+            const classKey = `${identity.grade}${identity.class}`;
+            const studentKey = identity.id.split('_').pop(); // 名字
+
+            // 學生同時寫入 stats_school
+            updates[`${schoolPath}/visits`] = increment1;
+
+            // 2. 班級路徑 (stats_classes/6A/YYYY/MM/DD)
+            const classPath = `stats_classes/${classKey}/${y}/${m}/${d}`;
+            updates[`${classPath}/visits`] = increment1;
+
+            // 3. 學生路徑 (stats_students/6A/陳大文/YYYY/MM/DD)
+            const studentPath = `stats_students/${classKey}/${studentKey}/${y}/${m}/${d}`;
+            updates[`${studentPath}/visits`] = increment1;
+
+            if (isFirstTimeToday) {
+                updates[`stats_tracking/${y}/${m}/${d}/unique_users/${uid}`] = true;
+                
+                // 更新 global unique
+                updates[`${globalPath}/unique`] = increment1;
+                
+                // ★ 更新 school unique (僅學生)
+                updates[`${schoolPath}/unique`] = increment1;
+                
+                // 更新 class unique
+                updates[`${classPath}/unique`] = increment1;
+            }
+        } else {
+            // 訪客 (只寫入 global，不寫入 school)
+            if (isFirstTimeToday) {
+                updates[`stats_tracking/${y}/${m}/${d}/unique_users/${uid}`] = true;
+                updates[`${globalPath}/unique`] = increment1;
+            }
+        }
+
+        await database.ref().update(updates);
+        sessionStorage.setItem(sessionKey, 'true');
+        console.log("📍 [Stats] 訪問計數已分流上傳 (含 stats_school)");
+
+    } catch (e) {
+        console.error("Stats Error:", e);
+    }
+}
+
+// 4. 上傳 1 分鐘 (分流版 - 除錯模式)
+function uploadOneMinute() {
+    if (typeof firebase === 'undefined' || !database) return;
+    
+    logVisitOnce(); 
+
+    const { y, m, d } = getDateParts();
+    const identity = getIdentity();
+    
+    // 獲取學生名稱 Key (防呆)
+    const studentKey = identity.id.includes('_') ? identity.id.split('_').pop() : identity.name; 
+    
+    const updates = {};
+    const increment60 = firebase.database.ServerValue.increment(60);
+
+    // 1. 全域 (Global)
+    updates[`stats_global/${y}/${m}/${d}/duration`] = increment60;
+
+    // ★★★ 2. 學生身份判斷 ★★★
+    if (identity.type === 'student') {
+        const classKey = `${identity.grade}${identity.class}`;
+
+        // Path A: 全校 (這是您缺少的)
+        const pathSchool = `stats_school/${y}/${m}/${d}/duration`;
+        updates[pathSchool] = increment60;
+
+        // Path B: 班級
+        const pathClass = `stats_classes/${classKey}/${y}/${m}/${d}/duration`;
+        updates[pathClass] = increment60;
+        
+        // Path C: 個人
+        const pathStudent = `stats_students/${classKey}/${studentKey}/${y}/${m}/${d}/duration`;
+        updates[pathStudent] = increment60;
+
+        // ★ 除錯訊息：請在 F12 Console 查看是否出現此行 ★
+        console.log(`[Stats] 正在上傳時長... 目標包含: ${pathSchool}`);
+    } else {
+        console.log("[Stats] 當前為訪客身份，不寫入 stats_school");
+    }
+
+    database.ref().update(updates)
+        .then(() => console.log("✅ [Stats] 時長上傳成功"))
+        .catch(e => console.error("❌ [Stats] 上傳失敗 (請檢查 Rules):", e));
+}
+    // 5. 計時器啟動 (還原你的邏輯)
+    function startTimer() {
+        if (timerInterval) return;
+        console.log("▶️ [Stats] 計時器啟動");
+        
+        timerInterval = setInterval(() => {
+            totalSeconds++;
+            
+            // ★★★ 你的原始邏輯 ★★★
+            // 30秒 -> 傳送 (算1分鐘)
+            // 90秒 (1分30秒) -> 傳送 (算2分鐘)
+            // 150秒 (2分30秒) -> 傳送 (算3分鐘)
+            if (totalSeconds === 30 || (totalSeconds > 30 && (totalSeconds - 30) % 60 === 0)) {
+                uploadOneMinute();
+            }
+        }, 1000);
+    }
+
+    function pauseTimer() {
+        if (timerInterval) {
+            clearInterval(timerInterval);
+            timerInterval = null;
+            console.log("⏸️ [Stats] 暫停計時 (當前累計: " + totalSeconds + "s)");
+            // 注意：這裡不再有 uploadDuration(unsaved)，未滿的部分直接捨棄
+        }
+    }
+
+    // 延遲啟動
+    setTimeout(() => {
+        logVisitOnce();
+        startTimer();
+    }, 3000);
+
+    // 偵測頁面狀態
+    document.addEventListener('visibilitychange', function() {
+        if (document.visibilityState === 'hidden') pauseTimer();
+        else startTimer();
+    });
+    
+    window.forceLogVisit = logVisitOnce;
+});
+</script>
+
+
+    <script>
+
+
+
+// ★★★★★ 請將代碼貼在這裡 (原本的內容之下，script 結束標籤之上) ★★★★★
+
+    // =======================================================
+    // === [新增] 在線狀態自動報到系統 (Presence System) ===
+    // =======================================================
+    function initPresenceSystem() {
+        // 延遲執行，確保 Firebase 已初始化且本地存儲已讀取
+        setTimeout(() => {
+            if (typeof database === 'undefined') return;
+
+            // 1. 監聽連線狀態
+            const connectedRef = database.ref('.info/connected');
+
+            connectedRef.on('value', (snap) => {
+                if (snap.val() === true) {
+                    // === 連線成功，準備資料 ===
+                    
+                    // 獲取用戶資料
+                    const s = JSON.parse(localStorage.getItem('studentProfile'));
+                    let myUid = "";
+                    let userData = {};
+
+                    // A. 判斷身分
+                    if (s && s.name) {
+                        // --- 已登入用戶 (學生/老師/特許) ---
+                        const user = firebase.auth().currentUser;
+                        myUid = user ? user.uid : `stu_${s.grade}${s.class}_${s.name}`;
+                        
+                        // 準備寫入的資料
+                        userData = {
+                            name: s.name,
+                            grade: s.grade,
+                            class: s.class,
+                            timestamp: firebase.database.ServerValue.TIMESTAMP,
+                            device: /Mobile|Android/i.test(navigator.userAgent) ? 'Mobile' : 'Desktop'
+                        };
+                    } else {
+                        // --- 訪客 ---
+                        let guestId = localStorage.getItem('sansi_guest_uuid');
+                        if (!guestId) {
+                            guestId = 'guest_' + Math.random().toString(36).substr(2, 9);
+                            localStorage.setItem('sansi_guest_uuid', guestId);
+                        }
+                        myUid = guestId;
+
+                        userData = {
+                            name: "訪客",
+                            grade: "Guest",
+                            class: "Visitor",
+                            timestamp: firebase.database.ServerValue.TIMESTAMP
+                        };
+                    }
+
+                    // B. 執行 Firebase 動作
+                    const myPresenceRef = database.ref(`online_users/${myUid}`);
+
+                    // 關鍵指令：當客戶端斷線時，自動刪除這筆資料
+                    myPresenceRef.onDisconnect().remove().then(() => {
+                        // 斷線指令設定成功後，寫入當前狀態
+                        myPresenceRef.set(userData);
+                    });
+                }
+            });
+        }, 2000); // 延遲 2 秒啟動
+    }
+
+    // 啟動報到系統
+    document.addEventListener('DOMContentLoaded', initPresenceSystem);
+
+
+
+	
+</script>
+    
+    
+</body>
+</html>

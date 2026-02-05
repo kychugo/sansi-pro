@@ -1,0 +1,1924 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>文學・片段</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@400;600&display=swap" rel="stylesheet">
+
+
+<style>
+/* --- 1. 核心與主題設定 (Core & Theming) --- */
+:root {
+--bg-color-light: #F4F4F3;
+--text-primary-light: #2c3e50;
+--text-secondary-light: #7f8c8d;
+--content-bg-light: #FFFFFF;
+--border-color-light: #EAEAEA;
+--accent-color: #2980b9;
+--accent-color-hover: #3498db;
+
+--bg-color-dark: #1F1F1F;
+--text-primary-dark: #D1CFCB;
+--text-secondary-dark: #888888;
+--content-bg-dark: #2A2A2A;
+--border-color-dark: #444444;
+
+--overlay-bg: rgba(44, 62, 80, 0.7);
+
+--font-sans: 'Noto Sans TC', sans-serif;
+--font-serif: 'Noto Serif TC', serif;
+--max-width: 1100px;
+
+--reader-font-size: 1.1rem;
+}
+
+*, *::before, *::after {
+box-sizing: border-box;
+margin: 0;
+padding: 0;
+}
+
+body {
+font-family: var(--font-sans);
+transition: background-color 0.4s, color 0.4s;
+line-height: 1.8;
+font-size: 16px;
+}
+
+body.light-mode {
+background-color: var(--bg-color-light);
+color: var(--text-primary-light);
+}
+
+body.dark-mode {
+background-color: var(--bg-color-dark);
+color: var(--text-primary-dark);
+}
+
+/* --- 2. 全域版面與容器 (Global Layout & Containers) --- */
+.page-container {
+display: grid;
+place-items: center;
+min-height: 100vh;
+padding: 2rem 1rem;
+}
+
+.hidden { display: none !important; }
+
+/* --- 3. UI 控制項 (UI Controls & Icons) --- */
+.icon-btn {
+background: none; border: none; cursor: pointer;
+padding: 0.5rem; border-radius: 50%;
+display: inline-flex; justify-content: center; align-items: center;
+transition: background-color 0.2s, transform 0.2s;
+}
+.icon-btn svg {
+width: 24px; height: 24px; stroke-width: 1.5;
+transition: stroke 0.2s, fill 0.2s;
+}
+.light-mode .icon-btn svg { stroke: var(--text-primary-light); }
+.dark-mode .icon-btn svg { stroke: var(--text-primary-dark); }
+.light-mode .icon-btn:hover { background-color: rgba(0,0,0,0.05); }
+.dark-mode .icon-btn:hover { background-color: var(--content-bg-dark); }
+.icon-btn:hover { transform: scale(1.1); }
+.fullscreen-btn .icon-exit-fullscreen { display: none; }
+
+/* --- 4. 主要區塊：設定、閱讀器 (Main Sections: Settings, Reader) --- */
+.main-content-wrapper { width: 100%; max-width: var(--max-width); transition: all 0.4s ease-in-out; }
+.settings-card, .reader-card {
+border: 1px solid; border-radius: 8px;
+box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+padding: 2rem 3rem;
+transition: background-color 0.4s, border-color 0.4s;
+}
+.light-mode .settings-card, .light-mode .reader-card { background-color: var(--content-bg-light); border-color: var(--border-color-light); }
+.dark-mode .settings-card, .dark-mode .reader-card { background-color: var(--content-bg-dark); border-color: var(--border-color-dark); }
+
+/* --- 5. 設定區塊樣式 (Settings Section Styles) --- */
+.settings-header { display: flex; justify-content: space-between; align-items: flex-start; position: relative; margin-bottom: 2.5rem; }
+.settings-header .title-group { text-align: center; width: 100%; }
+.settings-header .title-group h1 { font-family: var(--font-serif); font-weight: 600; font-size: 2rem; margin-bottom: 0.5rem; }
+.settings-header .title-group p { font-size: 1rem; }
+.light-mode .settings-header .title-group p { color: var(--text-secondary-light); }
+.dark-mode .settings-header .title-group p { color: var(--text-secondary-dark); }
+.settings-header .header-controls { position: absolute; top: -12px; right: -16px; display: flex; align-items: center; gap: 0.25rem; }
+.form-group { margin-bottom: 2rem; }
+.form-group label { display: block; margin-bottom: 0.75rem; font-weight: 500; font-size: 1.1rem; }
+.rating-dots { display: flex; gap: 12px; cursor: pointer; }
+.rating-dot { width: 28px; height: 28px; border-radius: 50%; border: 2px solid; transition: all 0.2s ease-in-out; }
+.light-mode .rating-dot { border-color: #ccc; }
+.dark-mode .rating-dot { border-color: #555; }
+.rating-dots:hover .rating-dot, .rating-dots .rating-dot.selected { border-color: var(--accent-color); background-color: var(--accent-color); transform: scale(1.1); }
+.rating-dots:hover .rating-dot:hover ~ .rating-dot { background-color: transparent; border-color: #ccc; }
+.dark-mode .rating-dots:hover .rating-dot:hover ~ .rating-dot { border-color: #555; }
+.required-indicator { color: #e74c3c; margin-left: 4px; }
+#error-message { color: #e74c3c; margin-top: 0.5rem; display: none; font-size: 0.9rem; }
+textarea {
+width: 100%; min-height: 100px; padding: 0.75rem 1rem; border-radius: 5px;
+font-family: inherit; font-size: 1rem; line-height: 1.6;
+transition: background-color 0.4s, color 0.4s, border-color 0.4s;
+}
+.light-mode textarea { background-color: var(--bg-color-light); border: 1px solid var(--border-color-light); color: var(--text-primary-light); }
+.dark-mode textarea { background-color: var(--bg-color-dark); border: 1px solid var(--border-color-dark); color: var(--text-primary-dark); }
+textarea:focus { outline: none; border-color: var(--accent-color); box-shadow: 0 0 0 2px rgba(41, 128, 185, 0.3); }
+
+/* --- NEW: Select dropdown styles --- */
+select {
+width: 100%;
+padding: 0.75rem 1rem;
+border-radius: 5px;
+font-family: inherit;
+font-size: 1rem;
+line-height: 1.6;
+transition: background-color 0.4s, color 0.4s, border-color 0.4s;
+-webkit-appearance: none; -moz-appearance: none; appearance: none;
+background-repeat: no-repeat;
+background-position: right 1rem center;
+background-size: .65em auto;
+cursor: pointer;
+}
+.light-mode select {
+background-color: var(--bg-color-light);
+border: 1px solid var(--border-color-light);
+color: var(--text-primary-light);
+background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%232c3e50%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-13%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2013l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.4-12.8z%22%2F%3E%3C%2Fsvg%3E');
+}
+.dark-mode select {
+background-color: var(--bg-color-dark);
+border: 1px solid var(--border-color-dark);
+color: var(--text-primary-dark);
+background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23D1CFCB%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-13%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2013l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.4-12.8z%22%2F%3E%3C%2Fsvg%3E');
+}
+select:focus {
+outline: none;
+border-color: var(--accent-color);
+box-shadow: 0 0 0 2px rgba(41, 128, 185, 0.3);
+}
+
+.submit-btn {
+background-color: var(--accent-color); color: white; border: none; padding: 0.75rem 1.75rem; border-radius: 5px; cursor: pointer;
+font-family: inherit; font-size: 1.1rem; font-weight: 500; transition: background-color 0.3s, transform 0.2s;
+display: inline-flex; align-items: center; justify-content: center; gap: 10px; width: 100%; margin-top: 1rem;
+}
+.submit-btn .btn-text { transition: opacity 0.2s; }
+.submit-btn:hover { background-color: var(--accent-color-hover); }
+.submit-btn:active { transform: scale(0.98); }
+.submit-btn:disabled { background-color: #cccccc; cursor: not-allowed; }
+.loader { width: 20px; height: 20px; border: 3px solid rgba(255,255,255,0.3); border-radius: 50%; border-top-color: #fff; animation: spin 1s ease-in-out infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* --- 6. 閱讀器頂部控制列 (Reader Header Controls) --- */
+.reader-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; padding: 0 0.5rem; }
+.reader-controls .left-controls, .reader-controls .right-controls { display: flex; align-items: center; gap: 0.5rem; }
+
+.reader-pagination {
+font-family: var(--font-sans);
+font-size: 0.9rem;
+text-align: center;
+}
+.light-mode .reader-pagination { color: var(--text-secondary-light); }
+.dark-mode .reader-pagination { color: var(--text-secondary-dark); }
+
+.font-controls { display: flex; align-items: center; gap: 0.25rem; border-right: 1px solid; padding-right: 0.75rem; margin-right: 0.25rem;}
+.light-mode .font-controls { border-color: var(--border-color-light); }
+.dark-mode .font-controls { border-color: var(--border-color-dark); }
+.font-controls .icon-btn svg { width: 22px; height: 22px; }
+
+/* --- 7. 書本閱讀器 (Book Reader) --- */
+.book-container { width: 100%; height: 75vh; min-height: 550px; display: flex; justify-content: center; align-items: center; overflow: hidden; user-select: none; cursor: grab; margin-top: 0; margin-bottom: 2.5rem; }
+.book-container:active { cursor: grabbing; }
+.book { width: 100%; height: 100%; display: flex; }
+.page { width: 100%; height: 100%; flex-shrink: 0; position: relative; border: 1px solid; }
+
+.page-content { 
+width: 100%; height: 100%; 
+padding: 3.5rem 3rem; /* 修訂 #1: 增加上下內距 */
+overflow-y: auto; 
+font-family: var(--font-serif); 
+font-size: var(--reader-font-size); 
+letter-spacing: 0.05em; 
+line-height: 2;
+display: flex;
+flex-direction: column;
+/* justify-content: center; 修訂 #1: 移除，讓文字從頂部開始 */
+}
+.light-mode .page { background: var(--content-bg-light); border-color: var(--border-color-light); }
+.dark-mode .page { background: var(--content-bg-dark); border-color: var(--border-color-dark); }
+.light-mode .page-content { color: var(--text-primary-light); }
+.dark-mode .page-content { color: var(--text-primary-dark); }
+.page-content h2.article-title { font-size: calc(var(--reader-font-size) + 0.9rem); font-weight: 600; margin-bottom: 0.75rem; text-align: center; }
+.page-content p.article-author { font-family: var(--font-sans); font-size: calc(var(--reader-font-size) - 0.1rem); margin-bottom: 1.5rem; text-align: center; color: var(--accent-color); }
+.page-content .article-outline { font-family: var(--font-sans); font-style: italic; font-size: calc(var(--reader-font-size) - 0.1rem); text-align: center; margin: 1rem 0 2rem 0; padding-bottom: 2rem; border-bottom: 1px solid; }
+.light-mode .page-content .article-outline { color: var(--text-secondary-light); border-color: var(--border-color-light); }
+.dark-mode .page-content .article-outline { color: var(--text-secondary-dark); border-color: var(--border-color-dark); }
+
+.page-content p { margin-bottom: 1em; }
+.page-content p.article-author { margin-bottom: 1.5rem; }
+.page-content p:last-child { margin-bottom: 0; }
+
+.article-appreciation { margin-top: 0rem; padding-top: 0rem; border-top: 1px solid; }
+.light-mode .article-appreciation { border-color: var(--border-color-light); }
+.dark-mode .article-appreciation { border-color: var(--border-color-dark); }
+.article-appreciation h3 { font-family: var(--font-sans); font-weight: 500; font-size: calc(var(--reader-font-size) + 0.15rem); margin-bottom: 1rem; }
+
+#sizer { position: absolute; visibility: hidden; z-index: -100; overflow: hidden; font-family: var(--font-serif); font-size: var(--reader-font-size); letter-spacing: 0.05em; line-height: 2; padding: 3.5rem 3rem; /* 修訂 #1: 與 page-content 同步 */ }
+
+/* --- 插圖樣式 (Illustration Styles) --- */
+.illustration-container {
+width: 85%;
+margin: 2.5rem auto;
+padding: 1rem;
+border: 1px dashed;
+border-radius: 8px;
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+page-break-inside: avoid;
+cursor: pointer;
+}
+.light-mode .illustration-container { border-color: var(--border-color-light); }
+.dark-mode .illustration-container { border-color: var(--border-color-dark); }
+.illustration-container img { max-width: 100%; height: auto; border-radius: 4px; transition: opacity 0.3s; }
+.illustration-container img:hover { opacity: 0.85; }
+.illustration-loader { display: flex; align-items: center; gap: 15px; cursor: default; }
+.illustration-loader .spinner { width: 30px; height: 30px; border: 4px solid rgba(0,0,0,0.1); border-radius: 50%; animation: spin 1s linear infinite; }
+.light-mode .illustration-loader .spinner { border-top-color: var(--text-secondary-light); }
+.dark-mode .illustration-loader .spinner { border-top-color: var(--text-secondary-dark); }
+.light-mode .illustration-loader p { color: var(--text-secondary-light); }
+.dark-mode .illustration-loader p { color: var(--text-secondary-dark); }
+.illustration-error { text-align: center; padding: 1rem; }
+.illustration-error svg { width: 40px; height: 40px; margin-bottom: 1rem; stroke: #e74c3c; }
+.illustration-error p { font-family: var(--font-sans); font-size: 0.9rem; color: #e74c3c; line-height: 1.6; }
+
+.page-content--illustration {
+padding: 0 !important;
+display: flex;
+justify-content: center;
+align-items: center;
+}
+.page-content--illustration .illustration-container {
+margin: 1rem;
+width: 90%;
+height: 90%;
+border-style: solid;
+}
+.page-content--illustration .illustration-container img {
+width: 100%;
+height: 100%;
+object-fit: contain;
+}
+
+/* --- 8. 全螢幕模式 (Fullscreen Mode) --- */
+body.fullscreen-mode { overflow: hidden; }
+body.light-mode.fullscreen-mode { background-color: var(--content-bg-light); }
+body.dark-mode.fullscreen-mode { background-color: var(--content-bg-dark); }
+body.fullscreen-mode .page-container { padding: 0; }
+body.fullscreen-mode .main-content-wrapper { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; max-width: none; z-index: 1000; }
+body.fullscreen-mode .reader-card { border-radius: 0; border: none; box-shadow: none; height: 100%; display: flex; flex-direction: column; padding: 2rem; }
+body.fullscreen-mode .book-container { flex-grow: 1; min-height: auto; height: auto; }
+body.fullscreen-mode .fullscreen-btn .icon-enter-fullscreen { display: none; }
+body.fullscreen-mode .fullscreen-btn .icon-exit-fullscreen { display: block; }
+
+/* --- 9. 歷史紀錄彈窗 (History Modal) --- */
+.history-modal {
+position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: var(--overlay-bg);
+display: flex; justify-content: center; align-items: center; z-index: 2000;
+opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0s 0.3s;
+}
+.history-modal.is-visible { opacity: 1; visibility: visible; transition-delay: 0s; }
+.history-container {
+width: 90%; max-width: 700px; max-height: 80vh; border-radius: 8px; padding: 1.5rem 2rem;
+display: flex; flex-direction: column; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+transform: scale(0.95); transition: transform 0.3s, background-color 0.4s;
+}
+.light-mode .history-container { background-color: var(--content-bg-light); }
+.dark-mode .history-container { background-color: var(--content-bg-dark); }
+.history-modal.is-visible .history-container { transform: scale(1); }
+.history-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 1rem; margin-bottom: 1rem; border-bottom: 1px solid; }
+.light-mode .history-header { border-color: var(--border-color-light); }
+.dark-mode .history-header { border-color: var(--border-color-dark); }
+.history-header h2 { font-size: 1.5rem; font-weight: 500; }
+.history-controls { display: flex; gap: 1rem; margin-bottom: 1rem; }
+#history-search { flex-grow: 1; padding: 0.5rem 0.75rem; border-radius: 5px; font-size: 1rem; font-family: var(--font-sans); }
+#history-sort { padding: 0.5rem; border-radius: 5px; font-size: 1rem; font-family: var(--font-sans); }
+.light-mode #history-search, .light-mode #history-sort { background-color: var(--bg-color-light); border: 1px solid var(--border-color-light); color: var(--text-primary-light); }
+.dark-mode #history-search, .dark-mode #history-sort { background-color: var(--bg-color-dark); border: 1px solid var(--border-color-dark); color: var(--text-primary-dark); }
+#history-search:focus, #history-sort:focus { outline: none; border-color: var(--accent-color); }
+.history-list { list-style: none; overflow-y: auto; flex-grow: 1; }
+.history-list li { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: 1rem; border-radius: 5px; transition: background-color 0.2s; border-bottom: 1px solid; }
+.history-list li:last-child { border-bottom: none; }
+.history-item-content { flex-grow: 1; cursor: pointer; }
+.history-list-item-title { font-family: var(--font-serif); font-size: 1.2rem; font-weight: 600; }
+.history-list-item-meta { font-family: var(--font-sans); font-size: 0.9rem; margin-top: 0.25rem; }
+.light-mode .history-list li { border-color: var(--border-color-light); }
+.dark-mode .history-list li { border-color: var(--border-color-dark); }
+.light-mode .history-item-content:hover { background-color: var(--bg-color-light); }
+.dark-mode .history-item-content:hover { background-color: var(--bg-color-dark); }
+.light-mode .history-list-item-meta { color: var(--text-secondary-light); }
+.dark-mode .history-list-item-meta { color: var(--text-secondary-dark); }
+.delete-history-btn svg { width: 20px; height: 20px; }
+.light-mode .delete-history-btn:hover svg, #delete-all-history-btn:hover svg { stroke: #e74c3c; }
+.dark-mode .delete-history-btn:hover svg, #delete-all-history-btn:hover svg { stroke: #e74c3c; }
+.no-history-msg { padding: 2rem; text-align: center; justify-content: center; }
+.light-mode .no-history-msg { color: var(--text-secondary-light); }
+.dark-mode .no-history-msg { color: var(--text-secondary-dark); }
+
+/* --- 10. 響應式設計 (Responsive Design) --- */
+@media (max-width: 768px) {
+.main-content-wrapper { width: 90%; }
+.page-container { padding: 1rem 0; }
+.settings-card, .reader-card { padding: 1.5rem; box-shadow: none; }
+body.fullscreen-mode .reader-card { padding: 1.5rem; } /* Keep mobile padding smaller */
+.settings-header { margin-bottom: 2rem; flex-direction: column; align-items: center; gap: 0.75rem; }
+.settings-header .title-group h1 { font-size: 1.8rem; }
+.settings-header .header-controls { position: static; }
+.reader-controls .left-controls, .reader-controls .right-controls { gap: 0.2rem; }
+.page-content { padding: 2rem 1.5rem; line-height: 1.9; overflow-y: auto; }
+#sizer { padding: 2rem 1.5rem; }
+.page-content h2.article-title { font-size: calc(var(--reader-font-size) + 0.4rem); }
+.history-controls { flex-direction: column; }
+.illustration-container { width: 100%; }
+}
+
+/* --- 11. 版權聲明 (Copyright) --- */
+.copyright-footer {
+position: fixed;
+bottom: 0;
+right: 0;
+padding: 5px 10px;
+background-color: var(--bg-color-light);
+z-index: 500;
+transition: background-color 0.4s, color 0.4s;
+}
+
+.dark-mode .copyright-footer {
+background-color: var(--bg-color-dark);
+}
+
+.copyright-footer p {
+margin: 0;
+font-size: 14px;
+color: var(--text-secondary-light);
+}
+
+.dark-mode .copyright-footer p {
+color: var(--text-secondary-dark);
+}
+
+@media (max-width: 600px) {
+.copyright-footer p {
+font-size: 12px;
+}
+}
+</style>
+</head>
+<body class="light-mode">
+
+<!-- Main Content -->
+<div class="page-container">
+<div class="main-content-wrapper">
+<!-- 設定卡片 (初始顯示) -->
+<section class="settings-card" id="settings-section">
+<header class="settings-header">
+<div class="title-group">
+<h1>文學・片段</h1>
+<p>與文學巨擘對話，探索思想的深度</p>
+</div>
+<div class="header-controls">
+<button class="icon-btn" id="history-btn" title="閱覽紀錄">
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20v2H6.5A2.5 2.5 0 0 1 4 19.5z"></path><path d="M4 5h16v12H6.5A2.5 2.5 0 0 1 4 14.5V5z"></path></svg>
+</button>
+<button class="icon-btn theme-switcher-btn" id="settings-theme-switcher" title="切換主題">
+<svg class="icon-theme-light" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+<svg class="icon-theme-dark hidden" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+</button>
+</div>
+</header>
+<form id="prose-form">
+<div class="form-group">
+<label for="difficulty">難度<span class="required-indicator">*</span></label>
+<div class="rating-dots" id="difficulty-rating" data-rating="3">
+<div class="rating-dot" data-value="1"></div><div class="rating-dot" data-value="2"></div>
+<div class="rating-dot" data-value="3"></div><div class="rating-dot" data-value="4"></div>
+<div class="rating-dot" data-value="5"></div>
+</div>
+<div id="error-message">請選擇難度</div>
+</div>
+<!-- NEW: Model Selector -->
+<div class="form-group">
+<label for="model-select">模型</label>
+<select id="model-select" name="model">
+<option value="gemini" selected>水心</option>
+<option value="deepseek" >魚木</option> 
+
+</select>
+</div>
+<div class="form-group">
+<label for="prompt">主題</label>
+<textarea id="prompt" placeholder="可輸入作品主題..."></textarea>
+</div>
+<div class="form-group" style="display: flex; align-items: center; gap: 10px; margin-bottom: 1.5rem;">
+<input type="checkbox" id="generate-illustrations-checkbox" style="width: 18px; height: 18px; cursor: pointer;">
+<label for="generate-illustrations-checkbox" style="margin-bottom: 0; cursor: pointer; font-weight: normal;">插圖</label>
+</div>
+<button type="submit" id="generate-btn" class="submit-btn">
+<span class="btn-text">尋找片段</span>
+</button>
+</form>
+</section>
+
+<!-- 閱讀器卡片 (初始隱藏) -->
+<section class="reader-card hidden" id="reading-section">
+<div class="reader-controls">
+<div class="left-controls">
+<button class="icon-btn" id="back-to-settings-btn" title="返回設定">
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+</button>
+</div>
+<div id="reader-pagination" class="reader-pagination"></div>
+<div class="right-controls">
+<div class="font-controls">
+<button class="icon-btn" id="font-size-decrease-btn" title="縮小字體">
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14h6m-6 0v-2a2 2 0 0 1 2-2h2"/><path d="M4 7V6a2 2 0 0 1 2-2h2"/><path d="M10 7V6a2 2 0 0 1 2-2h1"/><text x="14" y="15" font-size="10" font-family="sans-serif" text-anchor="middle">A</text><text x="19" y="15" font-size="6" font-family="sans-serif" text-anchor="middle">A</text></svg>
+</button>
+<button class="icon-btn" id="font-size-increase-btn" title="放大字體">
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14h6m-6 0v-2a2 2 0 0 1 2-2h2"/><path d="M4 7V6a2 2 0 0 1 2-2h2"/><path d="M10 7V6a2 2 0 0 1 2-2h1"/><text x="15" y="15" font-size="12" font-family="sans-serif" text-anchor="middle">A</text><text x="21" y="15" font-size="8" font-family="sans-serif" text-anchor="middle">A</text></svg>
+</button>
+</div>
+<button class="icon-btn theme-switcher-btn" id="reader-theme-switcher" title="切換主題">
+<svg class="icon-theme-light" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+<svg class="icon-theme-dark hidden" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+</button>
+<button class="icon-btn fullscreen-btn" id="fullscreen-btn" title="全螢幕模式">
+<svg class="icon-enter-fullscreen" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>
+<svg class="icon-exit-fullscreen" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 0-2-2h-3m-12 0H5a2 2 0 0 0-2 2v3"></path></svg>
+</button>
+</div>
+</div>
+<div class="book-container" id="book-container">
+<div class="book" id="book"></div>
+</div>
+<div id="sizer"></div>
+</section>
+</div>
+</div>
+
+<!-- 歷史紀錄彈出層 (Modal) -->
+<div class="history-modal" id="history-modal">
+<div class="history-container">
+<div class="history-header">
+<div style="display: flex; align-items: center; gap: 0.75rem;">
+<h2>閱覽紀錄</h2>
+<button class="icon-btn" id="delete-all-history-btn" title="刪除全部紀錄">
+<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+</button>
+</div>
+<button class="icon-btn" id="history-close-btn" title="關閉">
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+</button>
+</div>
+<div class="history-controls">
+<input type="search" id="history-search" placeholder="搜尋標題...">
+<select id="history-sort">
+<option value="date_desc">按生成日期 (新到舊)</option>
+<option value="date_asc">按生成日期 (舊到新)</option>
+<option value="stroke_asc">按文章標題筆劃 (少到多)</option>
+<option value="stroke_desc">按文章標題筆劃 (多到少)</option>
+</select>
+</div>
+<ul class="history-list" id="history-list"></ul>
+</div>
+</div>
+
+<footer class="copyright-footer">
+<p>Copyright © 2025 陳冠健. All rights reserved.</p>
+</footer>
+
+
+
+
+    <script>
+
+        // ===============================================================
+// === [神思通用組件] 權限攔截器 & 莫蘭迪提示窗 (含登入連結) ===
+// ===============================================================
+(function() {
+    // 防止重複注入
+    if (window.SansiInterceptorLoaded) return;
+    window.SansiInterceptorLoaded = true;
+
+    // --- 1. 自動注入莫蘭迪 CSS ---
+    const style = document.createElement('style');
+    style.textContent = `
+        /* 莫蘭迪遮罩 */
+        .sansi-limit-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(253, 252, 248, 0.88); /* 米白高模糊 */
+            backdrop-filter: blur(6px);
+            z-index: 9999999; /* 最高層級 */
+            display: none; justify-content: center; align-items: center;
+            opacity: 0; transition: opacity 0.3s ease;
+        }
+        .sansi-limit-show { opacity: 1; }
+
+        /* 視窗卡片 */
+        .sansi-limit-card {
+            background: #fdfcf8;
+            border: 1px solid #e0ddd7;
+            border-radius: 16px;
+            padding: 30px 25px;
+            width: 90%; max-width: 380px;
+            box-shadow: 0 15px 40px rgba(141, 110, 99, 0.15);
+            text-align: center;
+            transform: translateY(20px);
+            transition: transform 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+            font-family: 'Noto Serif TC', serif;
+        }
+        .sansi-limit-show .sansi-limit-card { transform: translateY(0); }
+
+        /* 圖示與文字 */
+        .sansi-limit-icon { font-size: 3rem; color: #d69a92; margin-bottom: 15px; } /* 豆沙紅 */
+        .sansi-limit-title { color: #5d4037; font-size: 1.4rem; font-weight: bold; margin: 0 0 10px 0; }
+        .sansi-limit-desc { color: #888; font-size: 1rem; line-height: 1.6; margin-bottom: 25px; text-align: justify; }
+
+        /* 按鈕群組 */
+        .sansi-btn-group { display: flex; gap: 12px; margin-top: 20px; }
+
+        .sansi-limit-btn {
+            border: none; padding: 10px 0; border-radius: 50px;
+            font-size: 0.95rem; font-weight: bold; cursor: pointer;
+            transition: all 0.2s; font-family: 'Noto Serif TC', serif;
+            flex: 1; display: flex; align-items: center; justify-content: center; gap: 5px;
+            text-decoration: none;
+        }
+
+        /* 主按鈕 (前往登入) - 莫蘭迪綠 */
+        .btn-primary { 
+            background: #8fa398; color: white; 
+            box-shadow: 0 4px 12px rgba(143, 163, 152, 0.4);
+        }
+        .btn-primary:hover { background-color: #7d9186; transform: translateY(-2px); }
+
+        /* 次按鈕 (關閉) - 淺灰 */
+        .btn-secondary { 
+            background: #f0f0f0; color: #777; 
+        }
+        .btn-secondary:hover { background-color: #e5e5e5; }
+    `;
+    document.head.appendChild(style);
+
+    // --- 2. 自動注入 HTML (彈出視窗) ---
+    const modalHTML = `
+        <div id="sansiLimitModal" class="sansi-limit-overlay">
+            <div class="sansi-limit-card">
+                <div class="sansi-limit-icon">
+                    <i class="fas fa-user-lock"></i>
+                </div>
+                <div class="sansi-limit-title">需要登入</div>
+                <div class="sansi-limit-desc">
+                    訪客每日體驗額度已耗盡。<br>
+                    請前往「神思」主頁登入學校帳號，即可解鎖無限使用權限。
+                </div>
+                <div class="sansi-btn-group">
+                    <button class="sansi-limit-btn btn-secondary" onclick="closeSansiLimitModal()">
+                        稍後
+                    </button>
+                    <!-- 點擊直接跳轉至神思主頁 -->
+                    <button class="sansi-limit-btn btn-primary" onclick="window.location.href='https://kenchan20141.github.io/AIChinese/'">
+                        <i class="fas fa-sign-in-alt"></i> 前往登入
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    const div = document.createElement('div');
+    div.innerHTML = modalHTML;
+    document.body.appendChild(div);
+
+    // --- 3. 定義關閉視窗與清理函式 ---
+    window.closeSansiLimitModal = function() {
+        const modal = document.getElementById('sansiLimitModal');
+        if (modal) {
+            modal.classList.remove('sansi-limit-show');
+            setTimeout(() => { modal.style.display = 'none'; }, 300);
+            
+            // 自動嘗試關閉各種工具的 Loading 狀態，防止畫面卡死
+            if (typeof hideProgress === 'function') hideProgress(); // 題孳
+            if (typeof hideLoading === 'function') hideLoading();   // 翻水/寫作
+            
+            // 如果按鈕被禁用，嘗試解鎖 (針對通用按鈕 class)
+            const disabledBtns = document.querySelectorAll('button:disabled');
+            disabledBtns.forEach(btn => btn.disabled = false);
+        }
+    };
+
+    // --- 4. 攔截器核心邏輯 ---
+    const originalFetch = window.fetch;
+    
+    window.fetch = async function(url, options) {
+        // 僅攔截 AI 請求
+        if (typeof url === 'string' && url.includes('pollinations.ai')) {
+            
+            // A. 即時檢查登入狀態 (每次請求都會重新讀取，防止登出後仍能使用)
+            const s = localStorage.getItem('studentProfile');
+            
+            if (s) {
+                // 已登入：放行
+                return originalFetch(url, options);
+            }
+
+            // B. 未登入：檢查額度
+            const today = new Date().toLocaleDateString('zh-HK');
+            const toolName = document.title || "UnknownTool"; 
+            const storageKey = `sansi_guest_usage_${toolName}_${today}`;
+            
+            let currentCount = parseInt(localStorage.getItem(storageKey) || "0");
+
+            // C. 超過額度 -> 阻擋並彈窗
+            if (currentCount >= 1) {
+                // 顯示視窗
+                const modal = document.getElementById('sansiLimitModal');
+                modal.style.display = 'flex';
+                // 強制重繪以觸發過渡動畫
+                void modal.offsetWidth; 
+                modal.classList.add('sansi-limit-show');
+
+                // 回傳錯誤以中斷原本程式的執行
+                return Promise.reject(new Error("Guest Limit Exceeded"));
+            }
+
+            // D. 未超過 -> 記錄並放行
+            localStorage.setItem(storageKey, currentCount + 1);
+            console.log(`[訪客] ${toolName} 使用第 ${currentCount + 1} 次`);
+        }
+
+        return originalFetch(url, options);
+    };
+    
+    console.log("✅ 神思通用權限鎖 (含登入連結) 已啟動");
+})();
+</script>
+
+
+    
+<script>
+// --- Main application logic ---
+function initializeApp() {
+// --- 1. DOM 元素選擇 ---
+const body = document.body;
+const root = document.documentElement;
+const settingsSection = document.getElementById('settings-section');
+const readingSection = document.getElementById('reading-section');
+const themeSwitchers = document.querySelectorAll('.theme-switcher-btn');
+const proseForm = document.getElementById('prose-form');
+const difficultyRating = document.getElementById('difficulty-rating');
+const ratingDots = difficultyRating.querySelectorAll('.rating-dot');
+const errorMessage = document.getElementById('error-message');
+const modelSelect = document.getElementById('model-select'); // NEW: Select model dropdown
+const promptTextarea = document.getElementById('prompt');
+const generateBtn = document.getElementById('generate-btn');
+const generateBtnText = generateBtn.querySelector('.btn-text');
+const book = document.getElementById('book');
+const bookContainer = document.getElementById('book-container');
+const sizer = document.getElementById('sizer');
+const fullscreenBtn = document.getElementById('fullscreen-btn');
+const backToSettingsBtn = document.getElementById('back-to-settings-btn');
+const historyBtn = document.getElementById('history-btn');
+const historyModal = document.getElementById('history-modal');
+const historyCloseBtn = document.getElementById('history-close-btn');
+const historyList = document.getElementById('history-list');
+const historySearch = document.getElementById('history-search');
+const historySort = document.getElementById('history-sort');
+const deleteAllHistoryBtn = document.getElementById('delete-all-history-btn');
+const fontSizeIncreaseBtn = document.getElementById('font-size-increase-btn');
+const fontSizeDecreaseBtn = document.getElementById('font-size-decrease-btn');
+const generateIllustrationsCheckbox = document.getElementById('generate-illustrations-checkbox');
+const readerPagination = document.getElementById('reader-pagination');
+
+// --- 1. 修改 API 網址 (指向你的 GAS) ---
+const API_URL = "https://script.google.com/macros/s/AKfycbw3GLUM12ls3PhST5TkimLZvZwQx2H4RG8g2SbZiMJmuxg3HqsO_d13kPU4AnKpxi2P6A/exec";
+
+// --- 新增：日誌顯示功能 ---
+function showProviderLog(logText) {
+    let logDiv = document.getElementById('api-provider-log');
+    if (!logDiv) {
+        logDiv = document.createElement('div');
+        logDiv.id = 'api-provider-log';
+        logDiv.style = `
+            position: fixed; bottom: 40px; left: 10px; 
+            padding: 4px 12px; border-radius: 20px; 
+            font-size: 11px; font-family: monospace; 
+            z-index: 9999; color: white; font-weight: bold;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            transition: opacity 0.5s;
+        `;
+        document.body.appendChild(logDiv);
+    }
+
+    // 根據內容決定顏色
+    let bgColor = "#7f8c8d"; // 預設灰色
+    if (logText.includes("POLLINATION")) bgColor = "#27ae60"; // 綠色
+    if (logText.includes("DEEPSEEK")) bgColor = "#8e44ad";    // 紫色
+    if (logText.includes("Fail") || logText.includes("Error")) bgColor = "#c0392b"; // 紅色
+
+    logDiv.style.backgroundColor = bgColor;
+    logDiv.textContent = `Source: ${logText}`;
+    logDiv.style.opacity = "1";
+
+    // 5秒後自動隱藏
+    setTimeout(() => { logDiv.style.opacity = "0"; }, 5000);
+}
+
+// --- 2. 狀態管理 ---
+let state = {
+difficulty: 3,
+history: JSON.parse(localStorage.getItem('proseHistory_v3')) || [],
+currentArticle: null,
+currentPageNum: 0,
+totalPages: 0,
+fontSize: 1.1,
+};
+let isDragging = false, dragStartX = 0, currentTranslate = 0, startTranslate = 0;
+
+// --- 3. 初始化 ---
+const initTheme = () => {
+const savedTheme = localStorage.getItem('theme') || 'light-mode';
+if (savedTheme === 'dark-mode') {
+body.classList.remove('light-mode');
+body.classList.add('dark-mode');
+} else {
+body.classList.remove('dark-mode');
+body.classList.add('light-mode');
+}
+updateThemeIcons(savedTheme);
+};
+
+const initFontSize = () => {
+state.fontSize = parseFloat(localStorage.getItem('fontSize')) || 1.1;
+root.style.setProperty('--reader-font-size', `${state.fontSize}rem`);
+};
+
+initTheme();
+initFontSize();
+updateRatingDots();
+
+// --- 4. 事件監聽器 ---
+themeSwitchers.forEach(switcher => {
+switcher.addEventListener('click', () => {
+const isCurrentlyLight = body.classList.contains('light-mode');
+const currentTheme = isCurrentlyLight ? 'light-mode' : 'dark-mode';
+const newTheme = isCurrentlyLight ? 'dark-mode' : 'light-mode';
+
+body.classList.remove(currentTheme);
+body.classList.add(newTheme);
+localStorage.setItem('theme', newTheme);
+updateThemeIcons(newTheme);
+
+const inReaderView = !readingSection.classList.contains('hidden');
+if (inReaderView) {
+if (!body.classList.contains('fullscreen-mode')) {
+body.classList.add('fullscreen-mode');
+}
+if (state.currentArticle) {
+setTimeout(() => displayArticleAsBook(state.currentArticle), 50);
+}
+}
+});
+});
+
+ratingDots.forEach(dot => {
+dot.addEventListener('click', () => {
+state.difficulty = parseInt(dot.dataset.value);
+difficultyRating.dataset.rating = state.difficulty;
+errorMessage.style.display = 'none';
+updateRatingDots();
+});
+dot.addEventListener('mouseover', () => {
+const hoverValue = parseInt(dot.dataset.value);
+ratingDots.forEach(d => d.classList.toggle('selected', d.dataset.value <= hoverValue));
+});
+});
+difficultyRating.addEventListener('mouseout', updateRatingDots);
+
+proseForm.addEventListener('submit', async (e) => {
+e.preventDefault();
+if (state.difficulty === 0) {
+errorMessage.style.display = 'block';
+return;
+}
+
+setLoading(true, '尋找片段中...');
+try {
+const article = await generateProse();
+if (!article) return; 
+
+if (generateIllustrationsCheckbox.checked) {
+setLoading(true, '生成插圖中...');
+article.illustrationData = await prepareIllustrations(article.content);
+}
+
+article.generatedDate = new Date().toISOString();
+state.currentArticle = article;
+addToHistory(state.currentArticle);
+
+state.currentPageNum = 0; 
+
+body.classList.add('fullscreen-mode');
+displayArticleAsBook(state.currentArticle);
+switchToReaderView();
+
+} catch (error) {
+console.error('生成流程錯誤:', error);
+alert(`處理失敗: ${error.message}`);
+} finally {
+setLoading(false);
+}
+});
+
+fullscreenBtn.addEventListener('click', toggleFullscreen);
+backToSettingsBtn.addEventListener('click', () => {
+if (body.classList.contains('fullscreen-mode')) toggleFullscreen();
+switchToSettingsView();
+});
+
+fontSizeIncreaseBtn.addEventListener('click', () => changeFontSize(0.1));
+fontSizeDecreaseBtn.addEventListener('click', () => changeFontSize(-0.1));
+
+historyBtn.addEventListener('click', showHistory);
+historyCloseBtn.addEventListener('click', hideHistory);
+deleteAllHistoryBtn.addEventListener('click', deleteAllHistory);
+historyModal.addEventListener('click', (e) => { if (e.target === historyModal) hideHistory(); });
+historyList.addEventListener('click', handleHistoryListClick);
+historySearch.addEventListener('input', renderHistory);
+historySort.addEventListener('change', renderHistory);
+
+bookContainer.addEventListener('mousedown', dragStart);
+bookContainer.addEventListener('touchstart', dragStart, { passive: true });
+document.addEventListener('mousemove', dragMove);
+document.addEventListener('touchmove', dragMove, { passive: true });
+document.addEventListener('mouseup', dragEnd);
+document.addEventListener('touchend', dragEnd);
+book.addEventListener('click', handleIllustrationClick);
+
+// --- 5. 核心功能函式 ---
+function updateThemeIcons(theme) {
+themeSwitchers.forEach(switcher => {
+const lightIcon = switcher.querySelector('.icon-theme-light');
+const darkIcon = switcher.querySelector('.icon-theme-dark');
+lightIcon.classList.toggle('hidden', theme === 'dark-mode');
+darkIcon.classList.toggle('hidden', theme === 'light-mode');
+});
+}
+
+function updateRatingDots() {
+ratingDots.forEach(dot => {
+dot.classList.toggle('selected', dot.dataset.value <= state.difficulty);
+});
+}
+
+function setLoading(isLoading, text = '尋找經典') {
+generateBtn.disabled = isLoading;
+generateBtnText.textContent = text;
+
+const existingLoader = generateBtn.querySelector('.loader');
+if (isLoading) {
+if (!existingLoader) {
+const loader = document.createElement('div');
+loader.className = 'loader';
+generateBtn.insertBefore(loader, generateBtnText);
+}
+} else {
+if (existingLoader) existingLoader.remove();
+generateBtnText.textContent = '尋找經典';
+}
+}
+
+function switchToReaderView() {
+settingsSection.classList.add('hidden');
+readingSection.classList.remove('hidden');
+}
+
+function switchToSettingsView() {
+readingSection.classList.add('hidden');
+settingsSection.classList.remove('hidden');
+state.currentArticle = null;
+state.totalPages = 0;
+updatePaginationDisplay();
+}
+
+function toggleFullscreen() { 
+body.classList.toggle('fullscreen-mode');
+if (state.currentArticle) {
+setTimeout(() => displayArticleAsBook(state.currentArticle), 50);
+}
+}
+
+function updatePaginationDisplay() {
+if (readerPagination) {
+if (state.totalPages > 0) {
+readerPagination.textContent = `${state.currentPageNum + 1} / ${state.totalPages}`;
+} else {
+readerPagination.textContent = '';
+}
+}
+}
+
+// =================================================================
+// ===== 完整的 generateProse 函數 (含 Token 驗證與完整關鍵詞) =====
+// =================================================================
+// =================================================================
+// ===== 完整的 generateProse 函數 (含 Token 驗證、完整關鍵詞與彈窗觸發) =====
+// =================================================================
+async function generateProse() {
+    // --- 1. 定義控制台彩色日誌函式 ---
+    const logToConsole = (logText) => {
+        let color = "#7f8c8d"; // 預設灰色
+        if (logText.includes("POLLINATION")) color = "#27ae60"; // 綠色
+        if (logText.includes("DEEPSEEK")) color = "#8e44ad";    // 紫色
+        if (logText.toLowerCase().includes("error")) color = "#e74c3c"; // 紅色
+
+        console.log(
+            `%c[系統日誌] 來源: ${logText}`, 
+            `color: white; background: ${color}; padding: 2px 8px; border-radius: 4px; font-weight: bold;`
+        );
+    };
+
+    // --- 2. 隨機主題生成邏輯 ---
+    let userPrompt = promptTextarea.value.trim();
+    let finalPrompt;
+
+    if (!userPrompt) {
+        // 完整的關鍵詞列表，無省略
+        const randomKeywords = [
+            "雪屋", "大海", "時間", "星空", "孤獨", "記憶", "城市", "森林", "夢境", "火焰", "旅途", "回憶", "秋天", "月光", "寂靜",
+            "微風", "黎明", "黃昏", "雨滴", "街道", "窗口", "鏡子", "鑰匙", "地圖", "書信", "承諾", "謊言", "秘密", "重逢", "離別",
+            "車站", "機場", "港口", "橋樑", "隧道", "廢墟", "城堡", "燈塔", "鐘樓", "噴泉", "廣場", "巷弄", "屋頂", "地下室", "閣樓",
+            "童年", "青春", "衰老", "誕生", "死亡", "愛情", "友情", "親情", "背叛", "寬恕", "戰爭", "和平", "自由", "束縛", "命運",
+            "偶然", "必然", "永恆", "瞬間", "混沌", "秩序", "虛無", "存在", "靈魂", "肉體", "神話", "傳說", "寓言", "預言", "詛咒",
+            "祝福", "奇蹟", "災難", "犧牲", "救贖", "瘋狂", "理智", "嫉妒", "貪婪", "傲慢", "善良", "邪惡", "美麗", "醜陋", "真相",
+            "幻覺", "呢喃", "吶喊", "沉默", "低語", "凝視", "觸摸", "氣味", "味道", "聲音", "色彩", "溫度", "重量", "距離", "速度",
+            "迷宮", "謎題", "遊戲", "儀式", "節日", "葬禮", "婚禮", "盛宴", "飢荒", "瘟疫", "洪水", "乾旱", "地震", "火山", "風暴",
+            "冰川", "沙漠", "草原", "沼澤", "島嶼", "半島", "峽谷", "山脈", "河流", "湖泊", "海洋", "天空", "雲朵", "彩虹", "閃電",
+            "雷鳴", "影子", "回聲", "漣漪", "塵埃", "泡沫", "裂縫", "疤痕", "烙印", "紋身", "面具", "盔甲", "武器", "樂器", "畫筆",
+            "雕像", "畫作", "詩篇", "歌曲", "舞蹈", "戲劇", "電影", "照片", "日記", "手稿", "遺物", "紀念碑", "博物館", "圖書館", "劇院",
+            "咖啡館", "酒吧", "旅館", "醫院", "學校", "教堂", "寺廟", "監獄", "法庭", "邊界", "國度", "家園", "異鄉", "故鄉", "流浪",
+            "黃昏", "黎明", "薄霧", "星辰", "銀河", "塵埃", "灰燼", "餘溫", "脈搏", "呼吸", "嘆息", "腳步", "回音", "疤痕", "裂縫",
+            "碎片", "旋律", "節奏", "樂章", "和弦", "變奏", "符號", "暗喻", "隱喻", "悖論", "循環", "螺旋", "迷宮", "棋局", "賭注",
+            "契約", "誓言", "遺忘", "覺醒", "蛻變", "重生", "沉淪", "升華", "救贖", "懲罰", "審判", "流放", "歸來", "尋找", "失落",
+            "等待", "追逐", "逃離", "相遇", "錯過", "牽絆", "宿命", "選擇", "偶然", "必然", "因果", "輪迴", "彼岸", "此岸", "虛構",
+            "真實", "邊界", "領域", "維度", "時空", "平行", "交叉", "斷點", "起點", "終點", "無限", "有限", "永恆", "剎那", "潮汐",
+            "季風", "洋流", "地殼", "磁場", "引力", "光譜", "頻率", "共振", "能量", "物質", "意識", "潛意識", "夢魘", "幻象", "神諭",
+            "預兆", "儀式", "祭品", "聖地", "禁地", "廢都", "古城", "遺蹟", "碑文", "羊皮卷", "密碼", "鑰匙", "門", "窗", "鏡",
+            "沙漏", "羅盤", "望遠鏡", "顯微鏡", "天平", "權杖", "皇冠", "枷鎖", "鐐銬", "面紗", "斗篷", "權力", "慾望", "野心", "信仰",
+            "懷疑", "希望", "絕望", "喜悅", "悲傷", "憤怒", "恐懼", "平靜", "焦慮", "漠然", "熱情", "冷酷", "溫柔", "殘酷", "純真",
+            "世故", "天真", "狡詐", "忠誠", "背叛", "英雄", "惡棍", "聖人", "罪人", "凡人", "神明", "魔鬼", "精靈", "巨人", "矮人",
+            "旅人", "隱士", "先知", "門徒", "國王", "皇后", "王子", "公主", "騎士", "魔法師", "鍊金術士", "工匠", "商人", "農夫", "漁夫",
+            "詩人", "畫家", "音樂家", "演員", "學者", "哲學家", "科學家", "探險家", "革命家", "獨裁者", "反抗者", "倖存者", "見證者", "旁觀者",
+            "倒影", "香氣", "觸感", "溫度", "濕度", "質地", "重量", "密度", "結構", "紋理", "輪廓", "剪影", "光暈", "色調", "對比",
+            "和諧", "衝突", "平衡", "失衡", "空白", "填充", "敘事", "對話", "獨白", "旁白", "書信體", "意識流", "現實主義", "魔幻現實", "超現實",
+            "存在主義", "虛無主義", "浪漫主義", "古典主義", "現代主義", "後現代", "結構主義", "解構主義", "符號學", "詮釋學", "現象學", "美學", "倫理學", "形上學",
+            "宇宙", "星球", "衛星", "彗星", "流星", "黑洞", "白洞", "蟲洞", "暗物質", "暗能量", "創世", "末日", "洪水", "方舟", "伊甸園",
+            "巴別塔", "黃金國", "烏托邦", "反烏托邦", "賽博龐克", "蒸汽龐克", "廢土", "末世", "浩劫", "廢土", "奇點", "超人類", "仿生人", "複製人",
+            "基因", "病毒", "瘟疫", "疫苗", "抗體", "進化", "突變", "退化", "共生", "寄生", "天敵", "獵物", "偽裝", "遷徙", "冬眠",
+            "化石", "琥珀", "鑽石", "黃金", "鐵鏽", "青銅", "陶瓷", "玻璃", "絲綢", "棉麻", "木材", "石頭", "骨骼", "血液", "眼淚",
+            "汗水", "微笑", "哭泣", "吶喊", "低語", "歌唱", "舞蹈", "行走", "奔跑", "跳躍", "飛行", "下沉", "漂浮", "靜止", "旋轉",
+            "鞦韆", "風箏", "陀螺", "木馬", "玩偶", "面具", "樂高", "拼圖", "迷藏", "家家酒", "塗鴉", "秘密基地", "藏寶圖", "時光膠囊", "畢業冊",
+            "舊照片", "老電影", "黑膠唱片", "卡式錄音帶", "打字機", "蒸汽火車", "帆船", "馬車", "燭光", "煤油燈", "壁爐", "搖椅", "鵝毛筆", "墨水", "信封",
+            "郵票", "電報", "電話亭", "撥號聲", "靜電噪音", "雪花屏", "底片", "暗房", "顯影", "定影", "褪色", "泛黃", "塵封", "遺忘", "銘記",
+            "序曲", "間奏", "尾聲", "安可", "落幕", "謝幕", "劇終", "未完待續", "空白頁", "最後一章", "前言", "後記", "註腳", "標題", "引文",
+            "箴言", "謎語", "謠言", "謊言", "真理", "謬誤", "辯證", "獨斷", "詭辯", "修辭", "詩體", "散文", "小說", "劇本", "傳記",
+            "山巔", "谷底", "溪流", "瀑布", "洞穴", "懸崖", "海嘯", "龍捲風", "極光", "日蝕", "月蝕", "星軌", "星座", "流星雨", "隕石",
+            "潮間帶", "珊瑚礁", "紅樹林", "雨林", "苔原", "冰蓋", "活火山", "休眠火山", "間歇泉", "溫泉", "鹽湖", "內陸海", "三角洲", "平原", "丘陵",
+            "盆地", "高原", "地塹", "地壘", "大陸", "群島", "孤島", "無人區", "禁獵區", "保護區", "國家公園", "世界遺產", "自然奇觀", "人造景觀",
+            "麥田圈", "金字塔", "巨石陣", "長城", "羅馬競技場", "泰姬瑪哈陵", "復活節島石像", "空中花園", "亞特蘭提斯", "香格里拉", "桃花源", "理想國", "惡之華", "失樂園", "美麗新世界",
+            "編織", "刺繡", "陶藝", "雕刻", "書法", "繪畫", "攝影", "作曲", "作詞", "導演", "編劇", "表演", "建築", "設計", "烹飪",
+            "園藝", "茶道", "花道", "香道", "棋道", "武術", "冥想", "瑜珈", "占星", "塔羅", "煉金", "魔法", "超能力", "心電感應", "預知未來",
+            "靈魂出竅", "前世今生", "通靈", "驅魔", "降神", "附身", "變形", "隱形", "飛行", "心靈移動", "時間旅行", "空間跳躍", "永生不老", "點石成金", "長生不老",
+            "神農", "伏羲", "女媧", "盤古", "上帝", "撒旦", "宙斯", "奧丁", "拉", "濕婆", "梵天", "阿修羅", "浮士德", "普羅米修斯", "薛西弗斯",
+            "伊卡洛斯", "潘朵拉", "納西瑟斯", "俄狄浦斯", "美杜莎", "米諾陶", "九頭蛇", "獨眼巨人", "人馬", "獅身人面", "吸血鬼", "狼人", "殭屍", "食屍鬼",
+            "報喪女妖", "無頭騎士", "水妖", "樹精", "地精", "風精", "火蜥蜴", "龍", "鳳凰", "麒麟", "獨角獸", "獅鷲", "挪亞方舟", "金羊毛", "聖杯",
+            "亞瑟王", "圓桌武士", "羅賓漢", "三國演義", "水滸傳", "西遊記", "封神演義", "聊齋誌異", "鏡花緣", "浮生六記", "紅樓夢", "百年孤寂", "追憶似水年華", "尤利西斯", "罪與罰",
+            "戰爭與和平", "卡拉馬助夫兄弟們", "白鯨記", "老人與海", "異鄉人", "瘟疫", "鼠疫", "審判", "城堡", "變形記", "等待果陀", "咆哮山莊", "簡愛", "傲慢與偏見", "塊肉餘生錄",
+            "雙城記", "悲慘世界", "基督山恩仇記", "唐吉訶德", "一千零一夜", "源氏物語", "枕草子", "奧德賽", "伊利亞特", "伊尼亞德", "神曲", "十日談", "莎士比亞",
+            "歌德", "但丁", "荷馬", "維吉爾", "托爾斯泰", "杜斯妥也夫斯基", "卡夫卡", "卡繆", "沙特", "福克納", "海明威", "馬奎斯", "波赫士", "魯迅", "張愛玲",
+            "沈從文", "老舍", "錢鍾書", "白先勇", "余光中", "三島由紀夫", "川端康成", "村上春樹", "太宰治", "芥川龍之介", "夏目漱石", "谷崎潤一郎", "葉慈", "艾略特", "龐德",
+            "奧登", "狄蘭湯瑪斯", "金斯堡", "惠特曼", "狄金生", "佛洛斯特", "里爾克", "波特萊爾", "韓波", "魏爾倫", "阿波里奈爾", "普魯斯特", "喬伊斯", "吳爾芙", "普拉絲"
+        ];
+        
+        const historyTitles = state.history.map(item => item.title);
+        let selectedKeyword;
+        let isKeywordValid = false;
+        let attempts = 0;
+
+        while (!isKeywordValid && attempts < 100) {
+            selectedKeyword = randomKeywords[Math.floor(Math.random() * randomKeywords.length)];
+            const collisionFound = historyTitles.some(title => title.includes(selectedKeyword));
+            if (!collisionFound) isKeywordValid = true;
+            attempts++;
+        }
+        finalPrompt = selectedKeyword || "文學片段";
+    } else {
+        finalPrompt = userPrompt;
+    }
+
+    // --- 3. 準備發送到 GAS 的指令 ---
+    const selectedModel = modelSelect.value;
+    const promptInstruction = userPrompt
+        ? `用戶的個性化要求： "${finalPrompt}"`
+        : '請隨機推薦一篇符合上述難度的文章或小說節錄。';
+
+    const systemPrompt = `你是一位精通中國及世界文學的諾貝爾獎文學家，你的作品具高度文學性、具體情節（包括時、地、人、事、情、物、理）及哲思。你的任務是根據用戶要求，從你自己創作的浩瀚的白話文學作品中，找出一篇真實繁體中文文章或小說節錄段落。
+用戶的文學鑑賞難度偏好（1星最淺白，5星最艱深）：${state.difficulty}顆星。
+${promptInstruction}
+
+為了確保每次都能生成全新的內容，請將此唯一請求 ID 納入考量：${Date.now()}。
+
+極重要指示：
+1. 你必須找出現實世界中，由你自己所寫的文章或小說作品節錄段落。禁止虛構內容。
+2. 你的回傳內容必須是「純粹的、單一的、有效的 JSON 物件」。
+3. 絕對禁止在 JSON 物件前後添加任何說明文字、註解、或 markdown 的 \`\`\`json 標籤。
+4. 所有文字都必須是繁體中文。
+5. [作品賞析] 必須針對你推薦的這篇真實作品節錄段落進行分析。
+
+JSON 格式如下：
+{
+"title": "{真實的作品標題，注明【節錄】}",
+"author": "文學・片段",
+"outline": "{約 50 字的真實作品綱要，以「作者」替代真實作家姓名}",
+"content": "{完整的真實文章或小說節錄段落，段落之間用 \\n 分隔}",
+"appreciation": {
+"title": "作品賞析",
+"text": "{針對該節錄的賞析，以「作者」替代真實作家姓名}"
+}
+}`;
+
+    // --- 4. 執行 Fetch 請求 (發送到 GAS) ---
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbw3GLUM12ls3PhST5TkimLZvZwQx2H4RG8g2SbZiMJmuxg3HqsO_d13kPU4AnKpxi2P6A/exec";
+
+    try {
+        // [新增] 獲取 Token 邏輯
+        let token = "";
+        if (firebase.auth().currentUser) {
+            try {
+                token = await firebase.auth().currentUser.getIdToken(true);
+            } catch (tokenErr) {
+                console.error("無法獲取 Token:", tokenErr);
+                throw new Error("身分驗證失敗，請重新登入。");
+            }
+        } else {
+            console.warn("尚未登入 Firebase，請求可能會被後端拒絕。");
+        }
+
+        const response = await fetch(GAS_URL, {
+            method: 'POST',
+            body: JSON.stringify({
+                token: token, // 將 Token 放入 Payload
+                model: selectedModel,
+                messages: [{ role: "user", content: systemPrompt }],
+                max_tokens: 4000,
+                temperature: 1.0
+            })
+        });
+
+        // --- 5. 處理回應與錯誤檢查 ---
+        if (!response.ok) throw new Error(`GAS 請求失敗，狀態碼：${response.status}`);
+        
+        const data = await response.json();
+        console.log("🔍 GAS 後端回傳原始資料:", data);
+
+        if (data._provider_log) {
+            logToConsole(data._provider_log);
+        }
+
+        // [新增] 檢查後端錯誤 (如 Unauthorized)
+        if (data.error) {
+            if (typeof data.error === 'string' && (data.error.includes("Unauthorized") || data.error.includes("Token"))) {
+                throw new Error("權限不足：請確認您已登入學校帳號。");
+            }
+            const errorMsg = data.error.message || JSON.stringify(data.error);
+            throw new Error(`後端報錯: ${errorMsg}`);
+        }
+
+        // [新增] 嚴格檢查回傳結構
+        if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+            throw new Error("後端回傳格式異常，請按 F12 查看 Console 的「GAS 後端回傳原始資料」。");
+        }
+
+        if (!data.choices[0].message.content) {
+             throw new Error("後端回傳內容為空 (Content is empty)。");
+        }
+
+        let contentString = data.choices[0].message.content;
+
+        // 清理 Markdown 標籤
+        contentString = contentString
+            .replace(/^```(?:json)?\s*\n?/, '')
+            .replace(/\n?```(?:\s*json)?\s*$/, '')
+            .trim();
+
+        let article;
+        try {
+            article = JSON.parse(contentString);
+        } catch (parseError) {
+            console.error("解析 JSON 失敗:", contentString);
+            throw new Error("回傳內容格式非有效 JSON。");
+        }
+
+        return article;
+
+    } catch(error) {
+        logToConsole(`Error: ${error.message}`);
+        
+        // ★★★ 核心修改：攔截權限錯誤並顯示莫蘭迪彈窗 ★★★
+        if (error.message.includes("權限不足") || error.message.includes("請先登入") || error.message.includes("Unauthorized")) {
+            // 呼叫已經注入在頁面上的莫蘭迪彈窗
+            const modal = document.getElementById('sansiLimitModal');
+            if (modal) {
+                modal.style.display = 'flex';
+                // 強制重繪以觸發過渡動畫
+                void modal.offsetWidth; 
+                modal.classList.add('sansi-limit-show');
+                return null; // 中斷執行，不顯示 Alert
+            }
+        }
+
+        // 其他錯誤照常顯示 Alert
+        alert(`處理時發生錯誤: ${error.message}`);
+        return null;
+    }
+}
+// =================================================================
+// =================================================================
+// =================================================================
+
+
+function addToHistory(article) {
+state.history = state.history.filter(item => item.title !== article.title);
+state.history.unshift(article);
+if (state.history.length > 50) state.history.pop();
+localStorage.setItem('proseHistory_v3', JSON.stringify(state.history));
+}
+
+// --- 6. 書本、分頁與插圖邏輯 ---
+function changeFontSize(amount) {
+const newSize = Math.max(0.8, Math.min(1.8, state.fontSize + amount));
+state.fontSize = Math.round(newSize * 10) / 10;
+localStorage.setItem('fontSize', state.fontSize);
+root.style.setProperty('--reader-font-size', `${state.fontSize}rem`);
+if (state.currentArticle) {
+displayArticleAsBook(state.currentArticle);
+}
+}
+
+function paginateArticle(article) {
+const containerWidth = bookContainer.clientWidth;
+const containerHeight = bookContainer.clientHeight;
+if (containerWidth === 0 || containerHeight === 0) {
+console.error("Book container has no size. Cannot paginate.");
+return ["錯誤：無法計算頁面尺寸。"];
+}
+
+sizer.style.width = containerWidth + 'px';
+sizer.style.height = containerHeight + 'px';
+
+const firstPageHeader = `<h2 class="article-title">${article.title}</h2><p class="article-author">文 / ${article.author}</p><div class="article-outline">${article.outline}</div>`;
+
+let fullContentHTML;
+const textToParagraphs = (text) => {
+if (!text) return "";
+return text.split('\n').filter(p => p.trim() !== '').map(p => `<p>${p}</p>`).join('');
+};
+
+if (article.illustrationData && article.illustrationData.length > 0) {
+let processedHTML = '';
+const illustrationChunks = chunkTextForIllustrations(article.content);
+
+for (let i = 0; i < illustrationChunks.length; i++) {
+const chunk = illustrationChunks[i];
+processedHTML += chunk.paragraphs.map(p => `<p>${p}</p>`).join('');
+const illustrationResult = article.illustrationData[i];
+
+if (illustrationResult) {
+const textPromptAttr = `data-text-prompt="${encodeURIComponent(chunk.textForPrompt)}"`;
+const indexAttr = `data-illustration-index="${i}"`;
+if (illustrationResult.status === 'fulfilled' && illustrationResult.value) {
+processedHTML += `<div class="illustration-container" ${textPromptAttr} ${indexAttr}><img src="${illustrationResult.value}" alt="文章插圖"></div>`;
+} else if (illustrationResult.status === 'rejected') {
+const errorMessage = illustrationResult.reason?.message?.includes('翻譯') ? '翻譯失敗，無法生成。' : '圖片生成失敗。';
+processedHTML += `<div class="illustration-container" ${textPromptAttr} ${indexAttr}><div class="illustration-error" title="點擊以重試"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/></svg><p>${errorMessage}<br>點擊此處重試。</p></div></div>`;
+}
+}
+}
+fullContentHTML = processedHTML;
+} else {
+fullContentHTML = textToParagraphs(article.content);
+}
+
+const appreciationHTML = textToParagraphs(article.appreciation.text);
+fullContentHTML += `<div class="article-appreciation"><h3>${article.appreciation.title}</h3>${appreciationHTML}</div>`;
+
+const contentDoc = new DOMParser().parseFromString(`<div>${fullContentHTML}</div>`, 'text/html');
+const contentNodes = Array.from(contentDoc.body.firstChild.childNodes);
+
+let pages = [];
+let currentPageHTML = firstPageHeader;
+sizer.innerHTML = currentPageHTML;
+
+for (const node of contentNodes) {
+if (node.nodeType === 1 && node.classList.contains('illustration-container')) {
+if (currentPageHTML.trim() && currentPageHTML !== firstPageHeader) {
+pages.push(currentPageHTML);
+}
+pages.push(node.outerHTML);
+currentPageHTML = '';
+sizer.innerHTML = '';
+continue;
+}
+
+const nodeHTML = node.outerHTML || node.textContent;
+const potentialHTML = currentPageHTML + nodeHTML;
+sizer.innerHTML = potentialHTML;
+
+if (sizer.scrollHeight > containerHeight) {
+if (currentPageHTML) { 
+pages.push(currentPageHTML);
+}
+currentPageHTML = nodeHTML;
+sizer.innerHTML = currentPageHTML;
+} else {
+currentPageHTML = potentialHTML;
+}
+}
+
+if (currentPageHTML.trim()) {
+pages.push(currentPageHTML);
+}
+if (pages.length === 0) {
+pages.push(firstPageHeader);
+}
+
+return pages;
+}
+
+function displayArticleAsBook(article) {
+const currentPageBeforeRepagination = state.currentPageNum;
+book.innerHTML = '';
+book.style.transition = 'none';
+
+setTimeout(() => {
+if (!bookContainer.clientWidth) {
+console.error("Pagination failed: book container not visible or has zero width.");
+return;
+}
+const pagesContent = paginateArticle(article);
+state.totalPages = pagesContent.length;
+
+pagesContent.forEach((content, i) => {
+const pageElement = document.createElement('div');
+pageElement.className = 'page';
+
+const isIllustrationPage = content.includes('class="illustration-container"');
+const contentClass = isIllustrationPage ? 'page-content page-content--illustration' : 'page-content';
+
+pageElement.innerHTML = `<div class="${contentClass}">${content}</div>`;
+book.appendChild(pageElement);
+});
+
+const newPage = Math.min(currentPageBeforeRepagination, state.totalPages - 1);
+goToPage(newPage, true);
+
+}, 50);
+}
+
+function goToPage(pageNum, immediate = false) {
+const pageIndex = Math.max(0, Math.min(pageNum, state.totalPages - 1));
+state.currentPageNum = pageIndex;
+currentTranslate = -pageIndex * bookContainer.clientWidth;
+book.style.transition = immediate ? 'none' : 'transform 0.4s ease-out';
+book.style.transform = `translateX(${currentTranslate}px)`;
+updatePaginationDisplay();
+}
+
+function chunkTextForIllustrations(content) {
+const CHARS_PER_IMAGE = 400;
+let paragraphs = content.split('\n').filter(p => p.trim() !== '');
+let chunks = [];
+let charCountSinceLastImage = 0;
+let textBufferForPrompt = '';
+let paragraphBuffer = [];
+
+for (const para of paragraphs) {
+paragraphBuffer.push(para);
+textBufferForPrompt += para + " ";
+charCountSinceLastImage += para.length;
+
+if (charCountSinceLastImage >= CHARS_PER_IMAGE) {
+chunks.push({ paragraphs: [...paragraphBuffer], textForPrompt: textBufferForPrompt.trim() });
+charCountSinceLastImage = 0;
+textBufferForPrompt = '';
+paragraphBuffer = [];
+}
+}
+if (paragraphBuffer.length > 0) {
+chunks.push({ paragraphs: [...paragraphBuffer], textForPrompt: textBufferForPrompt.trim() });
+}
+return chunks;
+}
+
+async function prepareIllustrations(content) {
+const chunks = chunkTextForIllustrations(content);
+const baseSeed = Math.floor(Math.random() * 1000000);
+const illustrationPromises = chunks.map((chunk, i) => {
+return generateSingleImageURL(chunk.textForPrompt, baseSeed + i);
+});
+return await Promise.allSettled(illustrationPromises);
+}
+
+async function generateSingleImageURL(textPrompt, seed) {
+const englishPara = await translateToEnglish(textPrompt);
+if (!englishPara) throw new Error('翻譯失敗');
+const prompt = generateImagePrompt(englishPara);
+const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?token=Jeq-UCxbpvrqUEzN&model=flux&enhance=false&private=true&nologo=true&seed=${seed}`;
+const response = await fetch(imageUrl);
+if (!response.ok) {
+throw new Error('圖片生成失敗 (fetch failed)');
+}
+return imageUrl;
+}
+
+async function handleIllustrationClick(e) {
+const container = e.target.closest('.illustration-container');
+if (!container) return;
+const illustrationIndexStr = container.dataset.illustrationIndex;
+if (illustrationIndexStr === undefined) return;
+const illustrationIndex = parseInt(illustrationIndexStr);
+if (confirm('您確定要重新生成這張插圖嗎？')) {
+const textPrompt = decodeURIComponent(container.dataset.textPrompt);
+const newSeed = Math.floor(Math.random() * 10000000);
+container.innerHTML = `<div class="illustration-loader"><div class="spinner"></div><p>重新生成中...</p></div>`;
+try {
+const imageUrl = await generateSingleImageURL(textPrompt, newSeed);
+const img = new Image();
+img.onload = () => {
+container.innerHTML = '';
+img.alt = '文章插圖';
+container.appendChild(img);
+updateIllustrationInHistory(illustrationIndex, imageUrl);
+};
+img.onerror = () => { throw new Error('圖片載入失敗'); };
+img.src = imageUrl;
+} catch (error) {
+const errorMessage = error.message.includes('翻譯') ? '翻譯失敗，無法生成。' : '圖片生成失敗。';
+container.innerHTML = `<div class="illustration-error" title="點擊以重試"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/></svg><p>${errorMessage}<br>點擊此處重試。</p></div>`;
+}
+}
+}
+
+function updateIllustrationInHistory(index, newImageUrl) {
+if (!state.currentArticle || !state.currentArticle.illustrationData) return;
+state.currentArticle.illustrationData[index] = { status: 'fulfilled', value: newImageUrl, reason: undefined };
+const historyIndex = state.history.findIndex(item => item.title === state.currentArticle.title && item.author === state.currentArticle.author);
+if (historyIndex !== -1) {
+state.history[historyIndex].illustrationData = state.currentArticle.illustrationData;
+localStorage.setItem('proseHistory_v3', JSON.stringify(state.history));
+console.log(`歷史紀錄已更新：文章 "${state.currentArticle.title}" 的第 ${index + 1} 張插圖已更新。`);
+} else {
+console.warn("在歷史紀錄中找不到當前文章，無法更新插圖。");
+}
+}
+
+// --- 7. 翻頁互動處理 ---
+function dragStart(e) { isDragging = true; dragStartX = e.touches ? e.touches[0].clientX : e.clientX; startTranslate = currentTranslate; book.style.transition = 'none'; }
+function dragMove(e) { if (!isDragging) return; const currentX = e.touches ? e.touches[0].clientX : e.clientX; const diff = currentX - dragStartX; currentTranslate = startTranslate + diff; book.style.transform = `translateX(${currentTranslate}px)`; }
+function dragEnd() { if (!isDragging) return; isDragging = false; const threshold = bookContainer.clientWidth / 5; const endTranslate = -state.currentPageNum * bookContainer.clientWidth; const movedBy = currentTranslate - endTranslate; if (movedBy < -threshold && state.currentPageNum < state.totalPages - 1) { goToPage(state.currentPageNum + 1); } else if (movedBy > threshold && state.currentPageNum > 0) { goToPage(state.currentPageNum - 1); } else { goToPage(state.currentPageNum); } }
+
+// --- 8. 歷史紀錄相關函式 ---
+function showHistory() { renderHistory(); historyModal.classList.add('is-visible'); }
+function hideHistory() { historyModal.classList.remove('is-visible'); }
+
+function deleteAllHistory() {
+if (state.history.length === 0) return;
+if (confirm('您確定要刪除所有閱覽紀錄嗎？此操作無法復原。')) {
+state.history = [];
+localStorage.setItem('proseHistory_v3', JSON.stringify(state.history));
+renderHistory();
+}
+}
+
+function renderHistory() {
+let items = [...state.history];
+const term = historySearch.value.toLowerCase();
+if (term) items = items.filter(i => i.title.toLowerCase().includes(term));
+
+const collator = new Intl.Collator('zh-Hant', { sensitivity: 'base', collation: 'stroke' });
+items.sort((a, b) => {
+switch (historySort.value) {
+case 'date_asc': return new Date(a.generatedDate) - new Date(b.generatedDate);
+case 'stroke_asc': return collator.compare(a.title, b.title);
+case 'stroke_desc': return collator.compare(b.title, a.title);
+default: return new Date(b.generatedDate) - new Date(a.generatedDate);
+}
+});
+
+historyList.innerHTML = items.length === 0 
+? `<li class="no-history-msg">${term ? '找不到符合條件的紀錄。' : '目前沒有閱覽紀錄。'}</li>`
+: items.map(item => `<li data-history-title="${encodeURIComponent(item.title)}">
+<div class="history-item-content">
+<div class="history-list-item-title">${item.title}</div>
+<div class="history-list-item-meta">${new Date(item.generatedDate).toLocaleDateString('zh-TW')}</div>
+</div>
+<button class="icon-btn delete-history-btn" title="刪除此紀錄">
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+</button>
+</li>`).join('');
+}
+
+function handleHistoryListClick(e) {
+const deleteBtn = e.target.closest('.delete-history-btn');
+if (deleteBtn) {
+const li = deleteBtn.closest('li[data-history-title]');
+if (li) {
+const titleToDelete = decodeURIComponent(li.dataset.historyTitle);
+if (confirm(`您確定要刪除「${titleToDelete}」這篇閱覽紀錄嗎？`)) {
+state.history = state.history.filter(item => item.title !== titleToDelete);
+localStorage.setItem('proseHistory_v3', JSON.stringify(state.history));
+renderHistory();
+}
+}
+return;
+}
+
+const content = e.target.closest('.history-item-content');
+if (content) {
+const li = content.closest('li[data-history-title]');
+const articleTitle = decodeURIComponent(li.dataset.historyTitle);
+const article = state.history.find(item => item.title === articleTitle);
+if (article) {
+state.currentArticle = article;
+state.currentPageNum = 0;
+body.classList.add('fullscreen-mode');
+displayArticleAsBook(article);
+switchToReaderView();
+hideHistory();
+}
+}
+}
+
+// --- 9. 插圖生成輔助函式 ---
+async function translateToEnglish(textToTranslate) {
+const myEmail = 'kenchan20151@gmail.com'; 
+const apiUrl = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(textToTranslate)}&langpair=zh-TW|en&de=${myEmail}`;
+try {
+const response = await fetch(apiUrl);
+if (!response.ok) throw new Error(`翻譯API失敗，狀態碼 ${response.status}`);
+const data = await response.json();
+if (data.responseStatus !== 200) throw new Error(`翻譯API錯誤: ${data.responseDetails}`);
+return data.responseData?.translatedText || null;
+} catch (error) {
+console.error('翻譯錯誤:', error);
+return null;
+}
+}
+
+function generateImagePrompt(englishParagraph) {
+return `Illustration of: "${englishParagraph}". Rendered in a classic manga style with an emphasis on simplicity. Use only black and white, with clean, uniform, and minimalist line art. The overall feel should be a high-contrast, clear monochrome comic panel or sketch. No text is included.`;
+}
+}
+
+// --- Initialize app on page load ---
+document.addEventListener('DOMContentLoaded', () => {
+initializeApp();
+});
+</script>
+
+
+
+
+<!-- === [還原版] 神思大數據收集模組 (30秒=1分鐘邏輯) === -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    let totalSeconds = 0;
+    let timerInterval = null;
+
+    // 1. 獲取日期路徑
+    function getDateParts() {
+        const now = new Date();
+        const y = String(now.getFullYear());
+        const m = String(now.getMonth() + 1).padStart(2, '0');
+        const d = String(now.getDate()).padStart(2, '0');
+        return { y, m, d };
+    }
+
+    // 2. 獲取身份
+    function getIdentity() {
+        const rawProfile = localStorage.getItem('studentProfile');
+        let s = null;
+        try { if(rawProfile) s = JSON.parse(rawProfile); } catch (e) {}
+
+        if (s && s.grade && s.class) {
+            const safeName = s.name.replace(/[.#$/[\]]/g, '_'); 
+            return { type: 'student', id: s.uid || `stu_${s.grade}${s.class}_${safeName}`, grade: s.grade, class: s.class };
+        } else {
+            let guestID = localStorage.getItem('sansi_guest_uuid');
+            if (!guestID) {
+                guestID = 'guest_' + Math.random().toString(36).substr(2, 9);
+                localStorage.setItem('sansi_guest_uuid', guestID);
+            }
+            return { type: 'guest', id: guestID, grade: 'Guest', class: 'Visitor' };
+        }
+    }
+
+// === 3. 記錄訪問 (Log Visit) - 高效分流版 ===
+// === 3. 記錄訪問 (Log Visit) - 高效分流版 (含 stats_school 邏輯) ===
+async function logVisitOnce() {
+    if (typeof firebase === 'undefined' || !database) return;
+    
+    const { y, m, d } = getDateParts();
+    const identity = getIdentity();
+    const uid = identity.id;
+
+    // Session 鎖
+    const sessionKey = `sansi_visit_logged_${y}${m}${d}_${uid}`;
+    if (sessionStorage.getItem(sessionKey)) return; 
+
+    // 檢查 Tracking (判斷是否為今日首次)
+    const trackingRef = database.ref(`stats_tracking/${y}/${m}/${d}/unique_users/${uid}`);
+    
+    try {
+        const snap = await trackingRef.once('value');
+        const isFirstTimeToday = !snap.exists();
+
+        const updates = {};
+        const increment1 = firebase.database.ServerValue.increment(1);
+        
+        // 1. 全校總覽路徑 (含訪客) - stats_global
+        const globalPath = `stats_global/${y}/${m}/${d}`;
+        updates[`${globalPath}/visits`] = increment1;
+
+        // ★★★ 新增：純學校路徑 (僅學生) - stats_school ★★★
+        const schoolPath = `stats_school/${y}/${m}/${d}`;
+
+        if (identity.type === 'student') {
+            const classKey = `${identity.grade}${identity.class}`;
+            const studentKey = identity.id.split('_').pop(); // 名字
+
+            // 學生同時寫入 stats_school
+            updates[`${schoolPath}/visits`] = increment1;
+
+            // 2. 班級路徑 (stats_classes/6A/YYYY/MM/DD)
+            const classPath = `stats_classes/${classKey}/${y}/${m}/${d}`;
+            updates[`${classPath}/visits`] = increment1;
+
+            // 3. 學生路徑 (stats_students/6A/陳大文/YYYY/MM/DD)
+            const studentPath = `stats_students/${classKey}/${studentKey}/${y}/${m}/${d}`;
+            updates[`${studentPath}/visits`] = increment1;
+
+            if (isFirstTimeToday) {
+                updates[`stats_tracking/${y}/${m}/${d}/unique_users/${uid}`] = true;
+                
+                // 更新 global unique
+                updates[`${globalPath}/unique`] = increment1;
+                
+                // ★ 更新 school unique (僅學生)
+                updates[`${schoolPath}/unique`] = increment1;
+                
+                // 更新 class unique
+                updates[`${classPath}/unique`] = increment1;
+            }
+        } else {
+            // 訪客 (只寫入 global，不寫入 school)
+            if (isFirstTimeToday) {
+                updates[`stats_tracking/${y}/${m}/${d}/unique_users/${uid}`] = true;
+                updates[`${globalPath}/unique`] = increment1;
+            }
+        }
+
+        await database.ref().update(updates);
+        sessionStorage.setItem(sessionKey, 'true');
+        console.log("📍 [Stats] 訪問計數已分流上傳 (含 stats_school)");
+
+    } catch (e) {
+        console.error("Stats Error:", e);
+    }
+}
+
+// 4. 上傳 1 分鐘 (分流版 - 除錯模式)
+function uploadOneMinute() {
+    if (typeof firebase === 'undefined' || !database) return;
+    
+    logVisitOnce(); 
+
+    const { y, m, d } = getDateParts();
+    const identity = getIdentity();
+    
+    // 獲取學生名稱 Key (防呆)
+    const studentKey = identity.id.includes('_') ? identity.id.split('_').pop() : identity.name; 
+    
+    const updates = {};
+    const increment60 = firebase.database.ServerValue.increment(60);
+
+    // 1. 全域 (Global)
+    updates[`stats_global/${y}/${m}/${d}/duration`] = increment60;
+
+    // ★★★ 2. 學生身份判斷 ★★★
+    if (identity.type === 'student') {
+        const classKey = `${identity.grade}${identity.class}`;
+
+        // Path A: 全校 (這是您缺少的)
+        const pathSchool = `stats_school/${y}/${m}/${d}/duration`;
+        updates[pathSchool] = increment60;
+
+        // Path B: 班級
+        const pathClass = `stats_classes/${classKey}/${y}/${m}/${d}/duration`;
+        updates[pathClass] = increment60;
+        
+        // Path C: 個人
+        const pathStudent = `stats_students/${classKey}/${studentKey}/${y}/${m}/${d}/duration`;
+        updates[pathStudent] = increment60;
+
+        // ★ 除錯訊息：請在 F12 Console 查看是否出現此行 ★
+        console.log(`[Stats] 正在上傳時長... 目標包含: ${pathSchool}`);
+    } else {
+        console.log("[Stats] 當前為訪客身份，不寫入 stats_school");
+    }
+
+    database.ref().update(updates)
+        .then(() => console.log("✅ [Stats] 時長上傳成功"))
+        .catch(e => console.error("❌ [Stats] 上傳失敗 (請檢查 Rules):", e));
+}
+
+    // 5. 計時器啟動 (還原你的邏輯)
+    function startTimer() {
+        if (timerInterval) return;
+        console.log("▶️ [Stats] 計時器啟動");
+        
+        timerInterval = setInterval(() => {
+            totalSeconds++;
+            
+            // ★★★ 你的原始邏輯 ★★★
+            // 30秒 -> 傳送 (算1分鐘)
+            // 90秒 (1分30秒) -> 傳送 (算2分鐘)
+            // 150秒 (2分30秒) -> 傳送 (算3分鐘)
+            if (totalSeconds === 30 || (totalSeconds > 30 && (totalSeconds - 30) % 60 === 0)) {
+                uploadOneMinute();
+            }
+        }, 1000);
+    }
+
+    function pauseTimer() {
+        if (timerInterval) {
+            clearInterval(timerInterval);
+            timerInterval = null;
+            console.log("⏸️ [Stats] 暫停計時 (當前累計: " + totalSeconds + "s)");
+            // 注意：這裡不再有 uploadDuration(unsaved)，未滿的部分直接捨棄
+        }
+    }
+
+    // 延遲啟動
+    setTimeout(() => {
+        logVisitOnce();
+        startTimer();
+    }, 3000);
+
+    // 偵測頁面狀態
+    document.addEventListener('visibilitychange', function() {
+        if (document.visibilityState === 'hidden') pauseTimer();
+        else startTimer();
+    });
+    
+    window.forceLogVisit = logVisitOnce;
+});
+</script>
+
+
+  <!-- ======================================================= -->
+<!-- 1. Firebase SDK 與 初始化 (修正版：防止自動登出) -->
+<!-- ======================================================= -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyBgwrgn2m343mRJb0WjzUhteiospegXhvI",
+    authDomain: "sansidata.firebaseapp.com",
+    projectId: "sansidata",
+    storageBucket: "sansidata.firebasestorage.app",
+    messagingSenderId: "580288358575",
+    appId: "1:580288358575:web:35dcf4e79bcef530de4c5a",
+    databaseURL: "https://sansidata-default-rtdb.firebaseio.com"
+  };
+
+  if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+  }
+  
+  var database = firebase.database();
+  var auth = firebase.auth();
+
+  // 保持登入狀態持久化
+  document.addEventListener('DOMContentLoaded', function() {
+      if (auth) {
+          auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).then(() => {
+              auth.onAuthStateChanged(async (user) => {
+                  const s = JSON.parse(localStorage.getItem('studentProfile'));
+                  
+                  if (user) {
+                      console.log("[WenShu] Firebase 已連線:", user.email);
+                      // 如果本地沒資料但雲端有，嘗試同步 (選用)
+                      if (!s) {
+                          try {
+                              const emailKey = btoa(user.email);
+                              const snapshot = await database.ref('email_mapping/' + emailKey).once('value');
+                              if (snapshot.val()) localStorage.setItem('studentProfile', JSON.stringify(snapshot.val()));
+                          } catch (e) {}
+                      }
+                  } else {
+                      // ★★★ 修正重點：這裡什麼都不要做！ ★★★
+                      // 即使 user 是 null，也不要刪除 studentProfile
+                      // 因為這可能是頁面剛載入，Firebase 還在連線中
+                      console.log("[WenShu] 等待 Firebase 驗證或訪客模式...");
+                  }
+              });
+          });
+      }
+  });
+</script>
+
+
+<script>
+
+
+        // ===============================================================
+// === [神思通用組件] 權限攔截器 & 莫蘭迪提示窗 (含登入連結) ===
+// ===============================================================
+(function() {
+    // 防止重複注入
+    if (window.SansiInterceptorLoaded) return;
+    window.SansiInterceptorLoaded = true;
+
+    // --- 1. 自動注入莫蘭迪 CSS ---
+    const style = document.createElement('style');
+    style.textContent = `
+        /* 莫蘭迪遮罩 */
+        .sansi-limit-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(253, 252, 248, 0.88); /* 米白高模糊 */
+            backdrop-filter: blur(6px);
+            z-index: 9999999; /* 最高層級 */
+            display: none; justify-content: center; align-items: center;
+            opacity: 0; transition: opacity 0.3s ease;
+        }
+        .sansi-limit-show { opacity: 1; }
+
+        /* 視窗卡片 */
+        .sansi-limit-card {
+            background: #fdfcf8;
+            border: 1px solid #e0ddd7;
+            border-radius: 16px;
+            padding: 30px 25px;
+            width: 90%; max-width: 380px;
+            box-shadow: 0 15px 40px rgba(141, 110, 99, 0.15);
+            text-align: center;
+            transform: translateY(20px);
+            transition: transform 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+            font-family: 'Noto Serif TC', serif;
+        }
+        .sansi-limit-show .sansi-limit-card { transform: translateY(0); }
+
+        /* 圖示與文字 */
+        .sansi-limit-icon { font-size: 3rem; color: #d69a92; margin-bottom: 15px; } /* 豆沙紅 */
+        .sansi-limit-title { color: #5d4037; font-size: 1.4rem; font-weight: bold; margin: 0 0 10px 0; }
+        .sansi-limit-desc { color: #888; font-size: 1rem; line-height: 1.6; margin-bottom: 25px; text-align: justify; }
+
+        /* 按鈕群組 */
+        .sansi-btn-group { display: flex; gap: 12px; margin-top: 20px; }
+
+        .sansi-limit-btn {
+            border: none; padding: 10px 0; border-radius: 50px;
+            font-size: 0.95rem; font-weight: bold; cursor: pointer;
+            transition: all 0.2s; font-family: 'Noto Serif TC', serif;
+            flex: 1; display: flex; align-items: center; justify-content: center; gap: 5px;
+            text-decoration: none;
+        }
+
+        /* 主按鈕 (前往登入) - 莫蘭迪綠 */
+        .btn-primary { 
+            background: #8fa398; color: white; 
+            box-shadow: 0 4px 12px rgba(143, 163, 152, 0.4);
+        }
+        .btn-primary:hover { background-color: #7d9186; transform: translateY(-2px); }
+
+        /* 次按鈕 (關閉) - 淺灰 */
+        .btn-secondary { 
+            background: #f0f0f0; color: #777; 
+        }
+        .btn-secondary:hover { background-color: #e5e5e5; }
+    `;
+    document.head.appendChild(style);
+
+    // --- 2. 自動注入 HTML (彈出視窗) ---
+    const modalHTML = `
+        <div id="sansiLimitModal" class="sansi-limit-overlay">
+            <div class="sansi-limit-card">
+                <div class="sansi-limit-icon">
+                    <i class="fas fa-user-lock"></i>
+                </div>
+                <div class="sansi-limit-title">需要登入</div>
+                <div class="sansi-limit-desc">
+                    訪客每日體驗額度已耗盡。<br>
+                    請前往「神思」主頁登入學校帳號，即可解鎖無限使用權限。
+                </div>
+                <div class="sansi-btn-group">
+                    <button class="sansi-limit-btn btn-secondary" onclick="closeSansiLimitModal()">
+                        稍後
+                    </button>
+                    <!-- 點擊直接跳轉至神思主頁 -->
+                    <button class="sansi-limit-btn btn-primary" onclick="window.location.href='https://kenchan20141.github.io/AIChinese/'">
+                        <i class="fas fa-sign-in-alt"></i> 前往登入
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    const div = document.createElement('div');
+    div.innerHTML = modalHTML;
+    document.body.appendChild(div);
+
+    // --- 3. 定義關閉視窗與清理函式 ---
+    window.closeSansiLimitModal = function() {
+        const modal = document.getElementById('sansiLimitModal');
+        if (modal) {
+            modal.classList.remove('sansi-limit-show');
+            setTimeout(() => { modal.style.display = 'none'; }, 300);
+            
+            // 自動嘗試關閉各種工具的 Loading 狀態，防止畫面卡死
+            if (typeof hideProgress === 'function') hideProgress(); // 題孳
+            if (typeof hideLoading === 'function') hideLoading();   // 翻水/寫作
+            
+            // 如果按鈕被禁用，嘗試解鎖 (針對通用按鈕 class)
+            const disabledBtns = document.querySelectorAll('button:disabled');
+            disabledBtns.forEach(btn => btn.disabled = false);
+        }
+    };
+
+    // --- 4. 攔截器核心邏輯 ---
+    const originalFetch = window.fetch;
+    
+    window.fetch = async function(url, options) {
+        // 僅攔截 AI 請求
+        if (typeof url === 'string' && url.includes('pollinations.ai')) {
+            
+            // A. 即時檢查登入狀態 (每次請求都會重新讀取，防止登出後仍能使用)
+            const s = localStorage.getItem('studentProfile');
+            
+            if (s) {
+                // 已登入：放行
+                return originalFetch(url, options);
+            }
+
+            // B. 未登入：檢查額度
+            const today = new Date().toLocaleDateString('zh-HK');
+            const toolName = document.title || "UnknownTool"; 
+            const storageKey = `sansi_guest_usage_${toolName}_${today}`;
+            
+            let currentCount = parseInt(localStorage.getItem(storageKey) || "0");
+
+            // C. 超過額度 -> 阻擋並彈窗
+            if (currentCount >= 1) {
+                // 顯示視窗
+                const modal = document.getElementById('sansiLimitModal');
+                modal.style.display = 'flex';
+                // 強制重繪以觸發過渡動畫
+                void modal.offsetWidth; 
+                modal.classList.add('sansi-limit-show');
+
+                // 回傳錯誤以中斷原本程式的執行
+                return Promise.reject(new Error("Guest Limit Exceeded"));
+            }
+
+            // D. 未超過 -> 記錄並放行
+            localStorage.setItem(storageKey, currentCount + 1);
+            console.log(`[訪客] ${toolName} 使用第 ${currentCount + 1} 次`);
+        }
+
+        return originalFetch(url, options);
+    };
+    
+    console.log("✅ 神思通用權限鎖 (含登入連結) 已啟動");
+})();
+</script>
+
+
+
+    
+</body>
+</html>

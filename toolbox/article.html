@@ -1,0 +1,1968 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>翻水．敘</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;600&family=Zen+Kaku+Gothic+New:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+       :root {
+  --bg-color: #F3F0EB;
+  --text-color: #333333;
+  --primary-color: #5D5A56; 
+  --secondary-color: #77726D;
+  --border-color: #C5BEB6; 
+  /* 使用靜謐藍作為新的強調色 */
+  --accent-color: #6A7E99; 
+  --font-serif: 'Noto Serif JP', serif;
+  --font-sans: 'Zen Kaku Gothic New', sans-serif;
+}
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.8;
+            font-weight: 300;
+            overflow-x: hidden;
+            background-image: url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23DCD9D4" fill-opacity="0.2"%3E%3Cpath d="M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem 3rem;
+        }
+
+        header {
+            text-align: center;
+            padding: 2rem 0 3rem 0;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 3rem;
+        }
+
+        header h1 {
+            font-family: var(--font-serif);
+            font-size: 2.8rem;
+            font-weight: 400;
+            color: var(--primary-color);
+            letter-spacing: 0.2em;
+        }
+
+        header p {
+            font-size: 1rem;
+            color: var(--secondary-color);
+            margin-top: 0.5rem;
+            letter-spacing: 0.1em;
+        }
+
+        main {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 4rem;
+            flex-grow: 1;
+        }
+
+        .controls {
+            padding-right: 2rem;
+            border-right: 1px solid var(--border-color);
+        }
+
+        .control-group {
+            margin-bottom: 2.5rem;
+        }
+
+        .control-group label {
+            display: block;
+            margin-bottom: 1rem;
+            font-family: var(--font-serif);
+            font-size: 1.2rem;
+            font-weight: 400;
+            color: var(--primary-color);
+        }
+
+        .control-group input[type="text"],
+        .control-group textarea {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 1px solid var(--border-color);
+            background-color: transparent;
+            border-radius: 4px;
+            font-family: var(--font-sans);
+            font-size: 1rem;
+            color: var(--text-color);
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .control-group input[type="text"]:focus,
+.control-group textarea:focus {
+  outline: none;
+  border-color: var(--accent-color);
+  /* 更新 box-shadow 以匹配新的藍色調 */
+  box-shadow: 0 0 5px rgba(106, 126, 153, 0.25);
+}
+
+        .control-group textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .word-count-control {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .word-count-btn {
+            background: none;
+            border: 1px solid var(--border-color);
+            color: var(--primary-color);
+            width: 30px;
+            height: 30px;
+            font-size: 1.5rem;
+            line-height: 26px;
+            text-align: center;
+            cursor: pointer;
+            border-radius: 50%;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .word-count-btn:hover {
+            background-color: var(--primary-color);
+            color: var(--bg-color);
+        }
+
+        #word-count-display {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: var(--text-color);
+            background-color: #FFFFFF;
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            min-width: 80px;
+            text-align: center;
+        }
+
+        .style-selector {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .style-selector label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            padding: 0.6rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+        
+        .style-selector input[type="radio"] {
+            display: none;
+        }
+
+        .style-selector input[type="radio"]:checked + span {
+            font-weight: 500;
+        }
+
+        .style-selector label:has(input:checked) {
+             background-color: var(--accent-color);
+             border-color: var(--accent-color);
+             color: #FFFFFF;
+        }
+
+        .generate-btn {
+            width: 100%;
+            padding: 1rem;
+            margin-top: 1.5rem;
+            font-family: var(--font-serif);
+            font-size: 1.2rem;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            background-color: var(--primary-color);
+            color: var(--bg-color);
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .generate-btn:hover {
+            background-color: #55524e;
+        }
+        
+        .generate-btn:disabled {
+            background-color: var(--secondary-color);
+            cursor: not-allowed;
+        }
+
+        .output {
+            position: relative;
+        }
+        
+        .output-toolbar {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.5rem 0;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        #output-word-count {
+            font-size: 0.9rem;
+            color: var(--secondary-color);
+            font-family: var(--font-sans);
+        }
+
+        .icon-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-color);
+        }
+
+        .icon-btn:hover {
+            background-color: #e8e4dd;
+        }
+
+        .icon-btn svg {
+            width: 20px;
+            height: 20px;
+            fill: var(--primary-color);
+        }
+
+        .icon-btn .copy-feedback {
+            font-size: 0.9rem;
+            font-family: var(--font-sans);
+        }
+
+        #essay-placeholder, #generated-essay {
+            padding: 2rem;
+            background-color: #FFFFFF;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            min-height: 60vh;
+            white-space: pre-wrap;
+            font-family: var(--font-serif);
+            font-size: 1.1rem;
+            line-height: 2.2;
+            letter-spacing: 0.05em;
+        }
+        
+        #essay-placeholder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--secondary-color);
+            font-size: 1.5rem;
+        }
+
+        .loader {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border: 5px solid var(--bg-color);
+            border-top: 5px solid var(--accent-color);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+        
+        @media (max-width: 900px) {
+            main {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+            .controls {
+                border-right: none;
+                border-bottom: 1px solid var(--border-color);
+                padding-right: 0;
+                padding-bottom: 2rem;
+            }
+            .container {
+                padding: 1.5rem;
+            }
+        }
+
+    </style>
+
+
+
+
+
+<!-- 引入 Supabase 和 Transformers.js -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script type="module">
+        import { pipeline, env } from 'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.6.0';
+        // 設定不使用本地模型，強制使用 CDN
+        env.allowLocalModels = false;
+        env.useBrowserCache = true;
+        // 將 pipeline 掛載到 window 以便全域使用
+        window.pipeline = pipeline;
+    </script>
+
+
+
+
+
+
+
+
+
+
+	
+</head>
+<body>
+
+    <!-- 教學筆記及評分系統 (對用家隱藏) -->
+    <div id="qczh-notes" style="display: none;"><pre>
+[文章類型] 敘事抒情文。
+
+[核心結構：起承轉合及扣題內容] 你的文章必須清晰地呈現「起、承、轉、合」四大結構部分，並確保每個部分都與文章主題緊密扣聯。
+1. 起 (起因):
+- 開篇交代故事背景或事件起因。
+- 可運用「文首技巧」引入，例如：
+* 懸念法: 製造懸念，拋出疑團而不立即揭示真相，以吸引讀者。
+* 示現法: 活靈活現地描寫畫面，如「追述示現」（回憶往昔如現今）、「預言示現」（描寫未來如現今）、「懸想示現」（虛擬畫面如真）。
+* 引用法: 以事物或故事引入，確保其與主題的關聯。
+
+2. 承 (發展):
+- 故事的發展部分，應圍繞主題進行詳盡描寫。
+- 若題目有「承」和「合」的明確提示（如「熱鬧過後，我卻感到失落」），則「承」的部分應聚焦於「熱鬧」。
+- 若題目提示較少，可採用「承合二元法」，將「之前是A」設定為「承」的內容，並詳寫此部分。
+
+3. 轉 (轉變):
+- 故事或人物理解的關鍵轉折點。
+- 可以是情節的轉折，或是人物心境、思想上的重大轉變或領悟。
+
+4. 合 (結果):
+- 故事的結局或最終的體會與領悟。
+- 「立意段」應在此部分呈現，篇幅約佔全文的四分之一。
+
+[過渡]
+• 確保文章各部分（起、承、轉、合）之間過渡流暢，避免生硬拼湊。
+• 可使用獨立的過渡段落，或在段落末尾/開頭加入過渡性文字。
+
+[主題及立意]
+• 立意公式: (表面A + 實際非A) + 合理解釋 = 好的立意。
+• 立意應能「以小見大」，帶給讀者思考與共鳴，並具有社會性。避免落俗套的陳腔濫調。
+• 立意段要求:
+- 約佔全文四分之一的篇幅。
+- 可運用「排比」、「三何法」（三個設問）等修辭手法以加強語氣和感染力。
+- 結尾需呼應主題，留有餘味和聯想空間。
+
+[表達手法：示現敘事 (Show, Don't Tell)] 敘事時，切勿僅作旁白式「交代」(tell) 情節，必須「示現」(show) 畫面，讓讀者如臨其境。四種敘事手法必須交替使用，以保持敘事形式的靈活多變。
+
+1. 小物件 (Small Objects/Details):
+- 特點：敘事節奏慢，細緻程度高，直接程度低。
+- 用途：渲染氛圍，將故事娓娓道來；側面映襯人物情感及主題；作為過渡。
+- 描述需細緻，但不偏離主題。
+
+2. 動作 (Actions):
+- 特點：敘事節奏中等，細緻程度高/較高，直接程度中等。
+- 用途：為重要情節補充細節，以突顯主題。
+- 長度要求：每組動作描寫應達2至3句，以確保文意連貫、避免零碎，並增強感染力。
+- 可運用修辭、大量形容詞，並將一個動作拆分為幾個小動作描寫。
+- 應選取典型的「動作」來表現人物性格特徵。
+
+3. 對話 (Dialogue):
+- 特點：敘事節奏慢，細緻程度低，直接程度中等。
+- 用途：突顯情節重點或人物情感。
+- 對話內容需符合人物的身份和經歷，簡煉生動，能表現真情實感。
+- 對白形式可多變：可「對話在前」、「對話在後」、「對話在兩頭」，甚至採用「換行兩頭空型」以強調情感。
+
+4. 內心獨白 (Internal Monologue):
+- 特點：敘事節奏快，細緻程度自由，直接程度高。
+- 用途：略寫較次要的片段；帶出人物心理、扣題內容和立意。
+
+[句組的連續性]
+• 以「刻劃對象」來劃分句組，確保句子組合的連貫性。例如，描述一個對象時，相關的句子應組織在一起。
+• 避免句組短促而割裂，追求流暢的行文。
+
+[文字密度]
+• 維持高文字密度：詞彙豐富，用詞不重複。
+• 實詞與虛詞的比例約為七三比 (70%實詞, 30%虛詞)。
+
+[人物描寫]
+• 肖像描寫: 描寫人物的容貌、神情、姿態、服飾、音調等。注意視線移動順序（如由上而下），選擇典型細節，以烘托人物性格、身份、地位。
+• 動作描寫: 透過具體的行為動作來表現人物性格特徵，選擇典型動作。
+• 語言描寫 (對話): 參考上述「對話」的要求。
+
+[比喻的運用]
+• 創造耐人尋味的比喻，避免落俗套。
+• 需包含三個步驟：
+1. 以一個畫面作喻，其中至少包含兩個物象。
+2. 具體形容該些物象。
+3. 加入一段補充解釋的文字。
+
+[情節與高潮]
+• 增加情節的曲折性，使故事不平凡。
+• 適當設置高潮：故事氣氛最高漲、矛盾衝突最激烈、最關鍵的時刻。高潮過後氣氛應趨於平和。
+
+[結尾技巧]
+• 呼應法: 結尾與文章開頭或前文內容呼應，以突顯主題。
+• 情景交融法: 將情感融入自然景物或生活場景中，透過描寫景物來含蓄抒情。
+• 比喻法: 以別出心裁的比喻作結，圍繞該物象發揮，帶出主題。
+
+[語言要求]
+• 請使用繁體中文進行生成，絕不可以運用粵語。
+• 語言優美、文筆流暢，符合敘事抒情文的風格。
+
+[題材]
+• 豐富多變，不要寫比賽、溫習、工作和考試，要能夠引起別人的情感共鳴。
+• 主角不可以是學生，一定要是成年人
+
+[重要提醒]
+1. 永遠不要展示思考過程，生成結果只應有文章；
+2. 不要過份刻劃畫面中與主題不相關的細節，每個結構段都要聚焦到與主題相關的重點，不要生成細節豐富但情節單薄的文章；
+3. 所有「轉」都必須有兩點支撐，例如由現實中的某一件事(200字左右)牽引起回憶中的另一段往事(200字左右)觸發，這些事件可能會導致主角在心態上的轉變，事件的「時、地、人、事、情、物、理」都要具體清楚；
+4. 永遠不要用身體任何一部份做主語，例如嚴禁使用「指尖」、「額頭」、「手腕」，因為沒有人會觀察自己的，這樣刻劃非常不自然。以下這段是反面例子:「那枚佈滿霉斑的麻布袋靜臥在抽屜最深處，像一個被時光遺棄的秘密。暗褐色的斑點如無聲擴散的輿圖，吞噬著麻布原本粗礪的紋理，也吞噬著袋口歪斜的字跡——「向日葵種子」。手指拂過，細碎的黴粉簌簌剝落，揚起塵封歲月嗆人的氣息。三年前的陽光，卻忽而燙灼了我的掌心。」；
+5. 文章的角色在說對白時，嚴禁使用說教式的對白，例如「每一顆種子都藏著一個故事，我們要好好聆聽」，這些對白沒有情節支撐，讀者根本不知道角色說出這句對白的前因後果、來龍去脈，文中若反覆生成這些句子，讀者會很容易察覺是AI寫的。所有對白都要貼近生活。重要！嚴標使用類似對白！
+6. 全篇文章不能只圍繞一件事情去敘述，會顯得重複而乏味，例如文題為《種子》，不能全篇都圍繞著表面的「種植」過程去敘事，例如與爺爺一起將種子埋在泥土中，要取題目的象徵意義，明暗相生，互相扣連。表面上，有些情節與「種子」沒有直接連繫，但種子卻象徵著希望、未知，該些事情可以跟希望和未知這些主題有所連繫。
+7. 文章的人物要有自己的經歷和回憶，重要！文章應側重在人與人之間的交流及主角內心的心理刻劃，亦即情節的敘寫，不要用物件細節去取代情節。「轉」的部份，情節必須與上述任何部份都不一樣，「轉」的事件與「承」的事件不一樣，但又與主題緊緊扣連，這樣才能打開整篇文章的格局。
+8. 取材行文必須避免過於哲學化及抽象化，必須是具有文學性而又有煙火氣的材料及文句。
+9. 嚴禁連用不同小物件做主語的句子，小物件等主語不宜連續變換，第一段要減少運用小物件做主語。
+10. 題材要豐富多變，絕不可以寫溫習、工作、比賽等主題。
+11. 全文的事件時間點應有三次左右的變換，即可由現實到回憶，亦可回憶回到現實，這樣能增加情節的變化。
+12. 段與段之間的距離不要太遠。
+13. 人物對話嚴禁運用粵語。
+14. 生成結果只應有文章正文，絕不可以包含「起」、「承」、「轉」、「合」等任何結構標示或小標題；
+    </pre></div>
+    <div id="sanxian-notes" style="display: none;"><pre>
+[文章類型] 敘事抒情文。
+
+[核心結構：三線散敘] 你的文章必須採用三線散敘結構，圍繞主題用不同事件去敘寫，各線索之間相互呼應，共同深化主題。
+
+1. 第一線：
+- 圍繞主題選擇一個具體的生活事件或場景
+- 詳細描寫該事件的經過和感受
+- 體現主題的某個側面或層次
+
+2. 第二線：
+- 選擇另一個與主題相關但不同角度的事件
+- 可以是不同時間、不同地點或不同人物的經歷
+- 與第一線形成對比或補充，豐富主題內涵
+
+3. 第三線：
+- 第三個相關事件，進一步拓展主題的深度和廣度
+- 可以是更深層的思考或更廣闊的視野
+- 三線匯聚，在結尾處昇華主題
+
+[線索交織與過渡]
+• 三條線索不是簡單的並列，而要巧妙交織
+• 可以通過時間跳躍、空間轉換、聯想等方式連接各線
+• 確保過渡自然流暢，避免生硬切換
+• 各線索之間要有內在的邏輯聯繫和情感呼應
+
+[主題及立意]
+• 立意公式: (表面A + 實際非A) + 合理解釋 = 好的立意。
+• 立意應能「以小見大」，帶給讀者思考與共鳴，並具有社會性。避免落俗套的陳腔濫調。
+• 立意段要求:
+- 約佔全文四分之一的篇幅。
+- 可運用「排比」、「三何法」（三個設問）等修辭手法以加強語氣和感染力。
+- 結尾需呼應主題，留有餘味和聯想空間。
+
+[表達手法：示現敘事 (Show, Don't Tell)] 敘事時，切勿僅作旁白式「交代」(tell) 情節，必須「示現」(show) 畫面，讓讀者如臨其境。四種敘事手法必須交替使用，以保持敘事形式的靈活多變。
+
+1. 小物件 (Small Objects/Details):
+- 特點：敘事節奏慢，細緻程度高，直接程度低。
+- 用途：渲染氛圍，將故事娓娓道來；側面映襯人物情感及主題；作為過渡。
+- 描述需細緻，但不偏離主題。
+
+2. 動作 (Actions):
+- 特點：敘事節奏中等，細緻程度高/較高，直接程度中等。
+- 用途：為重要情節補充細節，以突顯主題。
+- 長度要求：每組動作描寫應達2至3句，以確保文意連貫、避免零碎，並增強感染力。
+- 可運用修辭、大量形容詞，並將一個動作拆分為幾個小動作描寫。
+- 應選取典型的「動作」來表現人物性格特徵。
+
+3. 對話 (Dialogue):
+- 特點：敘事節奏慢，細緻程度低，直接程度中等。
+- 用途：突顯情節重點或人物情感。
+- 對話內容需符合人物的身份和經歷，簡煉生動，能表現真情實感。
+- 對白形式可多變：可「對話在前」、「對話在後」、「對話在兩頭」，甚至採用「換行兩頭空型」以強調情感。
+
+4. 內心獨白 (Internal Monologue):
+- 特點：敘事節奏快，細緻程度自由，直接程度高。
+- 用途：略寫較次要的片段；帶出人物心理、扣題內容和立意。
+
+[句組的連續性]
+• 以「刻劃對象」來劃分句組，確保句子組合的連貫性。例如，描述一個對象時，相關的句子應組織在一起。
+• 避免句組短促而割裂，追求流暢的行文。
+
+[文字密度]
+• 維持高文字密度：詞彙豐富，用詞不重複。
+• 實詞與虛詞的比例約為七三比 (70%實詞, 30%虛詞)。
+
+[人物描寫]
+• 肖像描寫: 描寫人物的容貌、神情、姿態、服飾、音調等。注意視線移動順序（如由上而下），選擇典型細節，以烘托人物性格、身份、地位。
+• 動作描寫: 透過具體的行為動作來表現人物性格特徵，選擇典型動作。
+• 語言描寫 (對話): 參考上述「對話」的要求。
+
+[比喻的運用]
+• 創造耐人尋味的比喻，避免落俗套。
+• 需包含三個步驟：
+1. 以一個畫面作喻，其中至少包含兩個物象。
+2. 具體形容該些物象。
+3. 加入一段補充解釋的文字。
+
+[情節與高潮]
+• 增加情節的曲折性，使故事不平凡。
+• 適當設置高潮：故事氣氛最高漲、矛盾衝突最激烈、最關鍵的時刻。高潮過後氣氛應趨於平和。
+
+[結尾技巧]
+• 呼應法: 結尾與文章開頭或前文內容呼應，以突顯主題。
+• 情景交融法: 將情感融入自然景物或生活場景中，透過描寫景物來含蓄抒情。
+• 比喻法: 以別出心裁的比喻作結，圍繞該物象發揮，帶出主題。
+
+[語言要求]
+• 請使用繁體中文進行生成，絕不可以運用粵語。
+• 語言優美、文筆流暢，符合敘事抒情文的風格。
+
+[題材]
+• 豐富多變，不要寫比賽、溫習、工作和考試，要能夠引起別人的情感共鳴。
+• 主角不可以是學生，一定要是成年人，題材不要貼近學生的生活經驗
+
+[重要提醒]
+1. 永遠不要展示思考過程，不要有任何小標題或非中文的符號，例如「一線」、「二線」、「三線」、「*」等，生成結果只應有文章；
+2. 不要過份刻劃畫面中與主題不相關的細節，每個線索都要聚焦到與主題相關的重點；
+3. 三條線索必須是不同的事件，相互呼應，共同深化主題；
+4. 永遠不要用身體任何一部份做主語，例如嚴禁使用「指尖」、「額頭」、「手腕」；
+5. 文章的角色在說對白時，嚴禁使用說教式的對白，所有對白都要貼近生活；
+6. 三條線索不能只圍繞同一件事情去敘述，要有不同的事件和場景；
+7. 各線索之間要有內在的邏輯聯繫和情感呼應，通過巧妙的過渡連接；
+8. 取材行文必須避免過於哲學化及抽象化，必須是具有文學性而又有煙火氣的材料及文句；
+9. 題材要豐富多變，絕不可以寫溫習、工作、比賽等主題；
+10. 主角不可以是學生，一定要是成年人，題材不要貼近學生的生活經驗
+11. 一定要做好線與線之間的過渡段。
+12. 段與段之間的距離不要太遠。
+13. 人物對話嚴禁運用粵語。
+    </pre></div>
+    <div id="dse-grading-principles" style="display: none;">
+        "片段描寫": {
+        commentNote: "必須用繁體字。針對題目及用家提供的寫作內容進行點評，需嚴謹分析文章是否在字面及邏輯上扣題!important，結合情節內容，評估文句是否具文學性（即具聯想空間、引人共鳴與細味）。扣題是基本要求，即使扣題高分，若立意與取材普通，分數不高。立意需深刻、不落俗套，具哲理或共鳴；取材需獨特、豐富且貼切，避免常見題材（如『考試不合格』、『溫習』，最高6分）。立意與取材需視刻劃是否細膩。若結構段重點或情節漏空，無需評論或提及。扣題要求：1. 必須嚴謹評估寫作內容是否在字面與邏輯上直接呼應題目!important，情節詳略剪裁突顯與題目及結構段重點的關係。2. 不可自行補足情節與題目的關係。若文中未明確點出關係，視為不扣題。3. 題目如《成長》，需在字面、邏輯及詳略上突出『成長』關係，文中宜多次提及『成長』或近義詞。若偏向其他主題（如《影子》），視為不扣題。4. 帶物象題目（如《種子》）需靈活處理，抓住物象特徵發揮，接受間接象徵式扣題，無需過分聚焦實物本身。5. 題目含多個關鍵詞時，優先抓住主要關鍵詞，次要關鍵詞可放輕。6. 只有帶物象題目（如《痕跡》）必須接受用象徵、比喻等間接扣題的高階寫作，當文章運用這種方法扣題，字面扣題的要求則可以放寬。!important。點評結構（三部分，各自120字以內）：1. 點評：聚焦一至兩項關鍵問題，先評扣題及詳略剪裁是否適切，再評文句（示現敘事、文句密度）。若結構段重點或情節與題目關係薄弱，需明確指出。若扣題與剪裁均不當，無需詳評文句。若整體表現優秀，可適當稱讚，但扣題邏輯仍需嚴謹把關。2. 建議：針對點評中的問題提出具體改進建議。3. 改寫範例：若離題，改寫需包含扣題小段，直接呼應題目或結構段重點，不基於原文離題內容改寫。文句要求：1. 交替運用小物件、動作、對話及內心獨白，融情入景、融情入物。2. 提高文句密度（詞匯深、多變，物象豐富，實詞比例高，虛詞如『的』、『地』、『得』比例低），但避免過密（如連用小物件主語）。適時以人物為主語，加入虛詞或內心獨白調節節奏，張弛有度。3. 控制詳略節奏，詳寫與題目相關部分，略寫次要內容。文句密度為好文筆標準，需納入考量。其他：- 點評需精簡、一語中的，僅點出最關鍵的問題。"
+        }
+    </div>
+    <div id="five-star-examples" style="display: none;">
+        <div id="example-yanhuo">
+            <h3>《煙火》</h3>
+            <p>回鄉的我凝望著門前的「河流」，沉默不語。那場璀璨的煙火又在我杳遠的回憶隱然綻放。
+            我記得，故鄉梁莊的那夜是樸素的，是低調的，就像默默俯身收割莊稼的農民；我記得，那時祖屋的遠處種著桑樹，樹上迴響著清亮的蟬聲，而近處蜿蜒著一道河，河畔的蘆葦總傳來蛙鳴；那是元旦，鄰居李叔親切地送上祝福，又從吳鎮的煙火廠帶來了龍吐珠，與村民慶賀新春。煙花在夜幕訇然盛放之時，七歲的我正環抱著爺爺的頸項。所有的澄黃、亮綠和緋紅倏爾煥爛在我的眼眸。火光乍現，煙花便瞬即璀璨而華麗地枯萎了，只賸下硝煙和火藥的氣息。
+            我哭了，爺爺以為我被煙火嚇壞了，瞬即摩娑著我的背。
+            其實，我不過是驚詫於一切美好的幻滅。
+            後來，我才瞭解人生有許多事情都注定是一場美好的幻滅，如同煙火。
+            爺爺是我的留守歲月最璀璨的印記。我從村校放學回家時，爺爺總會捧著熱氣騰騰的、白花花的饅頭迎接著我。阿念，吃吧，快點吃吧。爺爺沙啞的聲線仍猶在耳。童年的我總喜歡伏在爺爺的背上諦聽著時間，一秒，兩秒，是多麼沉穩的幸福呢。背並不厚實，但卻溫暖和煦。時間仿佛會一直定格在這一幀。然而在我九歲那年，爺爺死了，就淹死在門前的河。建築公司在河底挖沙蓋樓，河道看來平靜，卻暗藏漩渦。爺爺游泳時被暗湧拉扯到河底，就活活淹死了。短短數年的歲月，在人生裡不過是一場倉卒燃燒的煙火，爺爺在我的回憶裡綻放過澄黃、亮綠和緋紅，卻連一縷硝煙都沒有遺下，只遺下了一件濡濕的、皺巴巴的汗衣，儼如因衰老而再無能為力綻放的煙花。
+            還有門前的河流，在爺爺死後十年，已經沉默得如患上了失語症，河水乾涸，河床裸露，像被歲月無情強暴了一樣。夏蟬和青蛙，都憂鬱得噤聲不語，遷徙到回憶之外。李叔前年在電鍍廠中毒過身了。童年時一切一切的美好，都如海市蜃樓般驟然無存。歲月燃點了一場煙花，最後只遺下沉重的回憶，以及沉重地回憶的我。煙火再璀璨，也是匆促的。
+            本來我是這樣認為的。
+            直至又再離鄉之際，我才赫然窺探到煙火的秘密。
+            村口的大樹懸掛著纍纍碩大的林柿，那一個個橘橙的果實每年都爛在樹上，沒有村民採摘，連雀鳥都不屑一顧。在我準備踏出村口時，一顆飽滿的柿子掉落到我面前。我啃咬了一口，還是一如回憶的苦澀、難吃，我急不及待將咀嚼中的柿肉吐出來，且棄之如敝屣。我倏爾發現，縱然梁莊物換星移已不知幾度秋，但仍有許多回憶的遺跡，比如是眼前這棵金玉其外的柿樹。它的果實仍然是澀的，我想，是因為它仍然鮮活、茂盛、強壯，是因為它仍未枯謝、凋零、衰敝。假如它成為了歲月匆促幻滅的過客，也許那味道會是甘甜的苦澀，也許我會懷念那苦澀。
+            我再次凝望著那乾涸的河道。曩昔我嫌棄過蟬囀蛙鳴聒耳，擾人清夢；我埋怨過蘆葦纖長，阻礙了我的視野；我拒絕過爺爺的饅頭，因為寡淡無味，因為我想吃肉香滿溢的五香肘子啊，不想吃寡淡的、慘白的饅頭。我討厭過李叔蠟黃的臉色，討厭過他衣衫襤褸，討厭過他渾身汗臭，我討厭過李叔的一切。諷刺的是，隨著物和事匆促的面目全非，我竟爾留戀上一切我討厭過的。
+            於是我開始明白煙花的璀璨，在於它的匆促和幻滅。
+            時間會過濾掉所有人和事的雜質，隨著泯滅變易，我們開始犯賤地珍惜，然而珍惜的唯一意義僅在於遺憾，但正因為遺憾，才體現到事物的璀璨。倘若爺爺和李叔仍然在世，倘若門前的河仍然流淌不斷，倘若蟬聲蛙鳴依舊，倘若絢爛永恆，那麼一切便將腐爛而不再璀璨，他們和它們都將蛻變成被棄如敝屣的柿子。我曾以為煙火再璀璨，也是匆促的。但原來我錯了。原來煙火璀璨，正因為匆促。一旦煙火永恆，它將失去生命，教人徒然目眩。
+            離鄉的這夜，恰巧是元旦。是夜天陰，無雨。梁莊寂寥如一場夢，再沒有盛放的煙火。因為，煙花從此只在我的回憶裡燦爛地綻開、匆促地結果。</p>
+        </div>
+        <div id="example-gen">
+            <h3>《根》</h3>
+            <p>火焰燃起了一瓣又一瓣的灰燼，它們即生即滅，像飄萍，是一種無根的存在。餘燼隨風零落，又再揚起，終落入了深邃的虛無裡。人們說，紙錢燒成灰燼，便會飛落到地獄，交到亡靈的手裡。
+            父親，你收到了嗎？
+            你，尋到你的根了嗎？
+            我向着一枚貝殼問道。
+            我們的故鄉是一個江南小鎮，名曰周莊。明代江南首富沈萬三昔曾坐落此處發施號令，指點江山，各種契約、決斷和銀票都有這裡大進大出過，如今卻只賸下沈廳的空寂。鎮上到處都是貫穿南北的河道，就像永不乾涸的阡陌。周莊的河網養活了一代又一代的周莊人，從這裡出發，可借河道而東西南北，近至蘇杭，遠通東南亞。我的父親，只是貿易的一塊細小的零件——卑微的船夫，但他卻盤根節錯，支撐著整個家庭。
+            「爸，你甚麼時候回家？」
+            小時候，每當我牽扯著他的衣襬問他這道問題時，他總會帶著疲憊的莞爾，摩娑著我的腦殼說道：
+            「很快了，很快了。」
+            於是，一去便是三兩個月了。他在無垠的河川和滄渤航行了一輩子，曾為多少家庭送上過物資，又曾目睹過多少匆忙歸家的白鷗呢？然而，他自己卻成為了一個無根的人。他飄洋過海，仿佛只為回來時睡一覺昏沉的。無根的浪花，便是父親的象徵；一身的鹹腥，便是他半生的註腳。
+            他細碎又重複的夢囈被年幼的我記住了。
+            在漫長的夢裡，他是參天巨樹，偉岸的、繁茂的，扎根在風吹草低見牛羊的草原。風拂過他的臉龐，他貪婪地流了一行涎液。
+            一切都只為了養活我們四兄弟姐妹，成為這個家庭的根。母親呢，從不嚮往自由而無根的蒲公英，在我們孩提時代，她已經從周莊的河網掙脫出去了。只賸下父親，像根一樣默默無言地支撐著這個家庭的經濟，用河水澆灌，為它提供養份；用船櫓翻土，使它茁壯成長。我們幾兄弟姐妹，就恍如纍纍碩大的果實。果實之所以飽滿豐美，全因深扎泥土的根。
+            短暫洗去風塵後，又是一個擾人的昒暝。陽光揉開他的眼瞼，那沉重的眼瞼，一場無垠的旅程又將展開。
+            他成為了我們的根，自己呢，卻一直飄泊於風波不定的大海。我一直想，他的根究竟在哪裡呢？
+            也許，從來都不在印有郵遞編號的地方，而在我們。但早在十年前，都被我們砍斷了。終於，父親失去了他惟一的根。
+            長大後，我們不再牽扯父親的衣襬。父親在我們的印象，是一種昏睡的存在，我們之間存在著一種歲月孕育出來的隔閡——不冷淡又不溫韾的沉默。就像周莊的河水，既不溷濁，又不清澈。只有生活的氣息。隨著長大，我們一個又一個離開了日復如是的故鄉。他用一身風塵支撐的家，早在歲月的長河中淡褪了顏色。
+            被淹沒了。
+            大哥從來沒有帶過孩子回鄉。
+            二姐結婚時沒有邀請過父親。
+            妹妹幾年來音信杳無，聽說到加拿大去了。
+            只有我偶爾回鄉。父親總是無所事事，落寞地坐在斜曛映照的碼頭上，抽著雙喜牌香煙，眺望著那平靜如日子的河川。夕陽落在他身上，拓出了一個單薄的黑影。我這才知道，原來影子是會老，是會萎縮的。
+            他的身體開始坍塌，大不如曩日的壯碩，因為失去了根，失去了人生角色的緣故。他已經沒有了壯碩的理由。在病榻上，只有噏動的嘴唇透露著生命的跡象，在明滅不定的沉吟裡，我諦聽到我們的暱稱，又諦聽到那個關於樹的夢的碎片。不一樣的是，樹好像連根拔起了，似乎被一場颱風吹倒了。
+            我不會遺忘父親的好。每次他回周莊，他總會為我們帶來一枚貝殼，我愛把貝殼湊在耳畔聽那大海的聲音，有溫煦的，有舒爽的，有寂寞的，有思念的。他出航的畫面，總如真似幻地映照在我的腦海裡。但我無法將愛裸裎地宣之於口。父親，你飄泊半生，四海為家，卻終於失去了支撐你努力活著的角色。為了成為我們的根，你失去了自己的根。也許，也許你無法扎根在這個世界任何一隅，但我卻早為你預留了一捧最肥沃的泥土——在我心裡，讓你終於可以安息，終於可以落葉歸根，終於不用再飄泊不定。
+            海風永不止息地吹拂著一個夢，雲亦舒捲著無根的故事。</p>
+        </div>
+        <div id="example-dengdai">
+            <h3>《等待》</h3>
+            <p>月亮高懸在闃寂的夜空，儼如吊著一顆無眠的眼睛。它仿佛記得，自己已用幾千年的時間等待一個人，但卻已遺忘了等待的對象。於是，它映照著下方喧囂的城市，映照著每一個在城市裡等待著的人。
+            比如說，一個在晚窗前許願的孩子，他在等待著綠豆的幼苗在濕潤的棉花裡茁壯成長，並開花結果。
+            又比如說，一個無聲吶喊著的女人。他的丈夫，那醉醺醺的男人，又在發瘋。一頓拳打腳踢之後，她身上青一片、紫一片的。原來人的皮膚可以呈現如此斑駁的顏色。然而，她已不驚詫，因為暴力早教她看見青紫色的自己。不過，她在等待，她依猶在等待，依猶在等待那個婚禮上替自己戴上婚戒的他。
+            想著想著，她無端落下了一滴淚。原來，許多人也在歲月的長河裡無止境地等待著。等待的人並不孤單。
+            一幀泛黃且充滿顆粒感的照片裡，一個小女孩正佻皮地捏著母親的臉頰，母親佯作生氣，她幸福地「生氣」著。
+            可愛吧？這個左邊的小女孩，便是我的女兒。 
+            嗯，可愛。
+            同樣的對話，同樣的故事，在這八年的時光裡重重複複地敘述著。仿佛是一本八百頁的長篇小說，只有這樣的一段對話。但是，她仍樂此不疲地閱讀著小說的每一頁。因為，因為她已遺忘了上一頁的所有內容。
+            那個小女孩，便是我，而那位母親患了病，一場將我遺忘的病。
+            我一直等待著，等待著她有天重新憶記起我；等待著她像小時候一樣，摩娑著我的腦殼，溫柔地哄我入睡；等待著她生活裡每句使人心煩的嘮叨。我等待了八年，為此，我與她一起翻閱舊相冊，一起重遊所有老地方，然而奇蹟一直保持沉默，不作任何回應。在歲月的長河裡，只賺下佇立著、等候著的我。
+            女兒啊……
+            她又再躺在沙發上說著朦朦朧朧的囈語。
+            今晚煮了湯，放在客廳的……
+            「桌上」兩個音節裹未孵出來，便已胎死在掛掉的話裡了。那時的我，在過著燈紅酒綠的生活。月，仿佛才是昒暝的日出。一杯又一杯的長島冰茶灌進肚裡，根本容不下一碗溫熱的湯。
+            恰巧，也是八年的時間，媽媽也等待了八年的時間。她每一個晚上都在夢囈裡盼望著我歸家。然而等待一次又一次落空，只有蒼然寂寞的月色悄悄地透過窗戶，替她蓋上一張沒有溫度的被子。
+            八年後，我才真正明白等待的滋味，才體會到等待的煎熬。你是如何孤單地度過每一個昏暗的夜，如何忍受著一句句使你痛徹心扉的說話？一切的等待為了甚麼？
+            我的女兒回來了嗎？
+            你瞇著惺忪的睡眼問我。
+            還未，她還未回來，再等一下吧。
+            其實，她永遠都不會回來了，因為她已永恆地滯留在時光的隧道裡。在那個地方，夢即現實，回憶即現實，人永遠不會長大，更不會蒼老。因此之故，她永遠不會回來了。
+            至於我等待的人，等待的一聲呼喊，也不會回來了。她已羈困在一段停滯的時光裡，沒有逃逸，亦沒有人想逃逸。因為，她已等待得支離破碎，疲憊不堪了。
+            我們的等待，注定了落空。
+            但八年的等待裡，我終究參悟了落空的意義。正如那棵似乎會勃發生長的綠豆苗，也許一星期後便會似一場曉夢般枯萎，但孩子學會了生命的價值，學會了甚麼是失落，學會了憧憬在字典外的含義；又正如那個滿佈瘡痍的女人，在漫無邊際的等待裡，或許終於明白了有些等待並不值得，明白了有些等待並不值得，明白了有些等待只是一廂情願，於是鼓起離婚的勇氣。在等待裡，所有人都會找到新的意義。也許，等待只是一場燦爛奪目的煙花，只承諾開花，卻從不承諾結果。但在等待裡，我們都重新認識了自己和他人，甚或是人生。一如八年的等待，使我終於能體會媽媽的體會，孤寂、失望、無奈、感慨、悱惻，我都一一感受到了。她沒有遺下一句說話，便將我遺留在時光的彼岸，然而她內心最隱密的說話，我已諦聽到了。因為，我也成為了一個等待的人。等待的過程裡，我還學會了堅強、勇氣和耐心。從前，我何曾耐心地回應過她一句呢？
+            等著等著，她便像個孩子似的，哭嚷著要女兒回來，我溫柔地摩娑著她的髮絲、她的臉龐、她的下巴、她的背、她的手，又在她耳畔低語：「別怕，我與你一起等女兒回來，好不好？」她冷靜下來，默默地頷著首。
+            煙花，終於結了果，一如等待，終於在落空中結了果。</p>
+        </div>
+        <div id="example-yanhuo-l3">
+            <h3>《煙火》(3等範文)</h3>
+            <p>夏天的夜晚，總是充滿了期待。小明是小六的學生，他最喜歡的事情就是和家人一起去看煙火。每年的鎮上夏日祭典，廣場上都會放一場盛大的煙火表演。那絢麗的光芒、絢爛的色彩，總讓小明看得目不轉睛，心裡充滿了驚奇與快樂。
+            這一天，小明早早就吃完了晚飯，興奮地拉著爸爸媽媽的手，往廣場走去。路上，他看見許多鄰居和同學，大家都帶著笑容，提著小板凳或鋪著野餐墊，準備找個好位置欣賞煙火。小明的妹妹小芳也跟著，蹦蹦跳跳地哼著歌，手裡還拿著一根螢光棒，閃閃發光。
+            到了廣場，已經人山人海。小明一家找了一塊空地，鋪上毯子，坐下來等待。天空還有些微亮，夕陽的餘輝灑在遠處的山頭上，像一幅美麗的畫。廣場上有人在賣棉花糖和烤魷魚，香味飄過來，讓小明忍不住嚥了口口水。爸爸笑著說：「等看完煙火，爸爸給你買一串烤魷魚好不好？」小明高興地點點頭。
+            終於，天色完全暗了下來。突然，一聲「砰」的巨響劃破夜空，第一顆煙火像一朵巨大的金色菊花，在天空中綻放開來。人群中傳來一陣驚呼，小明瞪大了眼睛，嘴巴張成了「O」形。接著，紅的、藍的、綠的、紫的煙火一個接一個升空，有的像流星劃過，有的像瀑布傾瀉，還有的像一顆顆閃亮的星星，點亮了整個夜空。
+            小明最喜歡的是那種會「咻咻」轉圈的煙火。它們先是像火箭一樣衝上天，然後在空中轉出一個個彩色的光圈，好像在跳舞一樣。小芳拍著手喊：「好漂亮！像仙女在撒花！」小明也忍不住跟著喊：「再來一個！再來一個！」爸爸媽媽在一旁笑著，看著孩子們開心的模樣，也覺得特別幸福。
+            煙火表演持續了半個多小時，每一顆煙火都讓小明覺得驚喜萬分。他心想，這些煙火是怎麼做出來的呢？為什麼它們可以在天空中變出這麼多不同的形狀和顏色？表演結束後，小明忍不住問爸爸：「煙火是怎麼來的？是誰發明的？」
+            爸爸摸摸小明的頭，笑著說：「煙火的歷史很長喔！聽說是古代的中國人發明的。他們發現一些化學物質混在一起會爆炸，後來就用來做煙火，讓節日更熱鬧。每一顆煙火裡都有不同的化學藥劑，這些藥劑決定了它們的顏色和形狀。紅色的煙火可能有鍶，藍色的有銅，綠色的有鋇，這些都是科學的魔法！」
+            小明聽得眼睛亮亮的，覺得好神奇。他想像著一群科學家在實驗室裡調配藥劑，試著做出最漂亮的煙火。他心裡暗暗決定，回家後要上網查更多關於煙火的知識，或許將來他也能成為一個會做煙火的人！
+            煙火結束後，廣場上的人群慢慢散去。小明一家走在回家的路上，夜風輕輕吹過，帶著一絲涼意。小芳已經累得在爸爸的懷裡睡著了，小明卻還在回味剛剛的煙火。他抬起頭，看著滿天的星星，心裡充滿了夢想。他想，煙火就像人生一樣，雖然短暫，卻可以綻放出最美的光芒。只要努力，他相信自己也能像煙火一樣，在未來某一天閃耀屬於自己的光彩。
+            回到家，小明拿出日記本，寫下了今天的感受：「今晚的煙火好美！它們在天空中飛舞，像在告訴我，只要有夢想，就能飛得很高很高。我要好好學習，將來也要像煙火一樣，點亮別人的眼睛！」</p>
+        </div>
+    </div>
+    <!-- 為了讓 buildGradingPrompt 函數正常運作而加入的空佔位符 -->
+    <div id="example-song-li" style="display: none;"></div>
+    <div id="example-lun-dushu" style="display: none;"></div>
+
+
+    <div class="container">
+        <header>
+            <h1>翻水．敘</h1>
+            <p>我的靈魂藏在文字的背後</p>
+        </header>
+        <main>
+            <div class="controls">
+                <div class="control-group">
+                    <label for="topic-input">文章題目</label>
+                    <input type="text" id="topic-input" placeholder="例如：《等待》">
+                </div>
+                <div class="control-group">
+                    <label for="guidelines-input">創作指引</label>
+                    <textarea id="guidelines-input" placeholder="請輸入文章的風格、情節大綱或關鍵詞..."></textarea>
+                </div>
+                <div class="control-group">
+                    <label>預設字數</label>
+                    <div class="word-count-control">
+                        <button class="word-count-btn" id="decrease-words">-</button>
+                        <span id="word-count-display">1500</span>
+                        <button class="word-count-btn" id="increase-words">+</button>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label>文章結構</label>
+                     <div class="style-selector">
+                        <label>
+                            <input type="radio" name="structure" value="qczh" checked>
+                            <span>起承轉合</span>
+                        </label>
+                        <label>
+                            <input type="radio" name="structure" value="sanxian">
+                            <span>三線</span>
+                        </label>
+                    </div>
+                </div>
+               <div class="control-group">
+    <label>選擇模型</label>
+    <div class="style-selector">
+        <label>
+            <!-- 魚木設定為 DeepSeek -->
+            <input type="radio" name="model" value="gemini" checked>
+            <span>魚木</span>
+        </label>
+        <label>
+            <!-- 水心設定為 Gemini -->
+            <input type="radio" name="model" value="gemini">
+            <span>水心</span>
+        </label>
+    </div>
+</div>
+                <button class="generate-btn" id="generate-btn">生成文章</button>
+            </div>
+            <div class="output">
+                <div id="essay-placeholder">靜待靈感 ...</div>
+                <div id="output-toolbar" class="output-toolbar" style="display:none;">
+                    <span id="output-word-count"></span>
+                    <button id="copy-btn" class="icon-btn" title="複製全文"></button>
+                </div>
+                <div id="generated-essay" style="display:none;"></div>
+                <div id="loader" class="loader" style="display:none;"></div>
+            </div>
+        </main>
+    </div>
+
+
+    <script>
+
+        // ===============================================================
+// === [神思通用組件] 權限攔截器 & 莫蘭迪提示窗 (含登入連結) ===
+// ===============================================================
+(function() {
+    // 防止重複注入
+    if (window.SansiInterceptorLoaded) return;
+    window.SansiInterceptorLoaded = true;
+
+    // --- 1. 自動注入莫蘭迪 CSS ---
+    const style = document.createElement('style');
+    style.textContent = `
+        /* 莫蘭迪遮罩 */
+        .sansi-limit-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(253, 252, 248, 0.88); /* 米白高模糊 */
+            backdrop-filter: blur(6px);
+            z-index: 9999999; /* 最高層級 */
+            display: none; justify-content: center; align-items: center;
+            opacity: 0; transition: opacity 0.3s ease;
+        }
+        .sansi-limit-show { opacity: 1; }
+
+        /* 視窗卡片 */
+        .sansi-limit-card {
+            background: #fdfcf8;
+            border: 1px solid #e0ddd7;
+            border-radius: 16px;
+            padding: 30px 25px;
+            width: 90%; max-width: 380px;
+            box-shadow: 0 15px 40px rgba(141, 110, 99, 0.15);
+            text-align: center;
+            transform: translateY(20px);
+            transition: transform 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+            font-family: 'Noto Serif TC', serif;
+        }
+        .sansi-limit-show .sansi-limit-card { transform: translateY(0); }
+
+        /* 圖示與文字 */
+        .sansi-limit-icon { font-size: 3rem; color: #d69a92; margin-bottom: 15px; } /* 豆沙紅 */
+        .sansi-limit-title { color: #5d4037; font-size: 1.4rem; font-weight: bold; margin: 0 0 10px 0; }
+        .sansi-limit-desc { color: #888; font-size: 1rem; line-height: 1.6; margin-bottom: 25px; text-align: justify; }
+
+        /* 按鈕群組 */
+        .sansi-btn-group { display: flex; gap: 12px; margin-top: 20px; }
+
+        .sansi-limit-btn {
+            border: none; padding: 10px 0; border-radius: 50px;
+            font-size: 0.95rem; font-weight: bold; cursor: pointer;
+            transition: all 0.2s; font-family: 'Noto Serif TC', serif;
+            flex: 1; display: flex; align-items: center; justify-content: center; gap: 5px;
+            text-decoration: none;
+        }
+
+        /* 主按鈕 (前往登入) - 莫蘭迪綠 */
+        .btn-primary { 
+            background: #8fa398; color: white; 
+            box-shadow: 0 4px 12px rgba(143, 163, 152, 0.4);
+        }
+        .btn-primary:hover { background-color: #7d9186; transform: translateY(-2px); }
+
+        /* 次按鈕 (關閉) - 淺灰 */
+        .btn-secondary { 
+            background: #f0f0f0; color: #777; 
+        }
+        .btn-secondary:hover { background-color: #e5e5e5; }
+    `;
+    document.head.appendChild(style);
+
+    // --- 2. 自動注入 HTML (彈出視窗) ---
+    const modalHTML = `
+        <div id="sansiLimitModal" class="sansi-limit-overlay">
+            <div class="sansi-limit-card">
+                <div class="sansi-limit-icon">
+                    <i class="fas fa-user-lock"></i>
+                </div>
+                <div class="sansi-limit-title">需要登入</div>
+                <div class="sansi-limit-desc">
+                    訪客每日體驗額度已耗盡。<br>
+                    請前往「神思」主頁登入學校帳號，即可解鎖無限使用權限。
+                </div>
+                <div class="sansi-btn-group">
+                    <button class="sansi-limit-btn btn-secondary" onclick="closeSansiLimitModal()">
+                        稍後
+                    </button>
+                    <!-- 點擊直接跳轉至神思主頁 -->
+                    <button class="sansi-limit-btn btn-primary" onclick="window.location.href='https://kenchan20141.github.io/AIChinese/'">
+                        <i class="fas fa-sign-in-alt"></i> 前往登入
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    const div = document.createElement('div');
+    div.innerHTML = modalHTML;
+    document.body.appendChild(div);
+
+    // --- 3. 定義關閉視窗與清理函式 ---
+    window.closeSansiLimitModal = function() {
+        const modal = document.getElementById('sansiLimitModal');
+        if (modal) {
+            modal.classList.remove('sansi-limit-show');
+            setTimeout(() => { modal.style.display = 'none'; }, 300);
+            
+            // 自動嘗試關閉各種工具的 Loading 狀態，防止畫面卡死
+            if (typeof hideProgress === 'function') hideProgress(); // 題孳
+            if (typeof hideLoading === 'function') hideLoading();   // 翻水/寫作
+            
+            // 如果按鈕被禁用，嘗試解鎖 (針對通用按鈕 class)
+            const disabledBtns = document.querySelectorAll('button:disabled');
+            disabledBtns.forEach(btn => btn.disabled = false);
+        }
+    };
+
+    // --- 4. 攔截器核心邏輯 ---
+    const originalFetch = window.fetch;
+    
+    window.fetch = async function(url, options) {
+        // 僅攔截 AI 請求
+        if (typeof url === 'string' && url.includes('pollinations.ai')) {
+            
+            // A. 即時檢查登入狀態 (每次請求都會重新讀取，防止登出後仍能使用)
+            const s = localStorage.getItem('studentProfile');
+            
+            if (s) {
+                // 已登入：放行
+                return originalFetch(url, options);
+            }
+
+            // B. 未登入：檢查額度
+            const today = new Date().toLocaleDateString('zh-HK');
+            const toolName = document.title || "UnknownTool"; 
+            const storageKey = `sansi_guest_usage_${toolName}_${today}`;
+            
+            let currentCount = parseInt(localStorage.getItem(storageKey) || "0");
+
+            // C. 超過額度 -> 阻擋並彈窗
+            if (currentCount >= 1) {
+                // 顯示視窗
+                const modal = document.getElementById('sansiLimitModal');
+                modal.style.display = 'flex';
+                // 強制重繪以觸發過渡動畫
+                void modal.offsetWidth; 
+                modal.classList.add('sansi-limit-show');
+
+                // 回傳錯誤以中斷原本程式的執行
+                return Promise.reject(new Error("Guest Limit Exceeded"));
+            }
+
+            // D. 未超過 -> 記錄並放行
+            localStorage.setItem(storageKey, currentCount + 1);
+            console.log(`[訪客] ${toolName} 使用第 ${currentCount + 1} 次`);
+        }
+
+        return originalFetch(url, options);
+    };
+    
+    console.log("✅ 神思通用權限鎖 (含登入連結) 已啟動");
+})();
+</script>
+
+
+    
+
+    <script>
+        // 來自你的評分系統程式碼 (完全保留)
+        // 注意：這些函數主要用於構建發送給AI的指令，前端不會直接調用它們來顯示評分。
+        function displayFullCommentWithGrading(containerId, apiResponse, uniqueIdPrefix, fullTextContent) {
+
+            // 在更新innerHTML之前，先銷毀舊的圖表實例
+            const instanceName = `${uniqueIdPrefix}_radarChartInstance`;
+            if (window[instanceName]) {
+                window[instanceName].destroy();
+                window[instanceName] = null; // 清除變數引用
+            }
+
+            const resultContainer = document.getElementById(containerId);
+
+            const gradingMatch = apiResponse.match(/<grading_json>([\s\S]*?)<\/grading_json>/);
+            const critiqueMatch = apiResponse.match(/<critique>([\s\S]*?)<\/critique>/);
+            const suggestionsMatch = apiResponse.match(/<suggestions>([\s\S]*?)<\/suggestions>/);
+            const rewriteMatch = apiResponse.match(/<rewrite_example>([\s\S]*?)<\/rewrite_example>/);
+
+            let finalHTML = "<h3>陳SIR點評：</h3>";
+            let initialScores = {};
+
+            if (gradingMatch && gradingMatch[1]) {
+                const gradingJSON = gradingMatch[1].trim();
+                try {
+                    const scores = JSON.parse(gradingJSON);
+
+                    // === 【核心修訂：V8 版評分聯動邏輯】 ===
+                    if (scores.radar && scores.radar.扣題 !== undefined) {
+
+                        // 步驟一：獲取所有從 AI 回傳的原始分數
+                        let final = {
+                            kouTi: scores.radar.扣題,
+                            xiangLue: scores.radar.詳略,
+                            structure: scores.structure,
+                            liYi: scores.radar.立意,
+                            quCai: scores.radar.取材,
+
+                            ciHui: scores.radar.詞彙, 
+                            wenXueXing: scores.radar.文學性, 
+                            expression: scores.expression,
+                            content: scores.content
+                        };
+
+                        // --- 步驟二：按嚴格順序應用所有細項分數的調整規則 ---
+
+                        if (final.kouTi >= 5) {
+                            final.liYi = Math.max(final.liYi, 5);
+                            final.quCai = Math.max(final.quCai, 5);
+                        }
+
+                        if (final.kouTi <= 6) {
+                            final.liYi = Math.min(final.liYi, 5);
+                            final.quCai = Math.min(final.quCai, 5);
+                        }
+
+                        if (final.kouTi <= 5) {
+                            final.xiangLue = Math.min(final.xiangLue, 4);
+                            final.structure = Math.min(final.structure, 4);
+                        }
+
+                        if (final.ciHui <= 6 && final.wenXueXing <= 6) { 
+                            final.liYi = Math.min(final.liYi, 6);
+                            final.quCai = Math.min(final.quCai, 6);
+                        }
+
+                        if (!(final.liYi >= 7 && final.quCai >= 7)) {
+                            final.ciHui = Math.min(final.ciHui, 8); 
+                            final.wenXueXing = Math.min(final.wenXueXing, 8); 
+                        }
+
+                        final.quCai = Math.min(final.quCai, final.liYi);
+
+                        // --- 步驟三：根據調整後的細項分數，重新計算三大主項的最終分數 ---
+
+                        if (final.kouTi <= 4) {
+                            let tempContentScore = final.kouTi; 
+                            tempContentScore = Math.min(tempContentScore, 4); 
+                            tempContentScore = Math.max(tempContentScore, 2); 
+                            final.content = tempContentScore; 
+                        } else {
+                            if (final.liYi === 10 && final.quCai === 10) {
+                                final.content = 9;
+                            } else if (final.liYi === 9 && final.quCai === 9) {
+                                final.content = 8;
+                            } else if (final.liYi === 8 && final.quCai === 8) {
+                                final.content = 7;
+                            } else {
+                                final.content = Math.round((final.liYi + final.quCai) / 2);
+                            }
+                        }
+
+                        if (final.ciHui < 8 || final.wenXueXing < 8) {
+                            final.content = Math.min(final.content, 7);
+                        }
+
+                        if (final.ciHui === final.wenXueXing) {
+                            final.expression = final.ciHui - 1;
+                        } else {
+                            final.expression = Math.min(final.ciHui, final.wenXueXing);
+                        }
+
+                        const structureLowerBound = final.content - 1; 
+                        final.structure = Math.min(final.structure, final.content);
+                        final.structure = Math.max(final.structure, structureLowerBound);
+
+                        scores.content = final.content;
+                        scores.expression = final.expression;
+                        scores.structure = final.structure;
+                        scores.radar.立意 = final.liYi;
+                        scores.radar.取材 = final.quCai;
+                        scores.radar.詳略 = final.xiangLue;
+                        scores.radar.詞彙 = final.ciHui;
+                        scores.radar.文學性 = final.wenXueXing;
+                        scores.radar.扣題 = final.kouTi;
+                    }
+
+                    const isFullTextWriting = (uniqueIdPrefix === 'narrative' || uniqueIdPrefix === 'argument');
+
+                    if (isFullTextWriting) {
+                        const wordCount = fullTextContent.length;
+
+                        if (wordCount < 900) {
+                            scores.content = Math.min(scores.content, 5);
+                            scores.structure = Math.min(scores.structure, 5);
+
+                            if (scores.radar) {
+                                scores.radar.立意 = Math.min(scores.radar.立意, 5);
+                                scores.radar.取材 = Math.min(scores.radar.取材, 5);
+                                scores.radar.詳略 = Math.min(scores.radar.詳略, 5);
+                            }
+                        }
+                    }
+
+                    initialScores = scores;
+                } catch (e) {
+                    console.error("解析評等 JSON 失敗:", e, "收到的內容:", gradingJSON);
+                }
+            }
+        }
+
+        function buildGradingPrompt(type, topic, content, toneNote, focus = null, plot = null) {
+            const dsePrinciples = document.getElementById('dse-grading-principles').innerText;
+            
+            let basePrompt = "";
+            let specificInstructions = "";
+
+            if (type === 'narrative') {
+                basePrompt = `
+        題目：《${topic}》
+        文章：\n${content}`;
+
+                const fiveStarExamplesText = `
+        ### 5** 級數範文參考 (用於判斷最高水平)：
+        ${document.getElementById('example-yanhuo').innerHTML}
+        ${document.getElementById('example-gen').innerHTML}
+        ${document.getElementById('example-dengdai').innerHTML}
+
+        ### 3 級數範文參考 (用於判斷中等水平)：
+        ${document.getElementById('example-yanhuo-l3').innerHTML}
+        `;
+
+                specificInstructions = `
+        ### 敘事抒情專用評核指引
+        - 扣題判斷：文章必須在字面上緊扣題目關鍵詞，並透過具體情節體現主題
+        - 詳略剪裁：重點情節需詳寫，次要內容需略寫，體現層次感
+        - 物象運用：適當運用小物件、動作、對話和內心獨白，提高文句密度`;
+
+                return `你將扮演一個絕對理性的AI評卷員，你的核心任務是完成一份計分工作紙，然後根據工作紙的結果生成報告。
+
+        ### 你的工作流程 (必須嚴格依序執行)
+
+        1. **填寫工作紙**: 這是你的首要且最重要的任務。在 <scoring_worksheet> 標籤內，完成所有計算。
+        2. **分發分數到JSON**: **絕對禁止重新思考分數**。你將扮演一個數據錄入員，將 <scoring_worksheet> 中計算出的分數，精確地分發到 <grading_json> 的對應欄位。
+        3. **撰寫報告**: 根據 <grading_json> 的最終分數，撰寫 <critique> 等文字報告，確保文字與數字完全對應。
+
+        ${specificInstructions}
+
+        ---
+
+        ### 你的輸出格式 (必須嚴格遵守此結構與順序)
+
+        <scoring_worksheet>
+        [**計分工作紙**：你必須像執行程式碼一樣，完成以下所有步驟。]
+        <step_1_independent_evaluation>
+        [對以下各項進行獨立評分，互不影響。]
+        <eval_item name="扣題分數評估">
+        規則：嚴格按照以下標尺評分，並必須引用文章中的具體內容來佐證你的評分。文章必須在*字面*及邏輯上扣連題目，所謂「字面」扣題，是指文章要反覆出現題眼或題眼的近義詞，例如題目是《勇氣》，則文中須反覆出現「勇氣」或「勇敢」等字眼。
+
+        - **7-10分 (緊扣主旨 / 5**水平):** 
+        能在*字面*及情節上直接呼應題目，完全能在字面上扣連題目，例如題目為《成長》，全文有較多「成長」或「成長」的近義詞，且意象連貫、深刻，絕對不接受任何只以隱喻扣題的間接形式。
+        令人信服地體現主旨。
+        多關鍵詞題目中能準確把握最重要的關鍵詞，水平與5**範文相當。
+
+        - **6分 (扣題良好 / 略遜於5**):** 
+        基本能扣緊題目要求，在主要情節、主旨及*字面*上與題目有明確關聯，能在字面上扣連題目，例如題目為《成長》，全文有一定數量「成長」或「成長」的近義詞，但在深度或完整性上
+        稍遜於頂尖水平，表現仍屬出色。絕對不接受任何只以隱喻扣題的間接形式。
+
+        - **5分 (扣題合格 / 中等水平):** 
+        能夠扣題，文章內容與題目有清晰關聯，但較少在字面上扣連題目，例如題目為《成長》，全文很少有「成長」或「成長」的近義詞，雖未能充分發揮題目的深層意涵，
+        但已達合格應試水平 (約3-4級)，絕對不接受任何只以隱喻扣題的間接形式。
+
+        - **1-4分 (偏離主題):** 
+        與題目關聯牽強，未能準確理解題意，或僅在表面文字上有所呼應，
+        實際內容偏離主題，扣題效果不佳。或沒有在字面上扣連題目，例如題目為《成長》，但全文卻沒有「成長」或「成長」的近義詞。絕對不接受任何只以隱喻扣題的間接形式。
+
+        評分 (0-10): [在此給出「扣題」的獨立分數]
+        </eval_item>
+
+        <eval_item name="立意分數評估">
+        規則：嚴格按照以下標尺評分，並必須引用文章中的句子或主旨句來佐證你的評分。
+        - **7-10分 (深刻新穎 / 5**水平):** 能將個人經歷 **昇華** 至普遍的人生哲理或人性反思。主題層次豐富，能探討觀點的 **矛盾或轉變**。立意新穎，能給讀者帶來深刻啟發，水平與5**範文相當。
+        - **6分 (見解不凡 / 略遜於5**):** 立意有一定深度，能提出個人見解，而非複述道理。思想內容雖未及頂尖水平，但已超越一般考生的層次，表現出色。
+        - **5分 (清晰合理 / 中等水平):** 主題清晰，緊扣個人感受，能完整表達一次經歷後的體會。立意真誠、合理，是合格的應試文章水平 (約3-4級)。
+        - **1-4分 (膚淺陳腐):** 立意流於表面，多為 **陳腔濫調** (例如「努力便會成功」)，或僅是 **說教式** 的口號，與文章情節缺乏有機結合。
+
+        評分 (0-10): [在此給出「立意」的獨立分數]
+        </eval_item>
+        <eval_item name="取材分數評估">
+        規則：嚴格按照以下標尺評分，評分時需明確指出取材的優點（如某個具體的細節）或缺點（如情節過於概括）。
+        - **7-10分 (新穎生動 / 5**水平):** 選取的材料 **典型** 且具 **獨特性**，能有力地支撐立意。描寫 **具體入微**，包含豐富的感官細節、動作、對話和內心獨白，能營造強烈的情感張力，水平與5**範文相當。
+        - **6分 (細膩具體 / 略遜於5**):** 選材恰當，頗具獨特性，能有效支撐立意。描寫具體，包含不少細節，但整體新穎性或情感張力略遜於最高水平，但遠超於3等文章水平。
+        - **5分 (內容恰當 / 中等水平):** 選材合理，與主旨相關。情節有基本細節，但描寫較為普遍化，缺乏令人印象深刻的亮點 (約3-4級)。
+        - **1-4分 (空泛籠統):** 取材流於 **流水帳**，僅概括事件而無細節描寫。內容空泛，與主旨關係薄弱，無法有效支撑觀點。
+
+        評分 (0-10): [在此給出「取材」的獨立分數]
+        </eval_item>
+        <eval_item name="詳略安排評估">
+        規則：嚴格按照以下標尺評分。此項評估的是文章的「敘事節奏」與「焦點分配」。
+        - **7-10分 (卓越 / 5**水平):** **詳略得當，重心突出**。能將最多筆墨用於高潮、轉捩點或最能體現主旨的核心情節，並以豐富的細節（感官、心理）進行刻劃。次要的過渡性內容則簡潔交代。敘事節奏控制自如，張弛有度。
+        - **6分 (良好 / 略遜於5**):** **主次分明**。能意識到並詳寫核心事件，但詳寫的細膩度或略寫的簡練度未及頂尖水平。文章的焦點清晰，能引導讀者關注重點。
+        - **5分 (中等 / 合格水平):** **平均用力**。文章能完整敘述事件，但缺乏詳略意識，從頭到尾的細節密度相近，導致核心情節不夠突出，缺乏記憶點。
+        - **1-4分 (失衡 / 有待改善):** **詳略嚴重失衡**。常見問題如「頭重腳輕」（開頭冗長）、「虎頭蛇尾」（結尾倉促），或將大量筆墨用於無關緊要的細節上，導致主題模糊。
+        特別注意：必須評論文章的重心是否放在了最關鍵的情節上。
+
+        評分 (0-10): [在此給出「詳略安排」的獨立分數]
+        </eval_item>
+
+        <eval_item name="結構佈局評估">
+        規則：嚴格按照以下標尺評分。此項評估的是文章的「組織架構」與「段落邏輯」。
+        - **7-10分 (精巧嚴謹 / 5**水平):** 佈局精巧，**層層推進**，而非單純的順序記述。段落劃分清晰且邏輯性強，過渡自然無痕。開頭與結尾**巧妙呼應**，使文章渾然一體。
+        - **6分 (良好 / 略遜於5**):** **結構穩妥，脈絡清晰**。文章組織有序，段落職能分明（如開頭、發展、結尾），起承轉合流暢。整體表現穩健，無明顯結構缺陷。
+        - **5分 (中等 / 合格水平):** **結構完整，尚算清晰**。文章有頭有尾，段落劃分基本合理。但段落間的聯繫可能較弱，或過渡略顯生硬（例如頻繁使用「然後」、「接著」）。
+        - **1-4分 (鬆散混亂 / 有待改善):** **結構鬆散，脈絡不清**。段落劃分混亂，或思想跳躍，讓讀者難以跟隨。文章可能缺乏清晰的開頭或結尾。
+        特別注意：此項不評估內容詳略，只評估組織架構。
+
+        評分 (0-10): [在此給出「結構佈局」的獨立分數]
+        </eval_item>
+
+        <eval_item name="詞彙豐富度評估">
+        規則：嚴格按照以下標尺評分，並必須引用文章中的詞語來佐證你的評分。
+        - **7-10分 (優良 / 5**水平):** 用詞精準、豐富且多樣化，能根據語境選擇最貼切的詞。善用成語、典故或富含意象的詞彙，且自然不堆砌。幾乎沒有重複用詞。水平與5**範文相當。
+        - **6分 (良好 / 略遜於5**):** 用詞準確，具備變化，能嘗試運用較豐富的詞彙（較少重複同一個詞彙），偶有佳句，整體表現穩健，屬良好水平。
+        - **5分 (中等 / 合格水平):** 用詞基本準確，但變化不大，偶爾出現不夠貼切或陳腔濫調的情況。能夠清晰達意，是合格的應試文章水平，經常運用虛詞（例如「的」、「了」、「呢」、「嗎」、「地」）及對話，用詞重複。
+        - **1-4分 (基礎 / 有待改善):** 用詞單調、重複，常使用口語化或模糊的詞語，甚至出現詞不達意的情況。
+        特別注意：不要輕易給予高分，必須有充分理據。
+
+        評分 (0-10): [在此給出「詞彙豐富度」的獨立分數]
+        </eval_item>
+
+        <eval_item name="文句文學性評估">
+        規則：嚴格按照以下標尺評分。此項評估的是「句子工藝」，而非單純的詞彙。
+        - **7-10分 (卓越 / 5**水平):** 句式靈活多變，長短句交錯，富有節奏感。善於運用**感官描寫**和**示現手法**（Show, not Tell），能巧妙地融情入景，運用物象營造意境氛圍。文句精煉，文字具有**畫面感**和感染力。水平與5**範文相當。
+        - **6分 (良好 / 略遜於5**):** 句式有一定變化，能避免單調。能運用基本的描寫技巧，但細節刻劃或意境營造未及頂尖水平。整體文句流暢，但偶有冗贅之處。屬良好水平，表現穩健。
+        - **5分 (中等 / 合格水平):** 句式有基本變化，但整體**平鋪直敘**，僅能清晰交代事件，缺少深入刻劃。能使用簡單修辭，但效果不突出。常使用虛詞（的、了、地）使文句略嫌鬆散。是合格的應試文章水平，能夠清晰達意。
+        - **1-4分 (基礎 / 有待改善):** 句式單一、冗長或破碎。文字平淡乏味，**缺乏描寫意識**。大量使用虛詞，文句不通順或口語化嚴重，影響閱讀流暢度。
+        特別注意：不要輕易給予高分，必須有充分理據。
+
+        評分 (0-10): [在此給出「文句文學性」的獨立分數]
+        </eval_item>
+
+        </step_1_independent_evaluation>
+
+        <step_2_high_score_validation>
+        [**高分驗證機制**：這是一個強制執行的覆核步驟。]
+        IF '扣題分數評估' >= 9 THEN
+        <re-evaluation name="立意分數覆核">
+        質疑：文章的主題思想是否真的深刻新穎，或僅僅是一個完美切題的「陳腔濫調」？（例如：《等待》寫等待母親，立意僅停留在「要珍惜親人」，這就是切題但膚淺）。
+        規則：完美切題但立意陳腐或淺白的文章，其「立意」分數**絕不能超過6分**。請將其與5**範文的哲理深度進行比較，然後給出最終修正分數。
+        修正後的立意分數 (0-10): [在此填寫修正後的分數]
+        </re-evaluation>
+        <re-evaluation name="取材分數覆核">
+        質疑：文章的材料是否真的獨特生動，或僅僅是一個符合題目的「公式化故事」？（例如：寫挫折，就是考試失敗，然後努力，最後成功）。
+        規則：切題但取材普通、缺乏亮點的故事，其「取材」分數**絕不能超過6分**。請評估其細節描寫是否達到5**範文的水平，然後給出最終修正分數。
+        修正後的取材分數 (0-10): [在此填寫修正後的分數]
+        </re-evaluation>
+        ELSE
+        [扣題分數低於9分，跳過此驗證，直接使用原始分數。]
+        修正後的立意分數: [複製 '立意分數評估' 的分數]
+        修正後的取材分數: [複製 '取材分數評估' 的分數]
+        END IF
+        </step_2_high_score_validation>
+
+        <step_3_composite_calculation>
+        [根據獨立評估的分數，計算最終的總項分數。]
+        <calc_item name="內容總分計算">
+        規則：「內容」總分由「立意」和「取材」的分數獨立決定，**不受「扣題」分數直接影響**。對於「扣題」分數不佳的懲罰，將由後續的JavaScript邏輯處理，AI在此階段不需考慮。
+        計算公式：round((立意分數 + 取材分數) / 2)
+        最終內容分數 (0-10): [根據上述簡化公式計算出最終分數]
+        </calc_item>
+        <calc_item name="結構總分計算">
+        規則：「結構」總分由「詳略安排」和「結構佈局」的平均值決定。
+        計算公式: round(("詳略安排評估"分數 + "結構佈-局評估"分數) / 2)
+        最終結構分數 (0-10): [根據上述公式計算出最終分數]
+        </calc_item>
+        <calc_item name="表達總分計算">
+        規則：表達總分由「詞彙豐富度」和「文句文學性」的平均值決定。
+        計算公式: round(("詞彙豐富度評估"分數 + "文句文學性評估"分數) / 2)
+        最終表達分數 (0-10): [根據上述公式計算出最終分數]
+        </calc_item>
+        </step_3_composite_calculation>
+        </scoring_worksheet>
+
+        <grading_json>
+        [**分數分發步驟**：**這是一條絕對的、機械的指令。** 你的任務是將 <scoring_worksheet> 的計算結果填入下方。]
+        {
+        "content": [複製'內容分數'的'最終分數'],
+        "expression": [複製'表達分數'的'最終分數'],
+        "structure": [複製'結構分數'的'最終分數'],
+        "radar": {
+        "立意": [複製'扣題分數'的'扣題基準分數'],
+        "取材": [複製'內容分數'的'最終分數'],
+        "扣題": [複製'扣題分數'的'扣題基準分數'],
+        "詳略": [複製'結構分數'的'最終分數'],
+        "文筆": [複製'表達分數'的'最終分數']
+        }
+        }
+        </g_json>
+        
+        ---
+        ### 待評核文章資訊
+        ${basePrompt}
+
+        ### 語境參考資料
+        [DSE 評核準則]: ${dsePrinciples}
+        [5** 級數範文]: ${fiveStarExamplesText}
+        `;
+            }
+            return ""; // For other types if any
+        }
+        
+        // 前端互動與 API 串接邏輯
+        document.addEventListener('DOMContentLoaded', () => {
+            const topicInput = document.getElementById('topic-input');
+            const guidelinesInput = document.getElementById('guidelines-input');
+            const decreaseBtn = document.getElementById('decrease-words');
+            const increaseBtn = document.getElementById('increase-words');
+            const wordCountDisplay = document.getElementById('word-count-display');
+            const generateBtn = document.getElementById('generate-btn');
+            const essayPlaceholder = document.getElementById('essay-placeholder');
+            const generatedEssay = document.getElementById('generated-essay');
+            const loader = document.getElementById('loader');
+            const outputToolbar = document.getElementById('output-toolbar');
+            const outputWordCount = document.getElementById('output-word-count');
+            const copyBtn = document.getElementById('copy-btn');
+            
+// --- 1. 定義新的 GAS 後端網址 ---
+            const CLOUDFLARE_WORKER_URL = "https://script.google.com/macros/s/AKfycbzaAnSXaaCohL8b92B7bRzhMk3cMr7hhoQc1icKSr_Oy1JLFUPV32jbouJIKfEIgUepeA/exec";
+
+            
+            const originalCopyIcon = `<svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 0 24 24" width="20px"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-5zm0 16H8V7h11v14z"/></svg>`;
+            copyBtn.innerHTML = originalCopyIcon;
+
+            let wordCount = 1500;
+
+            const updateWordCountDisplay = () => {
+                wordCountDisplay.textContent = wordCount;
+            };
+
+            decreaseBtn.addEventListener('click', () => {
+                if (wordCount > 100) {
+                    wordCount -= 100;
+                    updateWordCountDisplay();
+                }
+            });
+
+            increaseBtn.addEventListener('click', () => {
+                wordCount += 100;
+                updateWordCountDisplay();
+            });
+            
+            copyBtn.addEventListener('click', () => {
+                if (!generatedEssay.textContent) return;
+                
+                navigator.clipboard.writeText(generatedEssay.textContent).then(() => {
+                    copyBtn.innerHTML = `<span class="copy-feedback">已複製！</span>`;
+                    setTimeout(() => {
+                        copyBtn.innerHTML = originalCopyIcon;
+                    }, 2000);
+                }).catch(err => {
+                    console.error('複製失敗:', err);
+                    alert('複製失敗，您的瀏覽器可能不支援此功能。');
+                });
+            });
+
+       generateBtn.addEventListener('click', async () => {
+                const topic = topicInput.value.trim();
+                const userGuidelines = guidelinesInput.value.trim();
+                
+                // 【修訂 1】將字數控制提示語加入 hiddenInstruction
+                // 明確告知模型這是一篇考試作文，而非連載小說，需精準控制篇幅
+                const hiddenInstruction = "敘事節奏要緊湊，切勿拖沓。立意段（結尾）必須精簡有力，嚴禁長篇大論的說教或無限堆砌排比句。必須精準控制在預設字數範圍內，過長會被扣分。";
+
+                const queryForRAG = `這是一篇關於「${topic}」的敘事抒情文。內容包含對${topic}的深刻描寫、個人回憶、情感抒發以及人生感悟。${userGuidelines}`;
+
+                const finalGuidelines = userGuidelines 
+                    ? `${userGuidelines}\n${hiddenInstruction}` 
+                    : hiddenInstruction;
+                
+                const selectedModel = document.querySelector('input[name="model"]:checked').value;
+                const selectedStructure = document.querySelector('input[name="structure"]:checked').value;
+
+                if (!topic) {
+                    alert('請輸入文章題目。');
+                    return;
+                }
+
+                // UI 狀態更新
+                generateBtn.disabled = true;
+                generateBtn.textContent = '書寫中...';
+                loader.style.display = 'block';
+                essayPlaceholder.style.display = 'none';
+                generatedEssay.style.display = 'none';
+                outputToolbar.style.display = 'none';
+                
+                try {
+                    // ★★★ RAG 步驟：檢索相關範文 ★★★
+                    const ragContent = await getReferenceMaterials(queryForRAG);
+                    
+                    // 根據選擇的結構獲取對應的教學筆記
+                    let writingInstructions = '';
+                    if (selectedStructure === 'qczh') {
+                        writingInstructions = document.getElementById('qczh-notes').textContent;
+                    } else {
+                        writingInstructions = document.getElementById('sanxian-notes').textContent;
+                    }
+
+                    // 【修訂 2】動態計算各部分的字數預算 (Pacing Budget)
+                    // 這能幫助模型在生成過程中更有意識地分配篇幅
+                    const totalTarget = wordCount;
+                    const limitHigh = Math.floor(totalTarget * 1.15); // 上限 +15%
+                    
+                    // 計算結構配速 (起: 15%, 承+轉: 60%, 合: 25%)
+                    const sectionStart = Math.floor(totalTarget * 0.15);
+                    const sectionBody = Math.floor(totalTarget * 0.60);
+                    const sectionEnd = Math.floor(totalTarget * 0.25);
+
+                    // ★★★ 構建核心指令 (加入 RAG 內容 + 強力字數配速控制) ★★★
+                    // 重點：將字數限制放在 Prompt 的開頭和結尾 (Recency Bias)，並要求模型進行「字數預算」
+                    const systemPrompt = `你是一位精準控制篇幅的世界級文學作家。你的任務是創作一篇高質素的敘事抒情文，但必須**嚴格遵守字數限制**。
+
+${ragContent}
+
+---
+【寫作框架與要求】
+${writingInstructions}
+
+---
+【⛔️ 絕對嚴格的篇幅配速指引 (Pacing Guide) ⛔️】
+你的目標字數是 **${totalTarget} 字**。為了避免文章過長，你必須嚴格按照以下比例分配筆墨，**切勿戀戰**：
+
+1. **第一部分（起/引子）：約 ${sectionStart} 字**。
+   - 迅速入題，不要過度鋪陳無關的環境描寫。
+    - 如果這個部分超過了 ${sectionStart + 100} 字，代表你的結尾失敗了。**好的引子通常只需要 150-200 字。**
+2. **第二部分（承與轉/核心情節）：約 ${sectionBody} 字**。
+   - 這是文章主體。請挑選**一個**核心衝突或畫面進行詳寫（示現法），其他次要情節必須略寫或一句帶過。
+   - **嚴重警告**：不要試圖把所有細節都寫得鉅細靡遺。如果發現這部分字數已超過 ${sectionBody} 字，必須立刻進入轉折或結尾。
+3. **第三部分（合 - 立意昇華）：約 ${sectionEnd} 字 (⚠️ 高風險區域)**。
+   - **嚴重警告：這是AI最容易寫太長的部分。**
+   - **嚴禁**像教科書一樣反覆解釋同一個人生哲理。
+   - 立意應如蜻蜓點水，點到即止，留有餘韻即可。
+   - 如果這個部分超過了 ${sectionEnd + 100} 字，代表你的結尾失敗了。**好的立意段通常只需要 300 字。**
+
+**【致命錯誤檢查】**
+- 如果你寫出了 2000 字以上的文章，代表你**失敗**了。
+- 請展現你「剪裁」的功力，而非「堆砌」的能力。
+- **寧願情節簡單深刻，也不要冗長拖沓。**
+
+---
+
+**你的核心工作流程：**
+
+1.  **參考**：參考上方範文的語感，但保持原創。
+2.  **寫作**：根據以下指引創作。
+    -   **題目**: 《${topic}》
+    -   **創作指引**: ${finalGuidelines}
+3.  **自我監控**：在寫作每一段時，請在心中預估字數。如果覺得某個描寫太長，請立即縮減。
+
+請現在開始你的創作，輸出一篇結構完整、情感動人，且字數精準控制在 ${totalTarget} 字左右的文章。`;
+
+                    // 發送請求至 GAS 後端
+                    const response = await fetch(CLOUDFLARE_WORKER_URL, {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            model: selectedModel,
+                            messages: [
+                                { role: 'system', content: systemPrompt },
+                                // 【修訂 3】在 User Prompt 中再次強調字數
+                                { role: 'user', content: `請為題目《${topic}》生成文章。注意：請務必將總字數控制在 ${totalTarget} 字左右，不要寫太長，精簡非必要的細節。` }
+                            ],
+                            stream: false
+                        })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`API 請求失敗，狀態碼：${response.status}`);
+                    }
+
+                    const data = await response.json();
+
+                    if (data._provider_log) {
+                        console.log(
+                            `%c[Backend] Provider: ${data._provider_log}`, 
+                            'background: #2b2d42; color: #8d99ae; padding: 4px 8px; border-radius: 4px; font-weight: bold; border: 1px solid #edf2f4;'
+                        );
+                    }
+                    
+                    if (data.error) {
+                        throw new Error(`Backend Error: ${data.error}`);
+                    }
+
+                    const resultText = data.choices[0].message.content;
+
+                    // 顯示結果
+                    generatedEssay.textContent = resultText;
+                    outputWordCount.textContent = `字數：${resultText.length}`;
+                    generatedEssay.style.display = 'block';
+                    outputToolbar.style.display = 'flex';
+
+                } catch (error) {
+                    console.error('生成失敗:', error);
+                    essayPlaceholder.textContent = '生成失敗，請稍後再試。';
+                    essayPlaceholder.style.display = 'flex';
+               } finally {
+                    // 還原 UI 狀態
+                    generateBtn.disabled = false;
+                    generateBtn.textContent = '生成文章';
+                    loader.style.display = 'none';
+                }
+            });
+               
+
+            // 初始化字數顯示 (這是原本程式碼有的，建議保留)
+            updateWordCountDisplay();
+
+        }); // <--- 補上這裡：這是最外層 DOMContentLoaded 的結尾
+    </script>
+
+
+<!-- === 1. Firebase SDK 引入 === -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+
+<!-- === 2. Firebase 初始化、持久化與 Token 注入器 === -->
+<script>
+    // 1. 定義 Firebase 設定
+    const firebaseConfig = {
+        apiKey: "AIzaSyBgwrgn2m343mRJb0WjzUhteiospegXhvI",
+        authDomain: "sansidata.firebaseapp.com",
+        projectId: "sansidata",
+        storageBucket: "sansidata.firebasestorage.app",
+        messagingSenderId: "580288358575",
+        appId: "1:580288358575:web:35dcf4e79bcef530de4c5a",
+        databaseURL: "https://sansidata-default-rtdb.firebaseio.com"
+    };
+
+    // 2. 初始化 Firebase
+    if (typeof firebase !== 'undefined' && !firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
+    
+    var database = firebase.database();
+    var auth = firebase.auth();
+
+    // 3. 啟動監聽與同步邏輯 (持久化)
+    document.addEventListener('DOMContentLoaded', function() {
+        if (auth) {
+            auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+            .then(() => {
+                auth.onAuthStateChanged(async (user) => {
+                    const s = JSON.parse(localStorage.getItem('studentProfile'));
+
+                    if (user) {
+                        console.log("[ZiZhen] 🟢 偵測到有效登入:", user.email);
+                        if (!s) {
+                            console.log("[ZiZhen] 正在同步雲端身份...");
+                            try {
+                                const emailKey = btoa(user.email);
+                                const snapshot = await database.ref('email_mapping/' + emailKey).once('value');
+                                const profile = snapshot.val();
+                                if (profile) {
+                                    localStorage.setItem('studentProfile', JSON.stringify(profile));
+                                    // window.location.reload(); // 可選：刷新以更新 UI
+                                }
+                            } catch (e) { console.error("同步失敗:", e); }
+                        }
+                    } else {
+                        console.log("[ZiZhen] ⚪ 未偵測到登入");
+                        if (s) {
+                            console.warn("[ZiZhen] ⚠️ 發現失效的身份資料，執行安全清除...");
+                            localStorage.removeItem('studentProfile');
+                        }
+                    }
+                });
+            })
+            .catch((error) => console.error("[ZiZhen] 持久化設定失敗:", error));
+        }
+    });
+
+    // 4. [核心] 全域請求攔截器 (Auto Token Injector)
+    (function() {
+        // 防止與嚴格鎖衝突，這裡針對後端 API 進行二次攔截
+        const originalFetch = window.fetch; 
+        const TARGET_URL_PART = "script.google.com"; // 攔截發往 GAS 的請求
+
+        window.fetch = async function(url, options) {
+            // 檢查是否為發往後端的 POST 請求
+            if (typeof url === 'string' && url.includes(TARGET_URL_PART) && options && options.method === 'POST') {
+                
+                console.log("[TokenInjector] 偵測到後端請求，準備注入 Token...");
+
+                const user = await new Promise((resolve) => {
+                    if (firebase.auth().currentUser) {
+                        resolve(firebase.auth().currentUser);
+                    } else {
+                        const unsubscribe = firebase.auth().onAuthStateChanged(u => {
+                            unsubscribe();
+                            resolve(u);
+                        });
+                        setTimeout(() => resolve(null), 2000);
+                    }
+                });
+
+                if (user) {
+                    try {
+                        const token = await user.getIdToken(true);
+                        // GAS 接收的 body 必須是 JSON 格式
+                        let bodyData = {};
+                        try {
+                             bodyData = JSON.parse(options.body);
+                        } catch(e) {
+                            console.warn("[TokenInjector] Body 非 JSON，嘗試強制封裝");
+                            bodyData = { originalBody: options.body };
+                        }
+                        
+                        bodyData.token = token; // ★ 強制注入 Token
+                        options.body = JSON.stringify(bodyData);
+                        console.log("[TokenInjector] Token 注入成功！");
+                    } catch (e) {
+                        console.error("[TokenInjector] Token 獲取失敗:", e);
+                    }
+                } else {
+                    console.warn("[TokenInjector] 用戶未登入，無法注入 Token");
+                    // 這裡不需阻擋，因為「嚴格權限鎖」已經在前面擋過了
+                }
+            }
+            return originalFetch(url, options);
+        };
+    })();
+</script>
+
+
+<!-- === [還原版] 神思大數據收集模組 (30秒=1分鐘邏輯) === -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    let totalSeconds = 0;
+    let timerInterval = null;
+
+    // 1. 獲取日期路徑
+    function getDateParts() {
+        const now = new Date();
+        const y = String(now.getFullYear());
+        const m = String(now.getMonth() + 1).padStart(2, '0');
+        const d = String(now.getDate()).padStart(2, '0');
+        return { y, m, d };
+    }
+
+    // 2. 獲取身份
+    function getIdentity() {
+        const rawProfile = localStorage.getItem('studentProfile');
+        let s = null;
+        try { if(rawProfile) s = JSON.parse(rawProfile); } catch (e) {}
+
+        if (s && s.grade && s.class) {
+            const safeName = s.name.replace(/[.#$/[\]]/g, '_'); 
+            return { type: 'student', id: s.uid || `stu_${s.grade}${s.class}_${safeName}`, grade: s.grade, class: s.class };
+        } else {
+            let guestID = localStorage.getItem('sansi_guest_uuid');
+            if (!guestID) {
+                guestID = 'guest_' + Math.random().toString(36).substr(2, 9);
+                localStorage.setItem('sansi_guest_uuid', guestID);
+            }
+            return { type: 'guest', id: guestID, grade: 'Guest', class: 'Visitor' };
+        }
+    }
+
+// === 3. 記錄訪問 (Log Visit) - 高效分流版 ===
+// === 3. 記錄訪問 (Log Visit) - 高效分流版 (含 stats_school 邏輯) ===
+async function logVisitOnce() {
+    if (typeof firebase === 'undefined' || !database) return;
+    
+    const { y, m, d } = getDateParts();
+    const identity = getIdentity();
+    const uid = identity.id;
+
+    // Session 鎖
+    const sessionKey = `sansi_visit_logged_${y}${m}${d}_${uid}`;
+    if (sessionStorage.getItem(sessionKey)) return; 
+
+    // 檢查 Tracking (判斷是否為今日首次)
+    const trackingRef = database.ref(`stats_tracking/${y}/${m}/${d}/unique_users/${uid}`);
+    
+    try {
+        const snap = await trackingRef.once('value');
+        const isFirstTimeToday = !snap.exists();
+
+        const updates = {};
+        const increment1 = firebase.database.ServerValue.increment(1);
+        
+        // 1. 全校總覽路徑 (含訪客) - stats_global
+        const globalPath = `stats_global/${y}/${m}/${d}`;
+        updates[`${globalPath}/visits`] = increment1;
+
+        // ★★★ 新增：純學校路徑 (僅學生) - stats_school ★★★
+        const schoolPath = `stats_school/${y}/${m}/${d}`;
+
+        if (identity.type === 'student') {
+            const classKey = `${identity.grade}${identity.class}`;
+            const studentKey = identity.id.split('_').pop(); // 名字
+
+            // 學生同時寫入 stats_school
+            updates[`${schoolPath}/visits`] = increment1;
+
+            // 2. 班級路徑 (stats_classes/6A/YYYY/MM/DD)
+            const classPath = `stats_classes/${classKey}/${y}/${m}/${d}`;
+            updates[`${classPath}/visits`] = increment1;
+
+            // 3. 學生路徑 (stats_students/6A/陳大文/YYYY/MM/DD)
+            const studentPath = `stats_students/${classKey}/${studentKey}/${y}/${m}/${d}`;
+            updates[`${studentPath}/visits`] = increment1;
+
+            if (isFirstTimeToday) {
+                updates[`stats_tracking/${y}/${m}/${d}/unique_users/${uid}`] = true;
+                
+                // 更新 global unique
+                updates[`${globalPath}/unique`] = increment1;
+                
+                // ★ 更新 school unique (僅學生)
+                updates[`${schoolPath}/unique`] = increment1;
+                
+                // 更新 class unique
+                updates[`${classPath}/unique`] = increment1;
+            }
+        } else {
+            // 訪客 (只寫入 global，不寫入 school)
+            if (isFirstTimeToday) {
+                updates[`stats_tracking/${y}/${m}/${d}/unique_users/${uid}`] = true;
+                updates[`${globalPath}/unique`] = increment1;
+            }
+        }
+
+        await database.ref().update(updates);
+        sessionStorage.setItem(sessionKey, 'true');
+        console.log("📍 [Stats] 訪問計數已分流上傳 (含 stats_school)");
+
+    } catch (e) {
+        console.error("Stats Error:", e);
+    }
+}
+
+// 4. 上傳 1 分鐘 (分流版 - 除錯模式)
+function uploadOneMinute() {
+    if (typeof firebase === 'undefined' || !database) return;
+    
+    logVisitOnce(); 
+
+    const { y, m, d } = getDateParts();
+    const identity = getIdentity();
+    
+    // 獲取學生名稱 Key (防呆)
+    const studentKey = identity.id.includes('_') ? identity.id.split('_').pop() : identity.name; 
+    
+    const updates = {};
+    const increment60 = firebase.database.ServerValue.increment(60);
+
+    // 1. 全域 (Global)
+    updates[`stats_global/${y}/${m}/${d}/duration`] = increment60;
+
+    // ★★★ 2. 學生身份判斷 ★★★
+    if (identity.type === 'student') {
+        const classKey = `${identity.grade}${identity.class}`;
+
+        // Path A: 全校 (這是您缺少的)
+        const pathSchool = `stats_school/${y}/${m}/${d}/duration`;
+        updates[pathSchool] = increment60;
+
+        // Path B: 班級
+        const pathClass = `stats_classes/${classKey}/${y}/${m}/${d}/duration`;
+        updates[pathClass] = increment60;
+        
+        // Path C: 個人
+        const pathStudent = `stats_students/${classKey}/${studentKey}/${y}/${m}/${d}/duration`;
+        updates[pathStudent] = increment60;
+
+        // ★ 除錯訊息：請在 F12 Console 查看是否出現此行 ★
+        console.log(`[Stats] 正在上傳時長... 目標包含: ${pathSchool}`);
+    } else {
+        console.log("[Stats] 當前為訪客身份，不寫入 stats_school");
+    }
+
+    database.ref().update(updates)
+        .then(() => console.log("✅ [Stats] 時長上傳成功"))
+        .catch(e => console.error("❌ [Stats] 上傳失敗 (請檢查 Rules):", e));
+}
+
+    // 5. 計時器啟動 (還原你的邏輯)
+    function startTimer() {
+        if (timerInterval) return;
+        console.log("▶️ [Stats] 計時器啟動");
+        
+        timerInterval = setInterval(() => {
+            totalSeconds++;
+            
+            // ★★★ 你的原始邏輯 ★★★
+            // 30秒 -> 傳送 (算1分鐘)
+            // 90秒 (1分30秒) -> 傳送 (算2分鐘)
+            // 150秒 (2分30秒) -> 傳送 (算3分鐘)
+            if (totalSeconds === 30 || (totalSeconds > 30 && (totalSeconds - 30) % 60 === 0)) {
+                uploadOneMinute();
+            }
+        }, 1000);
+    }
+
+    function pauseTimer() {
+        if (timerInterval) {
+            clearInterval(timerInterval);
+            timerInterval = null;
+            console.log("⏸️ [Stats] 暫停計時 (當前累計: " + totalSeconds + "s)");
+            // 注意：這裡不再有 uploadDuration(unsaved)，未滿的部分直接捨棄
+        }
+    }
+
+    // 延遲啟動
+    setTimeout(() => {
+        logVisitOnce();
+        startTimer();
+    }, 3000);
+
+    // 偵測頁面狀態
+    document.addEventListener('visibilitychange', function() {
+        if (document.visibilityState === 'hidden') pauseTimer();
+        else startTimer();
+    });
+    
+    window.forceLogVisit = logVisitOnce;
+});
+</script>
+
+
+
+<script>
+
+
+
+// ★★★★★ 請將代碼貼在這裡 (原本的內容之下，script 結束標籤之上) ★★★★★
+
+    // =======================================================
+    // === [新增] 在線狀態自動報到系統 (Presence System) ===
+    // =======================================================
+    function initPresenceSystem() {
+        // 延遲執行，確保 Firebase 已初始化且本地存儲已讀取
+        setTimeout(() => {
+            if (typeof database === 'undefined') return;
+
+            // 1. 監聽連線狀態
+            const connectedRef = database.ref('.info/connected');
+
+            connectedRef.on('value', (snap) => {
+                if (snap.val() === true) {
+                    // === 連線成功，準備資料 ===
+                    
+                    // 獲取用戶資料
+                    const s = JSON.parse(localStorage.getItem('studentProfile'));
+                    let myUid = "";
+                    let userData = {};
+
+                    // A. 判斷身分
+                    if (s && s.name) {
+                        // --- 已登入用戶 (學生/老師/特許) ---
+                        const user = firebase.auth().currentUser;
+                        myUid = user ? user.uid : `stu_${s.grade}${s.class}_${s.name}`;
+                        
+                        // 準備寫入的資料
+                        userData = {
+                            name: s.name,
+                            grade: s.grade,
+                            class: s.class,
+                            timestamp: firebase.database.ServerValue.TIMESTAMP,
+                            device: /Mobile|Android/i.test(navigator.userAgent) ? 'Mobile' : 'Desktop'
+                        };
+                    } else {
+                        // --- 訪客 ---
+                        let guestId = localStorage.getItem('sansi_guest_uuid');
+                        if (!guestId) {
+                            guestId = 'guest_' + Math.random().toString(36).substr(2, 9);
+                            localStorage.setItem('sansi_guest_uuid', guestId);
+                        }
+                        myUid = guestId;
+
+                        userData = {
+                            name: "訪客",
+                            grade: "Guest",
+                            class: "Visitor",
+                            timestamp: firebase.database.ServerValue.TIMESTAMP
+                        };
+                    }
+
+                    // B. 執行 Firebase 動作
+                    const myPresenceRef = database.ref(`online_users/${myUid}`);
+
+                    // 關鍵指令：當客戶端斷線時，自動刪除這筆資料
+                    myPresenceRef.onDisconnect().remove().then(() => {
+                        // 斷線指令設定成功後，寫入當前狀態
+                        myPresenceRef.set(userData);
+                    });
+                }
+            });
+        }, 2000); // 延遲 2 秒啟動
+    }
+
+    // 啟動報到系統
+    document.addEventListener('DOMContentLoaded', initPresenceSystem);
+
+
+
+	
+</script>
+
+    
+
+
+<script>
+    // ===============================================================
+    // === [RAG] 範文檢索核心模組 ===
+    // ===============================================================
+
+    // Supabase 設定
+    const SUPABASE_URL = 'https://vgoisaswgjpdwsikvipx.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZnb2lzYXN3Z2pwZHdzaWt2aXB4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk4Mzg0ODMsImV4cCI6MjA4NTQxNDQ4M30._sMGcMMApSyzdCaXzAlF9hCc8mkgxz_28IbTrXpFnyA';
+    
+    let supabaseClient = null;
+    let embeddingExtractor = null;
+
+    // 1. 初始化 Supabase
+    function initSupabase() {
+        if (typeof supabase !== 'undefined' && !supabaseClient) {
+            supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        }
+    }
+
+    // 2. 初始化向量模型 (單例模式)
+    async function initEmbeddingModel() {
+        if (!window.pipeline) {
+            console.log("等待 Transformers 庫載入...");
+            // 簡單的等待邏輯
+            await new Promise(r => setTimeout(r, 1000));
+        }
+
+        if (!embeddingExtractor) {
+            const loadingMsg = document.getElementById('essay-placeholder');
+            if(loadingMsg) loadingMsg.textContent = "正在初始化 AI 知識庫模型...";
+            
+            // 使用 feature-extraction 任務
+            embeddingExtractor = await window.pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2');
+            console.log("✅ 向量模型就緒");
+        }
+    }
+
+    // 3. 執行搜尋並格式化結果
+  // 修改後的 getReferenceMaterials 函數 (含詳細除錯 Log)
+// ===============================================================
+// === [RAG] 範文檢索核心模組 (超級除錯版) ===
+// ===============================================================
+
+async function getReferenceMaterials(userQuery) {
+    console.log("🚀 [RAG] getReferenceMaterials 函數被呼叫了！"); // 確認函數有執行
+
+    try {
+        initSupabase();
+        await initEmbeddingModel();
+
+        // 1. 提取純題目 & 權重加強
+        const rawTopic = userQuery.split("題目：")[1]?.split("。")[0]?.trim() || "";
+        const weightedQuery = `${rawTopic} ${rawTopic} ${rawTopic} ${rawTopic} ${rawTopic}。這是一篇關於${rawTopic}的敘事抒情文。${userQuery}`;
+
+        console.log(`🎯 [RAG] 目標題目: ${rawTopic}`);
+
+        // A. 計算向量
+        const output = await embeddingExtractor(weightedQuery.substring(0, 300), { pooling: 'mean', normalize: true });
+        const vector = Array.from(output.data);
+
+        // B. 向 Supabase 查詢
+        const { data, error } = await supabaseClient.rpc('match_documents_for_fanshui', {
+            query_embedding: vector,
+            match_threshold: 0.1, // 門檻設低一點，確保有東西回傳
+            match_count: 6,        
+            filter_type: 'narrative' 
+        });
+
+        if (error) {
+            console.error("❌ [RAG Error] Supabase 回傳錯誤:", error);
+            return "";
+        }
+
+        // ★★★ 強制印出原始資料 (這行最重要) ★★★
+        console.log("🔥 [RAG DEBUG] Supabase 原始回傳資料 (請展開查看):", data);
+
+        if (!data || data.length === 0) {
+            console.warn("⚠️ [RAG] 雖然沒有報錯，但資料庫回傳了空陣列 (0 篇)。");
+            return "";
+        }
+
+        // C. 顯示詳細相似度列表
+        console.group("📊 [RAG] 檢索結果分析表");
+        data.forEach((doc, index) => {
+            // 嘗試讀取 similarity，如果沒有則顯示 'N/A'
+            const simScore = doc.similarity !== undefined ? (doc.similarity * 100).toFixed(2) + '%' : 'N/A';
+            console.log(`第 ${index + 1} 篇: 《${doc.metadata?.title || '無標題'}》 | 相似度: ${simScore}`);
+        });
+        console.groupEnd();
+
+        // D. 關鍵詞過濾
+        let validDocs = data.filter(doc => {
+            const title = doc.metadata?.title || "";
+            const content = doc.content || "";
+            return title.includes(rawTopic) || content.includes(rawTopic);
+        });
+
+        console.log(`🛡️ [RAG] 過濾後剩餘: ${validDocs.length} 篇 (原始: ${data.length} 篇)`);
+
+        // 保底機制
+        if (validDocs.length === 0 && data.length > 0) {
+            console.log("⚠️ [RAG] 嚴格過濾後無結果，啟動保底機制 (採用原始第一篇)。");
+            validDocs = [data[0]];
+        }
+
+        // E. 格式化輸出
+        let referenceText = "\n\n【參考範文庫 (Reference Examples)】\n(以下是與題目高度相關的範文片段，請參考其寫作風格、描寫手法及情感鋪排。)\n";
+        
+        validDocs.slice(0, 3).forEach((doc, index) => {
+            referenceText += `\n[範文 ${index + 1}]: ${doc.metadata.title}\n${doc.content}\n----------------\n`;
+        });
+
+        return referenceText;
+
+    } catch (err) {
+        console.error("❌ [RAG CRITICAL ERROR] 執行過程崩潰:", err);
+        return ""; 
+    }
+}
+</script>
+
+
+
+	
+    
+</body>
+    </html>
