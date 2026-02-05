@@ -13,6 +13,21 @@
  * - submitExpand: Main submit function that routes to comment or guide
  * - submitExpandComment: Submit expand content for AI commentary
  * - submitExpandGuide: Submit expand content for AI guidance questions
+ * 
+ * External Dependencies (must be available in global scope):
+ * - hideAllSaveHtmlButtons(): Hides save buttons
+ * - clearAllTopicStates(): Clears all topic states and localStorage
+ * - updateButtonActiveState(): Updates active button styling
+ * - sanitizeHTML(): Sanitizes HTML input to prevent XSS
+ * - callAPI(): Makes API calls to backend
+ * - showLoading(): Shows loading indicator
+ * - hideLoading(): Hides loading indicator
+ * - createBulletedListHTML(): Creates bulleted list HTML
+ * - getCanvasChatHTML(): Generates chat interface HTML
+ * - openResultCanvas(): Opens result display canvas
+ * - saveToHistory(): Saves result to history
+ * - currentContextContent: Global variable for chat context
+ * - currentContextReview: Global variable for chat context
  */
 
 // ==========================================
